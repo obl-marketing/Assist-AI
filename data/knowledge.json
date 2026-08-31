@@ -1,0 +1,114 @@
+{
+  "brand_context": [
+    {
+      "id": "kb-brand",
+      "title": "About Orientbell Tiles",
+      "text": "Orientbell Tiles is one of India's leading tile manufacturers, offering floor tiles, wall tiles and designer tiles for every room and budget. The brand is known for a wide catalogue spanning ceramic, vitrified (GVT/PGVT) and double-charge tiles, and for tools like Trial Room / Tile Visualiser that let customers preview tiles in a room before buying.",
+      "keywords": ["orientbell", "brand", "about", "tiles", "manufacturer", "india"]
+    },
+    {
+      "id": "kb-help",
+      "title": "How the assistant helps",
+      "text": "The assistant helps shoppers find the right tiles by understanding what room they are decorating, the look or colour they want, and practical needs like slip safety or stain resistance. It then points to relevant product and category pages and can help shortlist or wishlist tiles to compare later.",
+      "keywords": ["help", "assistant", "shortlist", "wishlist", "compare", "find tiles"]
+    }
+  ],
+  "terminology": [
+    {
+      "id": "term-vitrified",
+      "term": "Vitrified tile",
+      "definition": "A tile made by fusing clay and silica at high heat, giving very low water absorption, high strength and stain resistance. Ideal for floors and high-traffic areas.",
+      "keywords": ["vitrified", "vitrified tile", "low porosity", "durable", "floor"]
+    },
+    {
+      "id": "term-gvt",
+      "term": "GVT / PGVT",
+      "definition": "Glazed Vitrified Tile (GVT) and Polished Glazed Vitrified Tile (PGVT) are vitrified tiles with a printed glaze layer, allowing realistic marble, wood and stone looks in large formats.",
+      "keywords": ["gvt", "pgvt", "glazed vitrified", "marble look", "wood look", "large format"]
+    },
+    {
+      "id": "term-ceramic",
+      "term": "Ceramic tile",
+      "definition": "A tile made from clay with a glazed surface. Lighter and more affordable than vitrified, commonly used for walls, bathroom and kitchen wall areas.",
+      "keywords": ["ceramic", "wall tile", "affordable", "glazed"]
+    },
+    {
+      "id": "term-double-charge",
+      "term": "Double charge tile",
+      "definition": "A vitrified tile pressed with a double layer of pigment (3-4 mm thick), making the design run deep into the tile. Extremely durable, best for heavy commercial and high-traffic floors.",
+      "keywords": ["double charge", "durable", "commercial", "high traffic", "floor"]
+    },
+    {
+      "id": "term-anti-skid",
+      "term": "Anti-skid tile",
+      "definition": "A tile with a textured or matt surface that increases grip and reduces slipping when wet. Recommended for bathroom floors, balconies, kitchens, parking and outdoor areas. Look for slip ratings like R10, R11 or R12 (higher = more grip).",
+      "keywords": ["anti-skid", "anti skid", "slip", "grip", "safe", "wet", "bathroom floor", "r10", "r11", "r12"]
+    },
+    {
+      "id": "term-rectified",
+      "term": "Rectified tile",
+      "definition": "A tile whose edges are machine-cut to be perfectly straight and uniform, allowing very thin grout lines and a seamless look. Common in large-format GVT.",
+      "keywords": ["rectified", "seamless", "thin grout", "uniform edges"]
+    },
+    {
+      "id": "term-finish",
+      "term": "Tile finishes (glossy / matt / polished / rough)",
+      "definition": "Glossy: reflective, bright, easy to wipe, best for walls. Matt: non-reflective, hides watermarks, better grip for floors. Polished: mirror-like shine for premium floors. Rough/structured: maximum grip for outdoor and parking.",
+      "keywords": ["finish", "glossy", "matt", "polished", "rough", "structured", "shine"]
+    },
+    {
+      "id": "term-size",
+      "term": "Common tile sizes",
+      "definition": "Wall tiles: 300x450, 300x600 mm. Floor tiles: 300x300 (bathroom), 600x600, 800x800, 600x1200 mm (large format). Subway: 75x300 mm. Larger tiles mean fewer grout lines and a more spacious look.",
+      "keywords": ["size", "dimensions", "large format", "small tile", "grout lines"]
+    },
+    {
+      "id": "term-pei",
+      "term": "PEI rating",
+      "definition": "A durability rating (PEI I to V) for how much surface wear a glazed tile can take. PEI III+ suits residential floors; PEI IV-V suits heavy or commercial traffic.",
+      "keywords": ["pei", "durability", "wear", "traffic rating"]
+    }
+  ],
+  "room_guidance": [
+    {
+      "id": "guide-bathroom",
+      "room": "bathroom",
+      "text": "For bathrooms use glossy or matt ceramic tiles on the walls (easy to clean, water resistant) and anti-skid matt floor tiles (R10 or higher) to prevent slips on wet floors. Lighter wall colours make small bathrooms feel bigger; add a highlighter strip for a designer touch.",
+      "recommended_finishes": ["glossy walls", "matt anti-skid floor"],
+      "recommended_categories": ["cat-bathroom", "cat-wall", "cat-floor"],
+      "keywords": ["bathroom", "washroom", "toilet", "wet", "anti-skid", "shower"]
+    },
+    {
+      "id": "guide-kitchen",
+      "room": "kitchen",
+      "text": "Kitchens need stain- and heat-resistant wall tiles for the backsplash (glossy ceramic or subway tiles wipe clean easily) and durable, anti-skid floor tiles that handle spills. GVT wood-look or stone-look floors are popular for warmth plus easy maintenance.",
+      "recommended_finishes": ["glossy backsplash", "matt anti-skid floor"],
+      "recommended_categories": ["cat-kitchen", "cat-wall", "cat-floor"],
+      "keywords": ["kitchen", "backsplash", "stain", "heat", "spill", "easy to clean"]
+    },
+    {
+      "id": "guide-living",
+      "room": "living room",
+      "text": "Living rooms shine with large-format GVT or double-charge floor tiles in marble, stone or wood looks. Polished finishes feel premium and bright; matt finishes are warmer and hide scratches. Larger tiles reduce grout lines for a seamless, spacious feel.",
+      "recommended_finishes": ["polished", "matt large format"],
+      "recommended_categories": ["cat-living", "cat-floor"],
+      "keywords": ["living room", "hall", "marble", "large format", "premium", "spacious"]
+    },
+    {
+      "id": "guide-bedroom",
+      "room": "bedroom",
+      "text": "Bedrooms feel cosy with warm wood-look or soft neutral matt tiles. Matt finishes are comfortable underfoot and low-glare for a restful space.",
+      "recommended_finishes": ["matt", "wood look"],
+      "recommended_categories": ["cat-bedroom", "cat-floor"],
+      "keywords": ["bedroom", "cosy", "warm", "wood look", "matt", "neutral"]
+    },
+    {
+      "id": "guide-outdoor",
+      "room": "outdoor",
+      "text": "Outdoor areas, balconies, terraces, driveways and parking need heavy-duty, weatherproof anti-skid tiles with high slip ratings (R11-R12) and rough or structured finishes to stay safe in rain.",
+      "recommended_finishes": ["rough", "structured matt"],
+      "recommended_categories": ["cat-outdoor", "cat-floor"],
+      "keywords": ["outdoor", "balcony", "terrace", "parking", "driveway", "weatherproof", "anti-skid"]
+    }
+  ]
+}

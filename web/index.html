@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orientbell Tiles - Assistant Demo</title>
+  <style>
+    :root { --pink:#c2185b; --ink:#222; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, sans-serif; color: var(--ink); background:#fff; }
+    header { background: linear-gradient(120deg,#c2185b,#7b1fa2); color:#fff; padding: 20px 24px; }
+    header .brand { font-size: 22px; font-weight: 800; letter-spacing:.3px; }
+    header nav { margin-top:10px; display:flex; gap:18px; flex-wrap:wrap; font-size:14px; opacity:.95; }
+    header nav a { color:#fff; text-decoration:none; }
+    .hero { padding: 56px 24px; text-align:center; background:#faf7f8; }
+    .hero h1 { font-size: 34px; margin:0 0 12px; }
+    .hero p { font-size: 17px; color:#555; max-width:640px; margin:0 auto 20px; }
+    .hero .tag { display:inline-block; background:#fce4ec; color:var(--pink); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; margin-bottom:16px; }
+    .grid { max-width: 1080px; margin: 40px auto; padding: 0 24px; display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+    .card { border:1px solid #eee; border-radius:14px; overflow:hidden; }
+    .card .swatch { height:120px; }
+    .card .body { padding:12px 14px; }
+    .card h3 { margin:0 0 4px; font-size:15px; }
+    .card p { margin:0; font-size:13px; color:#777; }
+    .section-title { max-width:1080px; margin: 20px auto 0; padding: 0 24px; }
+    .section-title h2 { font-size:22px; }
+    .prompt-hints { max-width:1080px; margin: 8px auto 0; padding: 0 24px; display:flex; gap:10px; flex-wrap:wrap; }
+    .prompt-hints span { background:#fff; border:1px solid #f0c6d6; color:var(--pink); padding:8px 14px; border-radius:20px; font-size:13px; }
+    footer { text-align:center; color:#999; font-size:13px; padding: 40px 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Orientbell Tiles</div>
+    <nav>
+      <a href="https://www.orientbell.com/tiles/bathroom-tiles" target="_blank" rel="noopener">Bathroom</a>
+      <a href="https://www.orientbell.com/tiles/kitchen-tiles" target="_blank" rel="noopener">Kitchen</a>
+      <a href="https://www.orientbell.com/tiles/living-room-tiles" target="_blank" rel="noopener">Living Room</a>
+      <a href="https://www.orientbell.com/tiles/floor-tiles" target="_blank" rel="noopener">Floor Tiles</a>
+      <a href="https://www.orientbell.com/tiles/wall-tiles" target="_blank" rel="noopener">Wall Tiles</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="tag">AI Shopping Assistant · Demo</div>
+    <h1>Find the perfect tile, faster.</h1>
+    <p>
+      This is a demo storefront wired to the Orientbell RAG assistant. Click the
+      <strong>“🧱 Ask about tiles”</strong> button in the bottom-right and ask something like
+      <em>“pink tiles for my bathroom”</em> or <em>“which tiles suit a kitchen floor?”</em>.
+      The assistant understands your intent, suggests real products and category pages, and
+      lets you shortlist tiles to compare.
+    </p>
+  </section>
+
+  <div class="section-title"><h2>Try asking</h2></div>
+  <div class="prompt-hints">
+    <span>Pink tiles for my bathroom</span>
+    <span>Anti-skid tiles for the kitchen</span>
+    <span>Marble-look tiles for the living room</span>
+    <span>Which tiles are good for a balcony?</span>
+    <span>What is a GVT tile?</span>
+  </div>
+
+  <div class="section-title"><h2>Featured collections</h2></div>
+  <div class="grid">
+    <a class="card" href="https://www.orientbell.com/tiles/bathroom-tiles" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+      <div class="swatch" style="background:linear-gradient(135deg,#b2ebf2,#f5f5f5)"></div>
+      <div class="body"><h3>Bathroom Tiles</h3><p>Anti-skid floors & glossy walls</p></div>
+    </a>
+    <a class="card" href="https://www.orientbell.com/tiles/kitchen-tiles" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+      <div class="swatch" style="background:linear-gradient(135deg,#f5f5f5,#c8a26a)"></div>
+      <div class="body"><h3>Kitchen Tiles</h3><p>Stain-proof backsplash & floors</p></div>
+    </a>
+    <a class="card" href="https://www.orientbell.com/tiles/living-room-tiles" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+      <div class="swatch" style="background:linear-gradient(135deg,#eceff1,#bdbdbd)"></div>
+      <div class="body"><h3>Living Room Tiles</h3><p>Large-format marble looks</p></div>
+    </a>
+    <a class="card" href="https://www.orientbell.com/tiles/wall-tiles" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+      <div class="swatch" style="background:linear-gradient(135deg,#f8bbd0,#f48fb1)"></div>
+      <div class="body"><h3>Pink & Pastels</h3><p>Blush wall tiles & highlighters</p></div>
+    </a>
+  </div>
+
+  <footer>
+    Demo storefront for the Orientbell RAG Assistant. Products shown are illustrative samples.
+  </footer>
+
+  <!-- The assistant widget: one script tag is all a real page needs. -->
+  <script src="/widget.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+"""Orientbell RAG assistant package."""
