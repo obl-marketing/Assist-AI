@@ -217,7 +217,7 @@
     <div class="deliver" id="deliverBar" hidden></div>
     <div class="feed" id="feed"></div>
     <div class="composer">
-      <input id="input" autocomplete="off" placeholder="Enter pincode, or e.g. 200x300 mm tiles" aria-label="Search tiles or enter pincode">
+      <input id="input" autocomplete="off" placeholder="Looking for Bathroom Tiles" aria-label="Search tiles or enter pincode">
       <button class="send" id="send">Send</button>
     </div>
   </div>
@@ -839,6 +839,24 @@ document.getElementById("themeBtn").onclick=()=>{
   document.documentElement.setAttribute("data-theme",next);store.set(LS.theme,next);
 };
 const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement.setAttribute("data-theme",savedTheme);
+
+/* Rotating placeholder hint — "Looking for …" with a cycling, typewritten tail */
+(function(){
+  const HINTS=["Bathroom Tiles","600x1200 tiles","Premium Living Room Tiles","Anti-skid Kitchen tiles","Pink Wall Tiles","Marble-look Floor Tiles","Wood-look Bedroom Tiles","Tiles under ₹80"];
+  let i=0,pos=0,deleting=false;
+  function step(){
+    const w=HINTS[i];
+    input.placeholder="Looking for "+w.slice(0,pos);
+    if(!deleting){
+      if(pos<w.length){pos++;setTimeout(step,70)}
+      else{deleting=true;setTimeout(step,1500)}
+    }else{
+      if(pos>0){pos--;setTimeout(step,35)}
+      else{deleting=false;i=(i+1)%HINTS.length;setTimeout(step,250)}
+    }
+  }
+  setTimeout(step,1200);
+})();
 
 /* init */
 rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
