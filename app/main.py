@@ -106,3 +106,12 @@ def widget_js() -> FileResponse:
 @app.get("/demo")
 def demo() -> FileResponse:
     return FileResponse(config.WEB_DIR / "index.html", media_type="text/html")
+
+
+@app.get("/tara")
+def tara() -> FileResponse:
+    """Tara AI: self-contained CSV-driven client (Chat + Train, pincode
+    deliverability, enquire capture, image-led product cards). Runs fully in
+    the browser; real product images load here because it is served from a
+    normal origin (unlike the claude.ai artifact sandbox)."""
+    return FileResponse(config.WEB_DIR / "tara-ai.html", media_type="text/html")

@@ -1,5 +1,23 @@
 # Orientbell Tiles — RAG AI Assistant
 
+> **New: `web/tara-ai.html` — "Tara AI", the self-contained client.**
+> A single HTML file (no build, no backend) that runs the whole assistant in
+> the browser: a **Chat** tab that filters an uploaded catalogue by the
+> attributes in a query (size, colour, room, finish, price) and shows
+> **image-led product cards** (image, name, price/MRP, ♡ wishlist, **Enquire
+> Now**, **View details**), and a **Train** tab with three layers —
+> (1) SEO keyword→page mapping, (2) product catalogue CSV with column
+> auto-mapping, (3) deliverability & pricing by pincode (pincode→state,
+> plant/state serviceability CSV, area offer prices). Non-deliverable tiles
+> show **Enquire Now** (name + mobile) for a team callback. **View details**
+> and the product image open the product page at
+> `https://www.orientbell.com/<slug-of-name>` (or an explicit product-URL
+> column if present). Serve it from any origin — e.g. `GET /tara` on the
+> FastAPI app, or your own web server — and the real product images from the
+> catalogue's image-URL column load normally. Open it locally by
+> double-clicking the file to test with your own CSV.
+
+
 A simple **Retrieval-Augmented Generation (RAG)** shopping assistant for
 [orientbell.com](https://www.orientbell.com). A shopper can ask things like
 *“pink tiles for my bathroom”* or *“which tiles are suitable for a kitchen
