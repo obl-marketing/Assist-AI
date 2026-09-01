@@ -179,6 +179,22 @@
   .roadmap ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--muted)}
   .roadmap li{margin:4px 0}
   .roadmap .soon{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:5px;padding:1px 6px;margin-left:6px}
+  /* Knowledge-base list (Train) */
+  .kb-head{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:2px 0 12px;display:flex;align-items:center;gap:8px}
+  .kb-head .kb-count{font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:0;text-transform:none}
+  .kb{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .kb-sum{width:100%;display:flex;align-items:flex-start;gap:12px;padding:14px;background:transparent;border:none;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .kb-sum .num{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:13px;display:grid;place-items:center}
+  .kb-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .kb-t b{font-size:14.5px}
+  .kb-d{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .kb-st{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink);margin-top:4px;font-weight:600}
+  .kb-act{flex:0 0 auto;align-self:center;font-size:12.5px;font-weight:700;color:var(--gold-ink);white-space:nowrap}
+  .kb-act::after{content:" ▾"}
+  .kb.open .kb-act::after{content:" ▴"}
+  .kb-detail{padding:0 14px 14px;border-top:1px solid var(--line)}
+  .kb-detail>*:first-child{margin-top:12px}
+  .kb-foot{font-size:12px;color:var(--muted);text-align:center;margin:16px 6px 0;line-height:1.55}
   ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
   @media(max-width:520px){.bubble{max-width:94%}.map{grid-template-columns:1fr}}
 </style>
@@ -218,95 +234,103 @@
   <!-- TRAIN -->
   <div class="view" id="trainView">
     <div class="train">
+      <div class="kb-head">Knowledge bases <span class="kb-count">3 sources</span></div>
 
-      <!-- Module 1: SEO / intent -->
-      <div class="panel">
-        <h3><span class="step">1</span> SEO &amp; Intent Mapping</h3>
-        <p class="hint">Teach Tara the keywords &amp; phrases people search, and the category / product-listing page each should point to. This helps her read intent and route shoppers to the right page. CSV columns: <code>keyword</code>, <code>url</code>, <code>type</code>.</p>
-        <div class="drop" id="dropSeo">
-          <div class="big">🔎</div>
-          <p><b>Click to upload</b> keyword → URL CSV, or drag it here</p>
-          <input type="file" id="fileSeo" accept=".csv,text/csv" hidden>
-        </div>
-        <div class="row-btns">
-          <button class="btn gold" id="loadSeoSample">Load sample SEO map</button>
-          <button class="btn ghost" id="clearSeo">Clear</button>
-        </div>
-        <div class="status"><span class="dot" id="dotSeo"></span><span id="seoStatus">No SEO keywords loaded.</span></div>
-      </div>
-
-      <!-- Module 2: Catalogue -->
-      <div class="panel">
-        <h3><span class="step">2</span> Product Catalogue</h3>
-        <p class="hint">Upload your full catalogue with every attribute — name, size, colour, finish, material, room, MRP/price. Add a <code>Plant</code> column (which plant makes/ships each SKU) to unlock deliverability in step 3. Any headers work; Tara auto-detects and you remap below.</p>
-        <div class="drop" id="drop">
-          <div class="big">⬆️</div>
-          <p><b>Click to choose</b> or drag a .csv file here</p>
-          <input type="file" id="file" accept=".csv,text/csv" hidden>
-        </div>
-        <div class="row-btns">
-          <button class="btn gold" id="loadSample">Load sample catalogue</button>
-          <button class="btn ghost" id="clearData">Clear catalogue</button>
-        </div>
-        <div class="status"><span class="dot" id="dot"></span><span id="statusText">No catalogue loaded yet.</span></div>
-        <div id="mapWrap" hidden>
-          <div class="map" id="mapGrid" style="margin-top:14px"></div>
-          <div class="tablewrap" id="preview"></div>
-        </div>
-      </div>
-
-      <!-- Module 3: Deliverability & pricing -->
-      <div class="panel">
-        <h3><span class="step">3</span> Deliverability &amp; Pricing by Pincode</h3>
-        <p class="hint">Tara asks the shopper's pincode, works out the <b>state</b>, then checks your serviceability data. Tiles not deliverable to that state are shown with an <b>Enquire Now</b> button (name + mobile) so your team can call back. Pincode→state uses built-in prefix rules; upload exact pincodes to override.</p>
-
-        <div class="fld">
-          <label>Deliverability data (CSV)</label>
-          <div class="drop" id="dropDeliv" style="padding:14px">
-            <p style="margin:0"><b>Upload serviceability CSV</b> — which source (plant / state) delivers to which states</p>
-            <input type="file" id="fileDeliv" accept=".csv,text/csv" hidden>
+      <!-- 1 · SEO / intent -->
+      <div class="kb">
+        <button class="kb-sum" type="button" data-tgt="d1">
+          <span class="num">1</span>
+          <span class="kb-t">
+            <b>SEO &amp; Intent</b>
+            <span class="kb-d">Keywords &amp; phrases mapped to the category / product pages they point to — so Tara reads intent and routes shoppers to the right page.</span>
+            <span class="kb-st"><span class="dot" id="dotSeo"></span><span id="seoStatus">No SEO keywords loaded.</span></span>
+          </span>
+          <span class="kb-act">View / Edit</span>
+        </button>
+        <div class="kb-detail" id="d1" hidden>
+          <div class="drop" id="dropSeo">
+            <div class="big">🔎</div>
+            <p><b>Click to upload</b> keyword → URL CSV, or drag it here <span style="opacity:.7">(columns: keyword, url, type)</span></p>
+            <input type="file" id="fileSeo" accept=".csv,text/csv" hidden>
           </div>
-          <div class="status"><span class="dot" id="dotDeliv"></span><span id="delivStatus">Using the plant → states map below.</span></div>
-          <p class="hint" style="margin:6px 0 0">Any 2-column shape works: <code>source, deliverable-state</code> (one per row) or <code>source, state1, state2, …</code>. The <b>source</b> should match your catalogue's Plant value. Share your CSV and I'll lock it to your exact columns.</p>
-        </div>
-
-        <div class="fld">
-          <label>Plant → serviceable states <span style="font-weight:400;color:var(--muted)">(fallback if no CSV)</span></label>
-          <textarea id="plants" placeholder="North Plant = Delhi, Haryana, Uttar Pradesh"></textarea>
-          <p class="hint" style="margin:6px 0 0">One plant per line. The name must match the <code>Plant</code> value in your catalogue. A SKU is deliverable to a pincode's state only if its plant serves that state.</p>
-        </div>
-
-        <div class="fld">
-          <label>Area offer prices (by state)</label>
-          <textarea id="offers" placeholder="Delhi = 10%&#10;Maharashtra = 50"></textarea>
-          <p class="hint" style="margin:6px 0 0">One rule per line as <code>State = 10%</code> (percent off) or <code>State = 50</code> (flat ₹ off). Applied to the SKU price for that pincode's state.</p>
-        </div>
-
-        <div class="fld">
-          <label>Pincode → state overrides <span style="font-weight:400;color:var(--muted)">(optional CSV: <code>pincode</code>, <code>state</code>)</span></label>
-          <div class="drop" id="dropPin" style="padding:14px">
-            <p style="margin:0"><b>Upload exact pincode → state</b> to override the built-in prefix rules</p>
-            <input type="file" id="filePin" accept=".csv,text/csv" hidden>
+          <div class="row-btns">
+            <button class="btn gold" id="loadSeoSample">Load sample SEO map</button>
+            <button class="btn ghost" id="clearSeo">Clear</button>
           </div>
         </div>
-
-        <button class="btn solid" id="saveDeliv" style="margin-top:12px">Save deliverability settings</button>
-        <div class="save-note" id="delivNote"></div>
       </div>
 
-      <!-- Module 4: roadmap -->
-      <div class="panel roadmap">
-        <h3><span class="step">4</span> Live integrations <span style="font-weight:400;color:var(--muted);font-size:12px">— roadmap</span></h3>
-        <p class="hint" style="margin-bottom:2px">These plug in when we move Tara to the backend, replacing the CSVs above with live data and adding continuous fine-tuning.</p>
-        <ul>
-          <li>Magento — products, categories &amp; content <span class="soon">planned</span></li>
-          <li>Stock API — real-time inventory per SKU / warehouse <span class="soon">planned</span></li>
-          <li>Deliverability API — live pincode serviceability <span class="soon">planned</span></li>
-          <li>Price &amp; Offers API — dynamic pricing &amp; promotions by pincode <span class="soon">planned</span></li>
-          <li>Continuous training — feedback loop on real queries <span class="soon">planned</span></li>
-        </ul>
+      <!-- 2 · Catalogue -->
+      <div class="kb">
+        <button class="kb-sum" type="button" data-tgt="d2">
+          <span class="num">2</span>
+          <span class="kb-t">
+            <b>Product Catalogue</b>
+            <span class="kb-d">Your full tile list with every attribute — name, size, colour, finish, material, room, price, image and plant. This is what Chat searches and shows.</span>
+            <span class="kb-st"><span class="dot" id="dot"></span><span id="statusText">No catalogue loaded yet.</span></span>
+          </span>
+          <span class="kb-act">View / Edit</span>
+        </button>
+        <div class="kb-detail" id="d2" hidden>
+          <div class="drop" id="drop">
+            <div class="big">⬆️</div>
+            <p><b>Click to choose</b> or drag a .csv file here</p>
+            <input type="file" id="file" accept=".csv,text/csv" hidden>
+          </div>
+          <div class="row-btns">
+            <button class="btn gold" id="loadSample">Load sample catalogue</button>
+            <button class="btn ghost" id="clearData">Clear catalogue</button>
+          </div>
+          <div id="mapWrap" hidden>
+            <p class="hint" style="margin:12px 0 0">Column mapping — change any Tara guessed wrong:</p>
+            <div class="map" id="mapGrid" style="margin-top:8px"></div>
+            <div class="tablewrap" id="preview"></div>
+          </div>
+        </div>
       </div>
 
+      <!-- 3 · Deliverability & pricing -->
+      <div class="kb">
+        <button class="kb-sum" type="button" data-tgt="d3">
+          <span class="num">3</span>
+          <span class="kb-t">
+            <b>Deliverability &amp; Pricing</b>
+            <span class="kb-d">Which source (plant/state) delivers to which states, plus area offer prices. Tara reads the pincode, finds the state, and hides or offers-to-enquire what isn't serviceable.</span>
+            <span class="kb-st"><span class="dot" id="dotDeliv"></span><span id="delivStatus">Using the plant → states map.</span></span>
+          </span>
+          <span class="kb-act">View / Edit</span>
+        </button>
+        <div class="kb-detail" id="d3" hidden>
+          <div class="fld">
+            <label>Deliverability data (CSV)</label>
+            <div class="drop" id="dropDeliv" style="padding:14px">
+              <p style="margin:0"><b>Upload serviceability CSV</b> — which source (plant / state) delivers to which states</p>
+              <input type="file" id="fileDeliv" accept=".csv,text/csv" hidden>
+            </div>
+            <p class="hint" style="margin:6px 0 0">Any 2-column shape works: <code>source, deliverable-state</code> (one per row) or <code>source, state1, state2, …</code>. The <b>source</b> should match your catalogue's Plant value.</p>
+          </div>
+          <div class="fld">
+            <label>Plant → serviceable states <span style="font-weight:400;color:var(--muted)">(fallback if no CSV)</span></label>
+            <textarea id="plants" placeholder="North Plant = Delhi, Haryana, Uttar Pradesh"></textarea>
+          </div>
+          <div class="fld">
+            <label>Area offer prices (by state)</label>
+            <textarea id="offers" placeholder="Delhi = 10%&#10;Maharashtra = 50"></textarea>
+            <p class="hint" style="margin:6px 0 0"><code>State = 10%</code> (percent off) or <code>State = 50</code> (flat ₹ off).</p>
+          </div>
+          <div class="fld">
+            <label>Pincode → state overrides <span style="font-weight:400;color:var(--muted)">(optional CSV: pincode, state)</span></label>
+            <div class="drop" id="dropPin" style="padding:14px">
+              <p style="margin:0"><b>Upload exact pincode → state</b> to override the built-in prefix rules</p>
+              <input type="file" id="filePin" accept=".csv,text/csv" hidden>
+            </div>
+          </div>
+          <button class="btn solid" id="saveDeliv" style="margin-top:12px">Save deliverability settings</button>
+          <div class="save-note" id="delivNote"></div>
+        </div>
+      </div>
+
+      <p class="kb-foot">Coming soon — live integrations that replace these CSVs: Magento (products &amp; content), Stock API, Deliverability API, Price &amp; Offers API, plus continuous training.</p>
     </div>
   </div>
 </div>
@@ -804,6 +828,12 @@ function setTab(which){
 document.getElementById("tabChat").onclick=()=>setTab("chat");
 document.getElementById("tabTrain").onclick=()=>setTab("train");
 
+/* Knowledge-base expand / collapse */
+document.querySelectorAll(".kb-sum").forEach(s=>s.addEventListener("click",()=>{
+  const d=document.getElementById(s.dataset.tgt),kb=s.closest(".kb"),willOpen=d.hidden;
+  d.hidden=!willOpen;kb.classList.toggle("open",willOpen);
+}));
+
 document.getElementById("themeBtn").onclick=()=>{
   const cur=document.documentElement.getAttribute("data-theme");
   const next=cur==="dark"?"light":cur==="light"?"dark":(matchMedia("(prefers-color-scheme: dark)").matches?"light":"dark");
@@ -814,6 +844,5 @@ const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement
 /* init */
 loadDelivConfig();refreshStatus();refreshSeo();refreshDeliv();renderMapping();updateDeliverBar();greet();input.focus();
 </script>
-
 </body>
 </html>
