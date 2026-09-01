@@ -14,7 +14,7 @@
     --brand:#000D36; --brand-2:#111C4C; --on-brand:#FFFFFF;
     --accent:#FFCC00; --accent-2:#F0BE00; --on-accent:#000D36;
     --gold-ink:#8A6D00; --gold-soft:#FFF3CC; --navy-soft:#E7EAF4;
-    --good:#1F8A4C; --good-soft:#E4F3EA; --bad:#C62F44;
+    --good:#008D36; --good-soft:#E2F3E9; --bad:#C62F44;
     --shadow:0 6px 22px rgba(0,13,54,.10);
     --radius:14px; --maxw:760px;
   }
@@ -24,7 +24,7 @@
     --brand:#0A1442; --brand-2:#1B2A63; --on-brand:#FFFFFF;
     --accent:#FFD633; --accent-2:#FFCC00; --on-accent:#000D36;
     --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
-    --good:#4FC57A; --good-soft:#12331F; --bad:#FF7A88;
+    --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
     --shadow:0 6px 22px rgba(0,0,0,.4);
   }}
   :root[data-theme="dark"]{
@@ -33,7 +33,7 @@
     --brand:#0A1442; --brand-2:#1B2A63; --on-brand:#FFFFFF;
     --accent:#FFD633; --accent-2:#FFCC00; --on-accent:#000D36;
     --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
-    --good:#4FC57A; --good-soft:#12331F; --bad:#FF7A88;
+    --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
     --shadow:0 6px 22px rgba(0,0,0,.4);
   }
   *{box-sizing:border-box}
@@ -114,7 +114,20 @@
   .lead .go{width:100%;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:10px;font:700 13.5px "Hanken Grotesk";cursor:pointer}
   .lead .fine{font-size:10.5px;opacity:.6;margin:8px 0 0}
   .lead.done{text-align:center}
-  .lead .tick{font-size:26px;color:var(--accent);margin-bottom:4px}
+  .lead .tick{font-size:26px;color:var(--good);margin-bottom:4px}
+
+  /* Carousel */
+  .carousel{position:relative;border-radius:14px;overflow:hidden;margin:12px 0 4px;border:1px solid var(--line)}
+  .cslides{display:flex;transition:transform .5s ease}
+  .cslide{position:relative;display:block;flex:0 0 100%;aspect-ratio:16/9;text-decoration:none}
+  .cslide .cimg{position:absolute;inset:0}
+  .cslide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cslide .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;background:linear-gradient(transparent,rgba(0,13,54,.78));color:#fff}
+  .cslide .cap b{display:block;font-size:15px;line-height:1.2}
+  .cslide .cap span{font-size:12px;opacity:.85}
+  .cdots{position:absolute;bottom:9px;right:11px;display:flex;gap:5px;z-index:2}
+  .cdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;transition:.2s}
+  .cdot.on{background:var(--accent);width:18px;border-radius:4px}
 
   /* Start form (name / mobile / pincode) */
   .startform{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
@@ -436,7 +449,7 @@ const esc=s=>{const d=document.createElement("div");d.textContent=s==null?"":Str
 const feed=document.getElementById("feed");
 const input=document.getElementById("input");
 const deliverBar=document.getElementById("deliverBar");
-let lastQuery=null;
+let pendingQuery=null;
 
 function bubble(role){const w=document.createElement("div");w.className="msg "+role;const b=document.createElement("div");b.className="bubble";w.appendChild(b);feed.appendChild(w);feed.scrollTop=feed.scrollHeight;return b}
 function addUser(t){bubble("user").textContent=t}
@@ -546,7 +559,7 @@ const PIN_ASK="To show deliverable products to your area, please enter the pinco
 function updateDeliverBar(){
   if(session.pincode){deliverBar.hidden=false;
     deliverBar.innerHTML=`📍 Delivering to <b>${session.state?esc(session.state):"—"}</b> · PIN ${esc(session.pincode)} <button class="chg" id="chgPin">Change</button>`;
-    document.getElementById("chgPin").onclick=()=>{session={pincode:null,state:null};store.set(LS.session,session);deliverBar.hidden=true;const b=bubble("bot");b.innerHTML=`<p class="ask-pin">${PIN_ASK}</p>`};
+    document.getElementById("chgPin").onclick=()=>{session={pincode:null,state:null};store.set(LS.session,session);deliverBar.hidden=true;const b=bubble("bot");b.innerHTML=`<p class="ask-pin">📍 Please share your new 6-digit pincode.</p>`};
   }else deliverBar.hidden=true;
 }
 function setPincode(pin){
@@ -554,7 +567,7 @@ function setPincode(pin){
   const b=bubble("bot");
   if(st)b.innerHTML=`<p class="lead-text">✓ Great — we deliver to <b>${esc(st)}</b> (PIN ${esc(pin)}). Now showing products available in your area.</p>`;
   else b.innerHTML=`<p class="lead-text">I couldn't map PIN <b>${esc(pin)}</b> to a state. You can still browse — add a Pincode → state source in Train for accuracy.</p>`;
-  if(lastQuery){const q=lastQuery;lastQuery=null;setTimeout(()=>{addUser(q);respond(q)},120)}
+  if(pendingQuery){const q=pendingQuery;pendingQuery=null;setTimeout(()=>runSearch(q),140)}
 }
 
 function respond(q){
@@ -606,7 +619,6 @@ function respond(q){
   moreBtn.addEventListener("click",renderMore);renderMore();
 
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
-  if(!session.pincode){const ask=document.createElement("p");ask.className="ask-pin";ask.textContent="📍 "+PIN_ASK;b.appendChild(ask);lastQuery=q}
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -618,12 +630,17 @@ function seoBlock(q){
 }
 
 function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
+function runSearch(q){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{t.parentElement.remove();respond(q)},240)}
 function search(text){
   const q=(text!=null?text:input.value).trim();if(!q)return;
-  input.value="";addUser(q);
+  input.value="";
   const pin=isPincodeMsg(q);
-  const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';
-  setTimeout(()=>{t.parentElement.remove();if(pin)setPincode(pin);else respond(q)},240);
+  // Collect the 3 details the first time the visitor engages.
+  if(!contact){addUser(q);pendingQuery=pin?null:q;askDetails(pin||"");return}
+  addUser(q);
+  if(pin){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{t.parentElement.remove();setPincode(pin)},220);return}
+  if(!session.pincode){pendingQuery=q;bubble("bot").innerHTML='<p class="ask-pin">📍 Please share your 6-digit pincode so I can show what’s deliverable near you.</p>';return}
+  runSearch(q);
 }
 function showSuggestions(prefix){
   const b=bubble("bot");
@@ -634,14 +651,43 @@ function showSuggestions(prefix){
   b.appendChild(ch);
   if(!ROWS.length){const n=document.createElement("p");n.className="lead-text";n.style.cssText="margin-top:8px;color:var(--muted);font-size:12.5px";n.textContent="Tip: add your catalogue in the Train tab (or tap a chip to auto-load the sample).";b.appendChild(n)}
 }
-function greet(){
-  // Returning visitor (details already given, not reset) — skip straight to help.
-  if(contact&&contact.mobile&&session.pincode){
-    showSuggestions("Welcome back, "+esc(contact.name).split(" ")[0]+"! What are you looking for today?");
-    return;
+function buildCarousel(){
+  let slides;
+  if(ROWS.length){
+    slides=ROWS.slice(0,5).map(r=>{const nm=MAP.name?r[MAP.name]:Object.values(r)[0];return{name:nm,sub:[MAP.size&&r[MAP.size],MAP.room&&r[MAP.room]].filter(Boolean).join(" · "),img:imageURL(r),bg:swatchFor(r),url:productURL(r,nm)}});
+  }else{
+    slides=[
+      {name:"Floors that feel premium",sub:"Marble, wood & stone looks",bg:"linear-gradient(135deg,#E7E6E4,#C6C2BD)"},
+      {name:"Anti-skid & easy-clean",sub:"Bathroom & kitchen ready",bg:"linear-gradient(135deg,#AEDDE1,#98C4E8)"},
+      {name:"Pink & pastel highlights",sub:"Designer wall tiles",bg:"linear-gradient(135deg,#F4A6C0,#EC87A9)"}
+    ];
   }
+  const el=document.createElement("div");el.className="carousel";
+  el.innerHTML='<div class="cslides">'+slides.map(s=>`
+    <a class="cslide" ${s.url?`href="${esc(s.url)}" target="_blank" rel="noopener"`:''}>
+      <div class="cimg" style="background:${s.bg}">${s.img?`<img src="${esc(s.img)}" alt="${esc(s.name)}" loading="lazy" onerror="this.remove()">`:''}</div>
+      <div class="cap"><b>${esc(s.name)}</b>${s.sub?`<span>${esc(s.sub)}</span>`:''}</div>
+    </a>`).join("")+'</div><div class="cdots">'+slides.map((_,i)=>`<span class="cdot${i===0?' on':''}"></span>`).join("")+'</div>';
+  const track=el.querySelector(".cslides"),dots=[...el.querySelectorAll(".cdot")];let idx=0;
+  function go(i){idx=(i+slides.length)%slides.length;track.style.transform=`translateX(-${idx*100}%)`;dots.forEach((d,j)=>d.classList.toggle("on",j===idx))}
+  dots.forEach((d,i)=>d.onclick=()=>go(i));
+  if(slides.length>1){const t=setInterval(()=>{if(!document.body.contains(el)){clearInterval(t);return}go(idx+1)},3800)}
+  return el;
+}
+function greet(){
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text">Hi, I\'m <b>Tara</b> — your Orientbell tile assistant. Just three quick details so I can show what\'s deliverable to you and have our team help if needed.</p>';
+  b.innerHTML='<p class="lead-text"><b>Welcome to Orientbell Tiles!</b> 👋<br>I’m Tara, your tile shopping assistant. Share 3 quick details, and I’ll show you the best tile catalogues available near you.</p>';
+  b.appendChild(buildCarousel());
+  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
+  const ch=document.createElement("div");ch.className="chips";
+  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  b.appendChild(ch);
+  feed.scrollTop=feed.scrollHeight;
+}
+/* Collect name + mobile + pincode when the visitor first engages. */
+function askDetails(prefillPin){
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text">Great pick! Just 3 quick details so I can show what’s deliverable near you 👇</p>';
   const f=document.createElement("div");f.className="startform";
   f.innerHTML=`
     <div class="fl"><label>Your name</label><input class="s-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name"></div>
@@ -650,10 +696,11 @@ function greet(){
       <div class="fl"><label>Pincode</label><input class="s-pin" type="text" inputmode="numeric" placeholder="6-digit pincode" autocomplete="postal-code"></div>
     </div>
     <p class="err"></p>
-    <button class="go">Start exploring tiles →</button>
+    <button class="go">Show me tiles →</button>
     <p class="fine">We use this only to check delivery to your area and to have our team call you back if you enquire.</p>`;
   b.appendChild(f);feed.scrollTop=feed.scrollHeight;
   const nm=f.querySelector(".s-name"),mb=f.querySelector(".s-mob"),pn=f.querySelector(".s-pin"),err=f.querySelector(".err");
+  if(prefillPin)pn.value=prefillPin;
   [nm,mb,pn].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
   setTimeout(()=>nm.focus(),50);
   f.querySelector(".go").addEventListener("click",()=>{
@@ -668,8 +715,8 @@ function greet(){
     contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
     const st=stateOfPin(pin);session={pincode:pin,state:st};store.set(LS.session,session);updateDeliverBar();
     recordLead({name:nameV,mobile:mob,pincode:pin,state:st,product:null,source:"chat-start"});
-    f.className="startform";f.innerHTML=`<p style="margin:0;font-size:13.5px"><b>Thanks, ${esc(nameV.split(" ")[0])}!</b> ${st?("We deliver to <b>"+esc(st)+"</b> (PIN "+esc(pin)+"). Showing what\'s available in your area."):("Noted PIN "+esc(pin)+".")}</p>`;
-    showSuggestions();
+    f.className="startform";f.innerHTML=`<p style="margin:0;font-size:13.5px"><b>Thanks, ${esc(nameV.split(" ")[0])}!</b> ${st?("We deliver to <b>"+esc(st)+"</b> (PIN "+esc(pin)+")."):("Noted PIN "+esc(pin)+".")}</p>`;
+    if(pendingQuery){const q=pendingQuery;pendingQuery=null;runSearch(q)}else showSuggestions();
   });
 }
 
@@ -785,7 +832,7 @@ document.getElementById("tabTrain").onclick=()=>setTab("train");
 document.getElementById("resetBtn").onclick=()=>{
   session={pincode:null,state:null};store.set(LS.session,session);
   contact=null;store.del(LS.contact);
-  updateDeliverBar();feed.innerHTML="";lastQuery=null;
+  updateDeliverBar();feed.innerHTML="";pendingQuery=null;
   setTab("chat");greet();
 };
 
