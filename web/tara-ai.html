@@ -608,6 +608,47 @@ function conversationalReply(b,kind){
   ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
   b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
 }
+/* No catalogue match → turn it into a lead: reassure + capture a callback. */
+function notFoundLead(b,q){
+  const lead=document.createElement("p");lead.className="lead-text";
+  lead.innerHTML=`I couldn’t find an exact match for “<b>${esc(q)}</b>” in the catalogue — but our tile experts can help you find it, or suggest a great alternative. ✨`;
+  b.appendChild(lead);
+  const sb=seoBlock(q);if(sb)b.appendChild(sb);
+  const box=document.createElement("div");box.className="lead";
+  if(contact&&contact.mobile){
+    box.innerHTML=`<h5><span class="star">✦</span> Get expert help</h5>
+      <p class="s2">Shall we have our team call you back with the best options for “${esc(q)}”? It’s quick and free.</p>
+      <button class="go">Yes, call me back →</button>`;
+    b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+    box.querySelector(".go").addEventListener("click",()=>{
+      recordLead({name:contact.name,mobile:contact.mobile,pincode:session.pincode,state:session.state,product:q,source:"not-found"});
+      box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(contact.name.split(" ")[0])}!</h5>
+        <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(contact.mobile)}</b> to help with “${esc(q)}” — and share the closest matches.</p>`;
+      feed.scrollTop=feed.scrollHeight;
+    });
+    return;
+  }
+  box.innerHTML=`<h5><span class="star">✦</span> Let our experts help</h5>
+    <p class="s2">Leave your name &amp; mobile and we’ll help you find “${esc(q)}” or a great alternative — no charge.</p>
+    <input class="l-name" type="text" placeholder="Full name" autocomplete="name">
+    <input class="l-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel">
+    <p class="err"></p>
+    <button class="go">Request a callback →</button>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+  const nm=box.querySelector(".l-name"),mb=box.querySelector(".l-mob"),err=box.querySelector(".err");
+  [nm,mb].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),40);
+  box.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
+    if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    recordLead({name:nameV,mobile:mob,pincode:session.pincode,state:session.state,product:q,source:"not-found"});
+    box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(nameV.split(" ")[0])}!</h5>
+      <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(mob)}</b> to help with “${esc(q)}”.</p>`;
+    feed.scrollTop=feed.scrollHeight;
+  });
+}
 function respond(q){
   const b=bubble("bot");
   if(!ROWS.length){
@@ -630,11 +671,8 @@ function respond(q){
   const fs=understoodChips(p);
   if(fs.length){const u=document.createElement("div");u.className="understood";u.innerHTML=fs.map(f=>`<span class="f${f.loc?' loc':''}">${esc(f.t)}</span>`).join("");b.appendChild(u)}
 
+  if(!results.length){notFoundLead(b,q);return;}
   const lead=document.createElement("p");lead.className="lead-text";
-  if(!results.length){
-    lead.innerHTML="I couldn't find that in the catalogue. Try a different size, colour or room — or fewer details.";
-    b.appendChild(lead);b.appendChild(seoBlock(q));return;
-  }
   lead.innerHTML=`Found <b>${results.length}</b> tile${results.length>1?"s":""}${canDeliver?` <span style="color:var(--good);font-weight:600">${delCount} deliverable to ${esc(session.state)}</span>`+(ndCount?` <span style="color:var(--muted)">· ${ndCount} on enquiry</span>`:""):""}.`;
   b.appendChild(lead);
 
