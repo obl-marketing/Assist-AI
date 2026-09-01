@@ -116,6 +116,19 @@
   .lead.done{text-align:center}
   .lead .tick{font-size:26px;color:var(--accent);margin-bottom:4px}
 
+  /* Start form (name / mobile / pincode) */
+  .startform{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
+  .startform label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 4px;display:block}
+  .startform .fl{margin-bottom:9px}
+  .startform .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .startform input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:10px 12px;font-size:14px;outline:none}
+  .startform input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--gold-soft)}
+  .startform input.bad{border-color:var(--bad);box-shadow:0 0 0 2px rgba(198,47,68,.22)}
+  .startform .err{min-height:14px;font-size:11.5px;color:var(--bad);font-weight:600;margin:1px 0 6px}
+  .startform .go{width:100%;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:11px;font:700 14px "Hanken Grotesk";cursor:pointer}
+  .startform .go:hover{background:var(--accent-2)}
+  .startform .fine{font-size:10.5px;color:var(--muted);margin:8px 0 0;line-height:1.4}
+
   .composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
   .composer input{flex:1;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:11px 15px;font-size:14.5px;outline:none}
   .composer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--gold-soft)}
@@ -184,6 +197,7 @@
       <button id="tabChat" class="active">Chat</button>
       <button id="tabTrain">Train</button>
     </div>
+    <button class="icon-btn" id="resetBtn" title="Reset chat" aria-label="Reset chat">↺</button>
     <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
 
@@ -235,7 +249,8 @@
 
 <script>
 /* ============================ storage ============================ */
-const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist"};
+const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist",contact:"tara_contact",leads:"tara_leads"};
+const API_BASE=(window.TARA_API||"").replace(/\/$/,"");  // same-origin by default
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
@@ -243,6 +258,16 @@ const store={
 };
 let SOURCES=store.get(LS.sources,[]);
 let session=store.get(LS.session,{pincode:null,state:null});
+let contact=store.get(LS.contact,null);   // {name, mobile}
+
+/* Record a lead: keep locally AND post to the backend (which appends it to a
+   CSV/Excel for daily pickup). The POST is best-effort; it silently no-ops on
+   the static preview where no backend exists. */
+function recordLead(rec){
+  rec.ts=new Date().toISOString();
+  try{const a=JSON.parse(localStorage.getItem(LS.leads)||"[]");a.push(rec);localStorage.setItem(LS.leads,JSON.stringify(a))}catch(e){}
+  try{fetch(API_BASE+"/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{})}catch(e){}
+}
 /* Engine state — rebuilt from SOURCES */
 let ROWS=[],HEADERS=[],MAP={},SEO=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
 
@@ -455,16 +480,26 @@ function card(row,deliverable){
   return el;
 }
 
+function enquireConfirm(name){
+  const b=bubble("bot");const box=document.createElement("div");box.className="lead done";
+  box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(contact.name)}!</h5>
+    <p class="s2" style="opacity:.9">Our team will call you on <b>${esc(contact.mobile)}</b> about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+}
 function openEnquire(row){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
+  // Contact already captured at the start of the chat — just log the product interest.
+  if(contact&&contact.mobile){
+    recordLead({name:contact.name,mobile:contact.mobile,pincode:session.pincode,state:session.state,product:name,source:"enquire"});
+    enquireConfirm(name);return;
+  }
   const b=bubble("bot");const box=document.createElement("div");box.className="lead";
   box.innerHTML=`<h5><span class="star">✦</span> Enquire about this tile</h5>
-    <p class="s2">Leave your name &amp; mobile — our team will call you back about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}${session.pincode?(" (PIN "+esc(session.pincode)+")"):""}.</p>
+    <p class="s2">Leave your name &amp; mobile — our team will call you back about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>
     <input class="l-name" type="text" placeholder="Full name" autocomplete="name">
     <input class="l-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel">
     <p class="err"></p>
-    <button class="go">Request a callback →</button>
-    <p class="fine">Demo — details are stored only in this browser. In production this goes to your CRM/team.</p>`;
+    <button class="go">Request a callback →</button>`;
   b.appendChild(box);feed.scrollTop=feed.scrollHeight;
   const nm=box.querySelector(".l-name"),mb=box.querySelector(".l-mob"),err=box.querySelector(".err");
   [nm,mb].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
@@ -473,7 +508,8 @@ function openEnquire(row){
     const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
     if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
     if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
-    try{const a=JSON.parse(localStorage.getItem("tara_leads")||"[]");a.push({name:nameV,mobile:mob,product:name,pincode:session.pincode,state:session.state,ts:new Date().toISOString()});localStorage.setItem("tara_leads",JSON.stringify(a))}catch(e){}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    recordLead({name:nameV,mobile:mob,pincode:session.pincode,state:session.state,product:name,source:"enquire"});
     box.className="lead done";
     box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(nameV)}!</h5>
       <p class="s2" style="opacity:.9">Our team will call you on <b>${esc(mob)}</b> about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>`;
@@ -589,14 +625,52 @@ function search(text){
   const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';
   setTimeout(()=>{t.parentElement.remove();if(pin)setPincode(pin);else respond(q)},240);
 }
-function greet(){
+function showSuggestions(prefix){
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text">Hi, I\'m Tara — your Orientbell tile assistant.</p><p class="ask-pin">📍 '+PIN_ASK+'</p>';
+  b.innerHTML='<p class="lead-text">'+(prefix||"What are you looking for today?")+'</p>';
   const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
   const ch=document.createElement("div");ch.className="chips";
   ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
   b.appendChild(ch);
   if(!ROWS.length){const n=document.createElement("p");n.className="lead-text";n.style.cssText="margin-top:8px;color:var(--muted);font-size:12.5px";n.textContent="Tip: add your catalogue in the Train tab (or tap a chip to auto-load the sample).";b.appendChild(n)}
+}
+function greet(){
+  // Returning visitor (details already given, not reset) — skip straight to help.
+  if(contact&&contact.mobile&&session.pincode){
+    showSuggestions("Welcome back, "+esc(contact.name).split(" ")[0]+"! What are you looking for today?");
+    return;
+  }
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text">Hi, I\'m <b>Tara</b> — your Orientbell tile assistant. Just three quick details so I can show what\'s deliverable to you and have our team help if needed.</p>';
+  const f=document.createElement("div");f.className="startform";
+  f.innerHTML=`
+    <div class="fl"><label>Your name</label><input class="s-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name"></div>
+    <div class="two">
+      <div class="fl"><label>Mobile</label><input class="s-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"></div>
+      <div class="fl"><label>Pincode</label><input class="s-pin" type="text" inputmode="numeric" placeholder="6-digit pincode" autocomplete="postal-code"></div>
+    </div>
+    <p class="err"></p>
+    <button class="go">Start exploring tiles →</button>
+    <p class="fine">We use this only to check delivery to your area and to have our team call you back if you enquire.</p>`;
+  b.appendChild(f);feed.scrollTop=feed.scrollHeight;
+  const nm=f.querySelector(".s-name"),mb=f.querySelector(".s-mob"),pn=f.querySelector(".s-pin"),err=f.querySelector(".err");
+  [nm,mb,pn].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),50);
+  f.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();
+    const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    const pin=pn.value.replace(/\D/g,"");
+    let bad=null;
+    if(nameV.length<2){bad=nm;err.textContent="Please enter your name."}
+    else if(mob.length!==10){bad=mb;err.textContent="Please enter a valid 10-digit mobile number."}
+    else if(pin.length!==6){bad=pn;err.textContent="Please enter a valid 6-digit pincode."}
+    if(bad){[nm,mb,pn].forEach(e=>e.classList.remove("bad"));bad.classList.add("bad");bad.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    const st=stateOfPin(pin);session={pincode:pin,state:st};store.set(LS.session,session);updateDeliverBar();
+    recordLead({name:nameV,mobile:mob,pincode:pin,state:st,product:null,source:"chat-start"});
+    f.className="startform";f.innerHTML=`<p style="margin:0;font-size:13.5px"><b>Thanks, ${esc(nameV.split(" ")[0])}!</b> ${st?("We deliver to <b>"+esc(st)+"</b> (PIN "+esc(pin)+"). Showing what\'s available in your area."):("Noted PIN "+esc(pin)+".")}</p>`;
+    showSuggestions();
+  });
 }
 
 /* ============================ view: train ============================ */
@@ -706,6 +780,14 @@ function setTab(which){
 }
 document.getElementById("tabChat").onclick=()=>setTab("chat");
 document.getElementById("tabTrain").onclick=()=>setTab("train");
+
+/* Reset chat — clears the conversation and re-asks for details (keeps trained data) */
+document.getElementById("resetBtn").onclick=()=>{
+  session={pincode:null,state:null};store.set(LS.session,session);
+  contact=null;store.del(LS.contact);
+  updateDeliverBar();feed.innerHTML="";lastQuery=null;
+  setTab("chat");greet();
+};
 
 document.getElementById("themeBtn").onclick=()=>{
   const cur=document.documentElement.getAttribute("data-theme");

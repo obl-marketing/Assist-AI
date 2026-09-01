@@ -9,6 +9,9 @@ env/
 # Environment / secrets
 .env
 
+# Runtime-captured leads
+data/leads.csv
+
 # OS / editor
 .DS_Store
 .idea/
