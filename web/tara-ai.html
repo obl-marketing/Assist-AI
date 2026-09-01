@@ -201,7 +201,7 @@
     </span>
     <div>
       <div class="brand-name">Tara <b>AI</b></div>
-      <div class="brand-sub">Orientbell Tiles · catalogue assistant</div>
+      <div class="brand-sub">Tile Shopping Assistant</div>
     </div>
     <span class="spacer"></span>
     <div class="seg">
@@ -674,7 +674,7 @@ function buildCarousel(){
 }
 function greet(){
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text"><b>Welcome to Orientbell Tiles!</b> 👋<br>I’m Tara, your tile shopping assistant. Share 3 quick details, and I’ll show you the best tile catalogues available near you.</p><p class="lead-text" style="margin-top:10px">What are you looking for?</p>';
+  b.innerHTML='<p class="lead-text"><b>Welcome to Orientbell Tiles!</b> 👋<br>I’m Tara, your tile shopping assistant — here to help you find the best tiles for your space.</p><p class="lead-text" style="margin-top:10px">What are you looking for?</p>';
   const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
   const ch=document.createElement("div");ch.className="chips";
   ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
