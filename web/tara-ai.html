@@ -116,18 +116,16 @@
   .lead.done{text-align:center}
   .lead .tick{font-size:26px;color:var(--good);margin-bottom:4px}
 
-  /* Carousel */
-  .carousel{position:relative;border-radius:14px;overflow:hidden;margin:12px 0 4px;border:1px solid var(--line)}
-  .cslides{display:flex;transition:transform .5s ease}
-  .cslide{position:relative;display:block;flex:0 0 100%;aspect-ratio:16/9;text-decoration:none}
-  .cslide .cimg{position:absolute;inset:0}
-  .cslide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .cslide .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;background:linear-gradient(transparent,rgba(0,13,54,.78));color:#fff}
-  .cslide .cap b{display:block;font-size:15px;line-height:1.2}
-  .cslide .cap span{font-size:12px;opacity:.85}
-  .cdots{position:absolute;bottom:9px;right:11px;display:flex;gap:5px;z-index:2}
-  .cdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;transition:.2s}
-  .cdot.on{background:var(--accent);width:18px;border-radius:4px}
+  /* Scrolling tile strip (parallax carousel — 3-5 visible, keeps moving) */
+  .strip{position:relative;overflow:hidden;margin:12px 0 4px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+  .track2{display:flex;gap:10px;width:max-content;animation:marquee 26s linear infinite}
+  .strip:hover .track2{animation-play-state:paused}
+  .ttile{flex:0 0 122px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);text-decoration:none;box-shadow:var(--shadow)}
+  .ttile .tim{position:relative;aspect-ratio:4/3;overflow:hidden}
+  .ttile .tim img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ttile .tnm{padding:7px 9px;font-size:11px;font-weight:700;color:var(--ink);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion: reduce){.track2{animation:none}.strip{overflow-x:auto}}
 
   /* Start form (name / mobile / pincode) */
   .startform{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
@@ -652,26 +650,26 @@ function showSuggestions(prefix){
   if(!ROWS.length){const n=document.createElement("p");n.className="lead-text";n.style.cssText="margin-top:8px;color:var(--muted);font-size:12.5px";n.textContent="Tip: add your catalogue in the Train tab (or tap a chip to auto-load the sample).";b.appendChild(n)}
 }
 function buildCarousel(){
-  let slides;
+  let items;
   if(ROWS.length){
-    slides=ROWS.slice(0,5).map(r=>{const nm=MAP.name?r[MAP.name]:Object.values(r)[0];return{name:nm,sub:[MAP.size&&r[MAP.size],MAP.room&&r[MAP.room]].filter(Boolean).join(" · "),img:imageURL(r),bg:swatchFor(r),url:productURL(r,nm)}});
+    items=ROWS.slice(0,10).map(r=>{const nm=MAP.name?r[MAP.name]:Object.values(r)[0];return{name:nm,img:imageURL(r),bg:swatchFor(r),url:productURL(r,nm)}});
   }else{
-    slides=[
-      {name:"Floors that feel premium",sub:"Marble, wood & stone looks",bg:"linear-gradient(135deg,#E7E6E4,#C6C2BD)"},
-      {name:"Anti-skid & easy-clean",sub:"Bathroom & kitchen ready",bg:"linear-gradient(135deg,#AEDDE1,#98C4E8)"},
-      {name:"Pink & pastel highlights",sub:"Designer wall tiles",bg:"linear-gradient(135deg,#F4A6C0,#EC87A9)"}
+    items=[
+      {name:"Marble-look floors",bg:"linear-gradient(135deg,#E7E6E4,#C6C2BD)"},
+      {name:"Wood-look planks",bg:"linear-gradient(135deg,#C69A5F,#A07E6E)"},
+      {name:"Anti-skid bathroom",bg:"linear-gradient(135deg,#AEDDE1,#8A97A3)"},
+      {name:"Glossy white walls",bg:"linear-gradient(135deg,#EFEDEC,#CBCBD0)"},
+      {name:"Pink & pastels",bg:"linear-gradient(135deg,#F4A6C0,#EC87A9)"},
+      {name:"Stone-look outdoor",bg:"linear-gradient(135deg,#C6C2BD,#8A97A3)"}
     ];
   }
-  const el=document.createElement("div");el.className="carousel";
-  el.innerHTML='<div class="cslides">'+slides.map(s=>`
-    <a class="cslide" ${s.url?`href="${esc(s.url)}" target="_blank" rel="noopener"`:''}>
-      <div class="cimg" style="background:${s.bg}">${s.img?`<img src="${esc(s.img)}" alt="${esc(s.name)}" loading="lazy" onerror="this.remove()">`:''}</div>
-      <div class="cap"><b>${esc(s.name)}</b>${s.sub?`<span>${esc(s.sub)}</span>`:''}</div>
-    </a>`).join("")+'</div><div class="cdots">'+slides.map((_,i)=>`<span class="cdot${i===0?' on':''}"></span>`).join("")+'</div>';
-  const track=el.querySelector(".cslides"),dots=[...el.querySelectorAll(".cdot")];let idx=0;
-  function go(i){idx=(i+slides.length)%slides.length;track.style.transform=`translateX(-${idx*100}%)`;dots.forEach((d,j)=>d.classList.toggle("on",j===idx))}
-  dots.forEach((d,i)=>d.onclick=()=>go(i));
-  if(slides.length>1){const t=setInterval(()=>{if(!document.body.contains(el)){clearInterval(t);return}go(idx+1)},3800)}
+  const loop=items.concat(items); // duplicate for a seamless marquee
+  const el=document.createElement("div");el.className="strip";
+  el.innerHTML='<div class="track2">'+loop.map(s=>`
+    <a class="ttile" ${s.url?`href="${esc(s.url)}" target="_blank" rel="noopener"`:'style="cursor:default"'}>
+      <div class="tim" style="background:${s.bg}">${s.img?`<img src="${esc(s.img)}" alt="${esc(s.name)}" loading="lazy" onerror="this.remove()">`:''}</div>
+      <div class="tnm">${esc(s.name)}</div>
+    </a>`).join("")+'</div>';
   return el;
 }
 function greet(){
@@ -746,7 +744,7 @@ function renderSources(){
       if(s.type==="catalogue")detail.appendChild(mappingEditor(s));
       detail.appendChild(previewTable(s));
     });
-    el.querySelector(".d").addEventListener("click",()=>{if(confirm("Delete this source?"))deleteSource(s.id)});
+    el.querySelector(".d").addEventListener("click",()=>deleteSource(s.id));
     srcList.appendChild(el);
   });
 }
