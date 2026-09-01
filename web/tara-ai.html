@@ -54,13 +54,11 @@
   .view{display:none;flex:1;flex-direction:column;min-height:0}
   .view.active{display:flex}
 
-  /* Deliver bar */
   .deliver{display:flex;align-items:center;gap:8px;margin:0 16px 6px;padding:8px 12px;background:var(--good-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px}
   .deliver b{color:var(--ink)}
   .deliver .chg{margin-left:auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:600 11.5px "Hanken Grotesk";padding:4px 9px;cursor:pointer}
   .deliver .chg:hover{border-color:var(--accent);color:var(--gold-ink)}
 
-  /* Chat */
   .feed{flex:1;overflow-y:auto;padding:8px 16px 16px}
   .msg{margin-bottom:14px;display:flex;animation:rise .24s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -73,9 +71,9 @@
   .understood{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
   .understood .f{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--gold-soft);color:var(--gold-ink)}
   .understood .f.loc{background:var(--good-soft);color:var(--good)}
+  .refine{font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 2px}
 
-  /* Premium image-led product cards — one per row */
-  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:12px 0 2px}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:10px 0 2px}
   .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both}
   .pcard .img{position:relative;display:block;aspect-ratio:16/10;overflow:hidden}
   .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
@@ -83,7 +81,7 @@
   .pcard .wish{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
   .pcard .wish:active{transform:scale(.85)}
   .pcard .wish.on{color:var(--accent);background:var(--brand)}
-  .pcard .badge{position:absolute;left:12px;top:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:4px 10px;border-radius:999px}
+  .pcard .badge{position:absolute;left:12px;top:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
   .pcard .pbody{padding:14px 15px 15px;display:flex;flex-direction:column;gap:10px}
   .pcard h4{margin:0;font-size:16px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
   .pcard h4 a{color:inherit;text-decoration:none}
@@ -101,21 +99,10 @@
   .show-more{display:block;margin:12px auto 2px;background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:10px 20px;font:600 13px "Hanken Grotesk";cursor:pointer}
   .show-more:hover{border-color:var(--accent);background:var(--gold-soft)}
 
-  .card{display:flex;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0}
-  .sw{width:46px;height:46px;border-radius:9px;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(0,0,0,.07)}
-  .card h4{margin:0 0 3px;font-size:14px;font-weight:700;line-height:1.2}
-  .card .meta{margin:0;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-  .card .attrs{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
-  .card .attrs span{font-size:10.5px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:2px 7px;border-radius:6px}
-  .price{margin:5px 0 0;font-size:13px}
-  .price .now{font-weight:700;color:var(--ink)}
-  .price .was{color:var(--muted);text-decoration:line-through;margin-left:6px;font-size:12px}
-  .price .off{margin-left:6px;font-size:11px;font-weight:700;color:var(--good)}
-  .card .view{margin-left:auto;align-self:flex-start;font-size:12px;font-weight:600;color:var(--gold-ink);text-decoration:none;white-space:nowrap}
-  .card.nd{border-style:dashed;border-color:var(--bad)}
-  .nd-note{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--bad);margin:6px 0 0}
-  .enqbtn{margin-top:8px;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:7px 13px;font:700 12px "Hanken Grotesk";cursor:pointer}
-  .enqbtn:hover{background:var(--accent-2)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 2px}
+  .chip{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 12.5px "Hanken Grotesk";cursor:pointer}
+  .chip:hover{border-color:var(--accent);background:var(--gold-soft)}
+
   .lead{background:var(--brand);color:var(--on-brand);border-radius:12px;padding:13px;margin:8px 0}
   .lead h5{margin:0 0 3px;font-size:14px;display:flex;gap:6px;align-items:center}
   .lead h5 .star{color:var(--accent)}
@@ -128,72 +115,51 @@
   .lead .fine{font-size:10.5px;opacity:.6;margin:8px 0 0}
   .lead.done{text-align:center}
   .lead .tick{font-size:26px;color:var(--accent);margin-bottom:4px}
-  .seo{margin:12px 0 2px;padding:10px 12px;border:1px dashed var(--accent);border-radius:10px;background:var(--gold-soft)}
-  .seo .lab{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink);font-weight:700;margin:0 0 4px}
-  .seo a{display:block;color:var(--ink);font-size:13px;font-weight:600;text-decoration:none;padding:3px 0}
-  .seo a:hover{color:var(--gold-ink)}
-
-  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 2px}
-  .chip{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 12.5px "Hanken Grotesk";cursor:pointer}
-  .chip:hover{border-color:var(--accent);background:var(--gold-soft)}
-  .chip.solid{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
 
   .composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
   .composer input{flex:1;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:11px 15px;font-size:14.5px;outline:none}
   .composer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--gold-soft)}
   .composer .send{background:var(--accent);color:var(--on-accent);border:none;border-radius:999px;padding:0 18px;font-weight:700;cursor:pointer}
 
-  /* Train */
+  /* Train — simple sources */
   .train{flex:1;overflow-y:auto;padding:16px}
-  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
-  .panel .step{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:13px;margin-right:8px}
-  .panel h3{margin:0 0 3px;font-size:15px;display:flex;align-items:center}
-  .panel .hint{margin:2px 0 12px;font-size:12.5px;color:var(--muted)}
-  .drop{border:2px dashed var(--line);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:var(--surface-2)}
-  .drop:hover,.drop.over{border-color:var(--accent);background:var(--gold-soft)}
-  .drop .big{font-size:24px}
-  .drop p{margin:5px 0 0;font-size:13px;color:var(--muted)}
-  .row-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .btn{border:none;border-radius:9px;padding:9px 14px;font:600 13px "Hanken Grotesk";cursor:pointer}
-  .btn.solid{background:var(--brand);color:var(--on-brand)}
+  .addbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);margin-bottom:16px}
+  .addbox h3{margin:0 0 3px;font-size:15px}
+  .addbox .hint{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
+  .addbox .field{margin-bottom:9px}
+  .addbox label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px}
+  .addbox select,.addbox input[type=text]{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:9px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit}
+  .addbox select:focus,.addbox input[type=text]:focus{border-color:var(--accent)}
+  .btn{border:none;border-radius:9px;padding:10px 15px;font:600 13px "Hanken Grotesk";cursor:pointer}
   .btn.gold{background:var(--accent);color:var(--on-accent)}
+  .btn.solid{background:var(--brand);color:var(--on-brand)}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
-  .status{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:12px}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
-  .dot.on{background:var(--good)}
-  .map{display:grid;grid-template-columns:130px 1fr;gap:8px 10px;align-items:center;margin-top:6px}
-  .map label{font-size:12.5px;color:var(--muted);font-weight:600}
-  .map select{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:8px;font-size:13px}
-  .tablewrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:10px}
+  .row-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .fname{font-size:12px;color:var(--muted)}
+  .src-head{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:2px 0 10px;display:flex;align-items:center;gap:8px}
+  .src-head .n{font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:0;text-transform:none}
+  .src{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .src-top{display:flex;align-items:flex-start;gap:12px;padding:13px 14px}
+  .src-ix{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:13px;display:grid;place-items:center}
+  .src-info{flex:1;min-width:0}
+  .src-desc{font-size:14px;font-weight:700;line-height:1.3}
+  .src-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .src-btns{display:flex;gap:6px;flex:0 0 auto}
+  .src-btns button{border:none;border-radius:8px;padding:6px 11px;font:600 12px "Hanken Grotesk";cursor:pointer}
+  .src-btns .v{background:var(--navy-soft);color:var(--brand)}
+  .src-btns .d{background:transparent;border:1px solid var(--line);color:var(--bad)}
+  .src-detail{padding:0 14px 14px;border-top:1px solid var(--line)}
+  .src-detail>*:first-child{margin-top:12px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
   table{border-collapse:collapse;font-size:11.5px;white-space:nowrap;min-width:100%}
   th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line)}
   th{background:var(--surface-2);font-weight:700}
   td{color:var(--muted)}
-  .fld{margin-top:12px}
-  .fld label{font-size:12px;font-weight:700;display:block;margin-bottom:4px}
-  textarea{width:100%;min-height:78px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:10px;font:12.5px/1.5 "Hanken Grotesk";resize:vertical;outline:none}
-  textarea:focus{border-color:var(--accent)}
-  .save-note{font-size:12px;color:var(--good);margin-top:8px;min-height:16px;font-weight:600}
-  code{background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12px}
-  .roadmap{background:var(--surface-2)}
-  .roadmap ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--muted)}
-  .roadmap li{margin:4px 0}
-  .roadmap .soon{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:5px;padding:1px 6px;margin-left:6px}
-  /* Knowledge-base list (Train) */
-  .kb-head{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:2px 0 12px;display:flex;align-items:center;gap:8px}
-  .kb-head .kb-count{font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:0;text-transform:none}
-  .kb{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
-  .kb-sum{width:100%;display:flex;align-items:flex-start;gap:12px;padding:14px;background:transparent;border:none;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink)}
-  .kb-sum .num{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:13px;display:grid;place-items:center}
-  .kb-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-  .kb-t b{font-size:14.5px}
-  .kb-d{font-size:12.5px;color:var(--muted);line-height:1.4}
-  .kb-st{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink);margin-top:4px;font-weight:600}
-  .kb-act{flex:0 0 auto;align-self:center;font-size:12.5px;font-weight:700;color:var(--gold-ink);white-space:nowrap}
-  .kb-act::after{content:" ▾"}
-  .kb.open .kb-act::after{content:" ▴"}
-  .kb-detail{padding:0 14px 14px;border-top:1px solid var(--line)}
-  .kb-detail>*:first-child{margin-top:12px}
+  .map{display:grid;grid-template-columns:130px 1fr;gap:8px 10px;align-items:center;margin:4px 0 12px}
+  .map label{font-size:12.5px;color:var(--muted);font-weight:600}
+  .map select{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:8px;font-size:13px}
+  .maplabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:2px 0 6px}
+  .empty-src{color:var(--muted);font-size:13.5px;text-align:center;padding:10px 6px}
   .kb-foot{font-size:12px;color:var(--muted);text-align:center;margin:16px 6px 0;line-height:1.55}
   ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
   @media(max-width:520px){.bubble{max-width:94%}.map{grid-template-columns:1fr}}
@@ -226,7 +192,7 @@
     <div class="deliver" id="deliverBar" hidden></div>
     <div class="feed" id="feed"></div>
     <div class="composer">
-      <input id="input" autocomplete="off" placeholder="Enter pincode, or e.g. 600x600 bathroom tiles" aria-label="Search tiles or enter pincode">
+      <input id="input" autocomplete="off" placeholder="Enter pincode, or e.g. 200x300 mm tiles" aria-label="Search tiles or enter pincode">
       <button class="send" id="send">Send</button>
     </div>
   </div>
@@ -234,124 +200,53 @@
   <!-- TRAIN -->
   <div class="view" id="trainView">
     <div class="train">
-      <div class="kb-head">Knowledge bases <span class="kb-count">3 sources</span></div>
-
-      <!-- 1 · SEO / intent -->
-      <div class="kb">
-        <button class="kb-sum" type="button" data-tgt="d1">
-          <span class="num">1</span>
-          <span class="kb-t">
-            <b>SEO &amp; Intent</b>
-            <span class="kb-d">Keywords &amp; phrases mapped to the category / product pages they point to — so Tara reads intent and routes shoppers to the right page.</span>
-            <span class="kb-st"><span class="dot" id="dotSeo"></span><span id="seoStatus">No SEO keywords loaded.</span></span>
-          </span>
-          <span class="kb-act">View / Edit</span>
-        </button>
-        <div class="kb-detail" id="d1" hidden>
-          <div class="drop" id="dropSeo">
-            <div class="big">🔎</div>
-            <p><b>Click to upload</b> keyword → URL CSV, or drag it here <span style="opacity:.7">(columns: keyword, url, type)</span></p>
-            <input type="file" id="fileSeo" accept=".csv,text/csv" hidden>
-          </div>
-          <div class="row-btns">
-            <button class="btn gold" id="loadSeoSample">Load sample SEO map</button>
-            <button class="btn ghost" id="clearSeo">Clear</button>
-          </div>
+      <div class="addbox">
+        <h3>Add a knowledge source</h3>
+        <p class="hint">Upload a CSV, say what it is, and describe it. You can view or delete it any time.</p>
+        <div class="field">
+          <label>What kind of data is this?</label>
+          <select id="srcType">
+            <option value="catalogue">Product catalogue — the tiles Tara searches &amp; shows</option>
+            <option value="seo">Keywords → pages — helps read intent</option>
+            <option value="deliv">Deliverability — which source delivers to which states</option>
+            <option value="pincode">Pincode → state — exact overrides</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Describe this source</label>
+          <input type="text" id="srcDesc" placeholder="e.g. Full tile catalogue — Aug 2026">
+        </div>
+        <div class="row-btns">
+          <button class="btn gold" id="srcPick">Choose CSV…</button>
+          <span class="fname" id="srcFileName"></span>
+          <input type="file" id="srcFile" accept=".csv,text/csv" hidden>
+        </div>
+        <div class="row-btns" style="margin-top:10px">
+          <button class="btn ghost" id="loadSample">Load sample data</button>
         </div>
       </div>
 
-      <!-- 2 · Catalogue -->
-      <div class="kb">
-        <button class="kb-sum" type="button" data-tgt="d2">
-          <span class="num">2</span>
-          <span class="kb-t">
-            <b>Product Catalogue</b>
-            <span class="kb-d">Your full tile list with every attribute — name, size, colour, finish, material, room, price, image and plant. This is what Chat searches and shows.</span>
-            <span class="kb-st"><span class="dot" id="dot"></span><span id="statusText">No catalogue loaded yet.</span></span>
-          </span>
-          <span class="kb-act">View / Edit</span>
-        </button>
-        <div class="kb-detail" id="d2" hidden>
-          <div class="drop" id="drop">
-            <div class="big">⬆️</div>
-            <p><b>Click to choose</b> or drag a .csv file here</p>
-            <input type="file" id="file" accept=".csv,text/csv" hidden>
-          </div>
-          <div class="row-btns">
-            <button class="btn gold" id="loadSample">Load sample catalogue</button>
-            <button class="btn ghost" id="clearData">Clear catalogue</button>
-          </div>
-          <div id="mapWrap" hidden>
-            <p class="hint" style="margin:12px 0 0">Column mapping — change any Tara guessed wrong:</p>
-            <div class="map" id="mapGrid" style="margin-top:8px"></div>
-            <div class="tablewrap" id="preview"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3 · Deliverability & pricing -->
-      <div class="kb">
-        <button class="kb-sum" type="button" data-tgt="d3">
-          <span class="num">3</span>
-          <span class="kb-t">
-            <b>Deliverability &amp; Pricing</b>
-            <span class="kb-d">Which source (plant/state) delivers to which states, plus area offer prices. Tara reads the pincode, finds the state, and hides or offers-to-enquire what isn't serviceable.</span>
-            <span class="kb-st"><span class="dot" id="dotDeliv"></span><span id="delivStatus">Using the plant → states map.</span></span>
-          </span>
-          <span class="kb-act">View / Edit</span>
-        </button>
-        <div class="kb-detail" id="d3" hidden>
-          <div class="fld">
-            <label>Deliverability data (CSV)</label>
-            <div class="drop" id="dropDeliv" style="padding:14px">
-              <p style="margin:0"><b>Upload serviceability CSV</b> — which source (plant / state) delivers to which states</p>
-              <input type="file" id="fileDeliv" accept=".csv,text/csv" hidden>
-            </div>
-            <p class="hint" style="margin:6px 0 0">Any 2-column shape works: <code>source, deliverable-state</code> (one per row) or <code>source, state1, state2, …</code>. The <b>source</b> should match your catalogue's Plant value.</p>
-          </div>
-          <div class="fld">
-            <label>Plant → serviceable states <span style="font-weight:400;color:var(--muted)">(fallback if no CSV)</span></label>
-            <textarea id="plants" placeholder="North Plant = Delhi, Haryana, Uttar Pradesh"></textarea>
-          </div>
-          <div class="fld">
-            <label>Area offer prices (by state)</label>
-            <textarea id="offers" placeholder="Delhi = 10%&#10;Maharashtra = 50"></textarea>
-            <p class="hint" style="margin:6px 0 0"><code>State = 10%</code> (percent off) or <code>State = 50</code> (flat ₹ off).</p>
-          </div>
-          <div class="fld">
-            <label>Pincode → state overrides <span style="font-weight:400;color:var(--muted)">(optional CSV: pincode, state)</span></label>
-            <div class="drop" id="dropPin" style="padding:14px">
-              <p style="margin:0"><b>Upload exact pincode → state</b> to override the built-in prefix rules</p>
-              <input type="file" id="filePin" accept=".csv,text/csv" hidden>
-            </div>
-          </div>
-          <button class="btn solid" id="saveDeliv" style="margin-top:12px">Save deliverability settings</button>
-          <div class="save-note" id="delivNote"></div>
-        </div>
-      </div>
-
-      <p class="kb-foot">Coming soon — live integrations that replace these CSVs: Magento (products &amp; content), Stock API, Deliverability API, Price &amp; Offers API, plus continuous training.</p>
+      <div class="src-head">Your sources <span class="n" id="srcCount">0</span></div>
+      <div id="srcList"></div>
+      <p class="kb-foot">Coming soon — live integrations that replace these CSVs: Magento, Stock, Deliverability &amp; Price APIs, plus continuous training.</p>
     </div>
   </div>
 </div>
 
 <script>
 /* ============================ storage ============================ */
-const LS={cat:"tara_catalogue",map:"tara_mapping",seo:"tara_seo",plants:"tara_plants",offers:"tara_offers",pin:"tara_pinmap",delivcsv:"tara_delivcsv",leads:"tara_leads",wish:"tara_wishlist",session:"tara_session",theme:"tara_theme"};
+const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist"};
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
-let ROWS=store.get(LS.cat,[]);
-let HEADERS=ROWS.length?Object.keys(ROWS[0]):[];
-let MAP=store.get(LS.map,{});
-let SEO=store.get(LS.seo,[]);
-let PIN_OVERRIDE=store.get(LS.pin,{});
+let SOURCES=store.get(LS.sources,[]);
 let session=store.get(LS.session,{pincode:null,state:null});
-let DELIV_CSV=store.get(LS.delivcsv,{}); // source(lower) -> [states(lower)] from uploaded CSV
-let PLANTS={};   // name(lower) -> [states(lower)]
-let OFFERS={};   // state(lower) -> {type:'pct'|'flat', val}
+/* Engine state — rebuilt from SOURCES */
+let ROWS=[],HEADERS=[],MAP={},SEO=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
+
+const TYPE_LABEL={catalogue:"Product catalogue",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state"};
 
 /* ============================ CSV parser ============================ */
 function parseCSV(text){
@@ -368,7 +263,7 @@ function parseCSV(text){
   if(!clean.length)return{headers:[],rows:[]};
   const headers=clean[0].map(h=>h.trim());
   const maxLen=clean.reduce((m,r)=>Math.max(m,r.length),headers.length);
-  for(let i=headers.length;i<maxLen;i++)headers.push("column_"+(i+1)); // keep cells from wider rows
+  for(let i=headers.length;i<maxLen;i++)headers.push("column_"+(i+1));
   const objs=clean.slice(1).map(r=>{const o={};headers.forEach((h,i)=>o[h]=(r[i]||"").trim());return o});
   return{headers,rows:objs};
 }
@@ -393,13 +288,57 @@ function autoMap(headers){
   const m={};
   ATTRS.forEach(([key,re])=>{const h=headers.find(h=>re.test(h));if(h)m[key]=h});
   if(m.mrp&&m.mrp===m.price)delete m.mrp;
-  if(m.url&&m.url===m.image)delete m.url;   // don't treat the image column as the product link
+  if(m.url&&m.url===m.image)delete m.url;
   if(!m.name&&headers.length)m.name=headers[0];
   return m;
 }
 
+/* ============================ source builders ============================ */
+function seoFrom(headers,rows){
+  const kCol=headers.find(h=>/keyword|query|phrase|term|intent/i.test(h))||headers[0];
+  const uCol=headers.find(h=>/url|link|page/i.test(h))||headers[1];
+  const tCol=headers.find(h=>/type|kind/i.test(h));
+  return rows.map(r=>({keyword:(r[kCol]||"").toLowerCase().trim(),url:(r[uCol]||"").trim(),type:tCol?(r[tCol]||"").trim():"Page"})).filter(e=>e.keyword&&e.url);
+}
+function delivFrom(headers,rows){
+  const map={};
+  rows.forEach(r=>{const vals=headers.map(h=>r[h]);const key=(vals[0]||"").toLowerCase().trim();if(!key)return;
+    const dests=vals.slice(1).join(",").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+    if(dests.length)map[key]=map[key]?[...new Set(map[key].concat(dests))]:dests});
+  return map;
+}
+function pinFrom(headers,rows){
+  const pCol=headers.find(h=>/pin/i.test(h))||headers[0];const sCol=headers.find(h=>/state/i.test(h))||headers[1];
+  const map={};rows.forEach(r=>{const p=(r[pCol]||"").replace(/\D/g,"");const s=(r[sCol]||"").trim();if(p.length===6&&s)map[p]=s});
+  return map;
+}
+
+/* Rebuild all engine data from the SOURCES list (single source of truth). */
+function rebuildEngines(){
+  ROWS=[];HEADERS=[];MAP={};SEO=[];DELIV_CSV={};PIN_OVERRIDE={};
+  SOURCES.forEach(s=>{
+    if(s.type==="catalogue"){ROWS=s.rows;HEADERS=s.headers;if(!s.map)s.map=autoMap(s.headers);MAP=s.map}
+    else if(s.type==="seo")SEO=SEO.concat(seoFrom(s.headers,s.rows));
+    else if(s.type==="deliv")Object.assign(DELIV_CSV,delivFrom(s.headers,s.rows));
+    else if(s.type==="pincode")Object.assign(PIN_OVERRIDE,pinFrom(s.headers,s.rows));
+  });
+  loadDelivConfig();
+  store.set(LS.sources,SOURCES);
+}
+function addSource(type,desc,text,filename){
+  const {headers,rows}=parseCSV(text);
+  if(!rows.length){alert("That CSV looks empty or unreadable.");return false}
+  const s={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};
+  if(type==="catalogue")s.map=autoMap(headers);
+  SOURCES=SOURCES.filter(x=>x.type!==type);   // one active source per type
+  SOURCES.push(s);
+  rebuildEngines();renderSources();
+  return true;
+}
+function deleteSource(id){SOURCES=SOURCES.filter(s=>s.id!==id);rebuildEngines();renderSources()}
+
 /* ============================ query parsing ============================ */
-const STOP=new Set("a an the is are for i am looking want need show me my in on of with tiles tile some any good best suitable to and or under over above below within upto rs pincode pin deliver delivery area".split(" "));
+const STOP=new Set("a an the is are for i am looking want need show me my in on of with tiles tile some any good best suitable to and or under over above below within upto rs pincode pin deliver delivery area mm cm".split(" "));
 function normSize(s){return s.toLowerCase().replace(/\s+/g,"").replace(/[×*]/g,"x").replace(/mm|cm|inch|in|ft|feet/g,"")}
 function parseQuery(raw){
   const q=raw.toLowerCase();
@@ -418,7 +357,7 @@ function parseQuery(raw){
   return{sizes,priceMin,priceMax,sort,words};
 }
 
-/* ============================ filtering ============================ */
+/* ============================ filtering (strictly over uploaded CSV) ==== */
 function priceOf(row){const raw=MAP.price?row[MAP.price]:"";const n=parseFloat(String(raw).replace(/[^\d.]/g,""));return isNaN(n)?null:n}
 function mrpOf(row){const raw=MAP.mrp?row[MAP.mrp]:"";const n=parseFloat(String(raw).replace(/[^\d.]/g,""));return isNaN(n)?null:n}
 function rowText(row){return Object.values(row).join(" ").toLowerCase()}
@@ -438,38 +377,6 @@ function filterRows(p){
   return out.map(o=>o.r);
 }
 
-/* ============================ SEO / intent ============================ */
-function ingestSeo(text){
-  const {headers,rows}=parseCSV(text);
-  if(!rows.length){alert("That SEO CSV looks empty.");return}
-  const kCol=headers.find(h=>/keyword|query|phrase|term|intent/i.test(h))||headers[0];
-  const uCol=headers.find(h=>/url|link|page/i.test(h))||headers[1];
-  const tCol=headers.find(h=>/type|kind/i.test(h));
-  SEO=rows.map(r=>({keyword:(r[kCol]||"").toLowerCase().trim(),url:(r[uCol]||"").trim(),type:tCol?(r[tCol]||"").trim():"Page"})).filter(e=>e.keyword&&e.url);
-  store.set(LS.seo,SEO);refreshSeo();
-}
-function matchSEO(q){
-  const s=q.toLowerCase();const seen=new Set();const hits=[];
-  SEO.forEach(e=>{if(s.includes(e.keyword)&&!seen.has(e.url)){seen.add(e.url);hits.push(e)}});
-  return hits.slice(0,2);
-}
-
-/* Serviceability CSV: source (plant/state) -> deliverable states.
-   Accepts (source, state) pairs per row, or (source, s1, s2, …) wide rows. */
-function ingestDeliv(text){
-  const {headers,rows}=parseCSV(text);
-  if(!rows.length){alert("That deliverability CSV looks empty.");return}
-  const map={};
-  rows.forEach(r=>{
-    const vals=headers.map(h=>r[h]);
-    const key=(vals[0]||"").toLowerCase().trim();if(!key)return;
-    const dests=vals.slice(1).join(",").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
-    if(dests.length)map[key]=map[key]?[...new Set(map[key].concat(dests))]:dests;
-  });
-  DELIV_CSV=map;store.set(LS.delivcsv,map);loadDelivConfig();refreshDeliv();
-}
-function saveLeadRec(rec){try{const a=JSON.parse(localStorage.getItem(LS.leads)||"[]");a.push(rec);localStorage.setItem(LS.leads,JSON.stringify(a))}catch(e){}}
-
 /* ============================ deliverability ============================ */
 const PIN2STATE={"11":"Delhi","12":"Haryana","13":"Haryana","14":"Punjab","15":"Punjab","16":"Punjab","17":"Himachal Pradesh","18":"Jammu & Kashmir","19":"Jammu & Kashmir",
 "20":"Uttar Pradesh","21":"Uttar Pradesh","22":"Uttar Pradesh","23":"Uttar Pradesh","24":"Uttar Pradesh","25":"Uttar Pradesh","26":"Uttar Pradesh","27":"Uttar Pradesh","28":"Uttar Pradesh",
@@ -480,32 +387,22 @@ const PIN2STATE={"11":"Delhi","12":"Haryana","13":"Haryana","14":"Punjab","15":"
 "70":"West Bengal","71":"West Bengal","72":"West Bengal","73":"West Bengal","74":"West Bengal","75":"Odisha","76":"Odisha","77":"Odisha","78":"Assam","79":"North East",
 "80":"Bihar","81":"Bihar","82":"Bihar","83":"Jharkhand","84":"Bihar","85":"Jharkhand"};
 function stateOfPin(pin){return PIN_OVERRIDE[pin]||PIN2STATE[pin.slice(0,2)]||null}
+const DEFAULT_PLANTS=`North Plant = Delhi, Haryana, Punjab, Chandigarh, Uttar Pradesh, Uttarakhand, Rajasthan, Himachal Pradesh, Jammu & Kashmir, Bihar, Jharkhand
+South Plant = Karnataka, Tamil Nadu, Kerala, Telangana, Andhra Pradesh, Puducherry
+West Plant = Gujarat, Maharashtra, Madhya Pradesh, Chhattisgarh, Goa
+East Plant = West Bengal, Odisha, Assam, North East`;
+const DEFAULT_OFFERS=`Delhi = 10%
+Uttar Pradesh = 7%
+Maharashtra = 5%
+Karnataka = 8%`;
 function loadDelivConfig(){
-  PLANTS={};const pt=store.get(LS.plants,DEFAULT_PLANTS);
-  pt.split("\n").forEach(l=>{const m=l.split("=");if(m.length>=2){const k=m[0].trim().toLowerCase();const states=m.slice(1).join("=").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);if(k&&states.length)PLANTS[k]=states}});
-  // Uploaded serviceability CSV overrides / adds to the plant map.
+  PLANTS={};DEFAULT_PLANTS.split("\n").forEach(l=>{const m=l.split("=");if(m.length>=2){const k=m[0].trim().toLowerCase();const st=m.slice(1).join("=").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);if(k&&st.length)PLANTS[k]=st}});
   Object.assign(PLANTS,DELIV_CSV);
-  OFFERS={};const ot=store.get(LS.offers,DEFAULT_OFFERS);
-  ot.split("\n").forEach(l=>{const m=l.split("=");if(m.length===2){const k=m[0].trim().toLowerCase();let v=m[1].trim();if(k&&v){if(v.endsWith("%"))OFFERS[k]={type:"pct",val:parseFloat(v)};else OFFERS[k]={type:"flat",val:parseFloat(v.replace(/[^\d.]/g,""))}}}});
+  OFFERS={};DEFAULT_OFFERS.split("\n").forEach(l=>{const m=l.split("=");if(m.length===2){const k=m[0].trim().toLowerCase();let v=m[1].trim();if(k&&v){if(v.endsWith("%"))OFFERS[k]={type:"pct",val:parseFloat(v)};else OFFERS[k]={type:"flat",val:parseFloat(v.replace(/[^\d.]/g,""))}}}});
 }
-function servedStates(plantName){
-  const k=(plantName||"").toLowerCase().trim();if(!k)return null;
-  if(PLANTS[k])return PLANTS[k];
-  for(const key in PLANTS){const base=key.split("(")[0].trim();if(key.includes(k)||k.includes(base))return PLANTS[key]}
-  return null;
-}
-function isDeliverable(row,state){
-  if(!MAP.plant)return true;
-  const s=servedStates(row[MAP.plant]);
-  if(!s)return true;                        // unknown plant → don't block
-  return s.includes((state||"").toLowerCase());
-}
-function offerFor(base,state){
-  const rule=OFFERS[(state||"").toLowerCase()];if(!rule||base==null)return null;
-  const off=rule.type==="pct"?base*rule.val/100:rule.val;
-  const now=Math.max(0,Math.round(base-off));
-  return{now,was:base,label:rule.type==="pct"?rule.val+"% off":"₹"+rule.val+" off"};
-}
+function servedStates(plantName){const k=(plantName||"").toLowerCase().trim();if(!k)return null;if(PLANTS[k])return PLANTS[k];for(const key in PLANTS){const base=key.split("(")[0].trim();if(key.includes(k)||k.includes(base))return PLANTS[key]}return null}
+function isDeliverable(row,state){if(!MAP.plant)return true;const s=servedStates(row[MAP.plant]);if(!s)return true;return s.includes((state||"").toLowerCase())}
+function offerFor(base,state){const rule=OFFERS[(state||"").toLowerCase()];if(!rule||base==null)return null;const off=rule.type==="pct"?base*rule.val/100:rule.val;return{now:Math.max(0,Math.round(base-off)),was:base,label:rule.type==="pct"?rule.val+"% off":"₹"+rule.val+" off"}}
 
 /* ============================ view: chat ============================ */
 const SWATCH={pink:"#F4A6C0",blush:"#F4A6C0",rose:"#EC87A9",mauve:"#CF9DBE",white:"#EFEDEC",ivory:"#F1EAD9",cream:"#EFE4CE",beige:"#E4D5B7",sand:"#E1CFA9",grey:"#BDB6B8",gray:"#BDB6B8",silver:"#CBCBD0",slate:"#8A97A3",charcoal:"#5B5257",black:"#3A3338",brown:"#A07E6E",oak:"#C69A5F",honey:"#D6A23C",wood:"#C69A5F",graphite:"#514B50",aqua:"#AEDDE1",blue:"#98C4E8",navy:"#2A3670",green:"#9DC6A0",terracotta:"#C56A48",rust:"#AC553A",gold:"#E5C15A",marble:"#E7E6E4",stone:"#C6C2BD",red:"#D98A8A",yellow:"#EBD98A"};
@@ -519,40 +416,24 @@ let lastQuery=null;
 function bubble(role){const w=document.createElement("div");w.className="msg "+role;const b=document.createElement("div");b.className="bubble";w.appendChild(b);feed.appendChild(w);feed.scrollTop=feed.scrollHeight;return b}
 function addUser(t){bubble("user").textContent=t}
 
-function priceHTML(row){
-  const base=priceOf(row);const mrp=mrpOf(row);
-  if(base==null&&mrp==null)return"";
-  const b=base!=null?base:mrp;
-  if(session.state){const o=offerFor(b,session.state);if(o)return`<p class="price"><span class="now">₹${o.now}</span><span class="was">₹${o.was}</span><span class="off">${esc(o.label)} · ${esc(session.state)}</span></p>`}
-  if(mrp!=null&&mrp>b)return`<p class="price"><span class="now">₹${b}</span><span class="was">₹${mrp}</span></p>`;
-  return`<p class="price"><span class="now">₹${b}</span></p>`;
-}
-/* Wishlist (heart) */
+function slugify(s){return String(s).toLowerCase().trim().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
+function productURL(row,name){if(MAP.url&&row[MAP.url])return row[MAP.url];return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com"}
+function imageURL(row){return MAP.image?row[MAP.image]:""}
+
 function wl(){return store.get(LS.wish,[])}
 function wlToggle(id){const a=wl();const i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);store.set(LS.wish,a);return i<0}
 
 function priceInner(row){
-  const base=priceOf(row),mrp=mrpOf(row);
-  if(base==null&&mrp==null)return"";
+  const base=priceOf(row),mrp=mrpOf(row);if(base==null&&mrp==null)return"";
   const bse=base!=null?base:mrp;
   if(session.state){const o=offerFor(bse,session.state);if(o)return`<span class="now">₹${o.now}</span><span class="was">₹${o.was}</span><span class="off">${esc(o.label)} · ${esc(session.state)}</span>`}
   if(mrp!=null&&mrp>bse)return`<span class="now">₹${bse}</span><span class="was">₹${mrp}</span>`;
   return`<span class="now">₹${bse}</span>`;
 }
-function slugify(s){return String(s).toLowerCase().trim().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
-function productURL(row,name){
-  if(MAP.url&&row[MAP.url])return row[MAP.url];
-  return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com";
-}
-function imageURL(row){return MAP.image?row[MAP.image]:""}
-
 function card(row,deliverable){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
   const id=(MAP.sku&&row[MAP.sku])||name;
-  const url=productURL(row,name);
-  const img=imageURL(row);
-  const wished=wl().includes(id);
-  const nd=deliverable===false;
+  const url=productURL(row,name),img=imageURL(row),wished=wl().includes(id),nd=deliverable===false;
   const el=document.createElement("div");el.className="pcard";
   el.innerHTML=`
     <a class="img" href="${esc(url)}" target="_blank" rel="noopener" style="background:${swatchFor(row)}">
@@ -576,8 +457,7 @@ function card(row,deliverable){
 
 function openEnquire(row){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
-  const b=bubble("bot");
-  const box=document.createElement("div");box.className="lead";
+  const b=bubble("bot");const box=document.createElement("div");box.className="lead";
   box.innerHTML=`<h5><span class="star">✦</span> Enquire about this tile</h5>
     <p class="s2">Leave your name &amp; mobile — our team will call you back about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}${session.pincode?(" (PIN "+esc(session.pincode)+")"):""}.</p>
     <input class="l-name" type="text" placeholder="Full name" autocomplete="name">
@@ -593,13 +473,14 @@ function openEnquire(row){
     const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
     if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
     if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
-    saveLeadRec({name:nameV,mobile:mob,sku:MAP.sku?row[MAP.sku]:null,product:name,pincode:session.pincode,state:session.state,reason:"not-deliverable",ts:new Date().toISOString()});
+    try{const a=JSON.parse(localStorage.getItem("tara_leads")||"[]");a.push({name:nameV,mobile:mob,product:name,pincode:session.pincode,state:session.state,ts:new Date().toISOString()});localStorage.setItem("tara_leads",JSON.stringify(a))}catch(e){}
     box.className="lead done";
     box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(nameV)}!</h5>
       <p class="s2" style="opacity:.9">Our team will call you on <b>${esc(mob)}</b> about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>`;
     feed.scrollTop=feed.scrollHeight;
   });
 }
+
 function understoodChips(p){
   const fs=[];
   if(session.state)fs.push({t:"📍 "+session.state,loc:true});
@@ -612,39 +493,46 @@ function understoodChips(p){
   p.words.forEach(w=>fs.push({t:w}));
   return fs;
 }
+function distinctVals(rows,key){const seen=new Set(),out=[];rows.forEach(r=>{const v=(r[key]||"").trim();const k=v.toLowerCase();if(v&&!seen.has(k)){seen.add(k);out.push(v)}});return out}
+/* Clarifying refine options from the distinct values present in the matches. */
+function refineChips(results,q){
+  if(results.length<3)return[];
+  const ql=q.toLowerCase();const chips=[];
+  [["room"],["finish"],["color"]].forEach(([key])=>{
+    if(chips.length>=5||!MAP[key])return;
+    const vals=distinctVals(results,MAP[key]).filter(v=>!ql.includes(v.toLowerCase()));
+    if(vals.length>=2)vals.slice(0,3).forEach(v=>{if(chips.length<5)chips.push(v)});
+  });
+  return chips;
+}
 
 const PIN_ASK="To show deliverable products to your area, please enter the pincode.";
-
 function updateDeliverBar(){
-  if(session.pincode){
-    deliverBar.hidden=false;
+  if(session.pincode){deliverBar.hidden=false;
     deliverBar.innerHTML=`📍 Delivering to <b>${session.state?esc(session.state):"—"}</b> · PIN ${esc(session.pincode)} <button class="chg" id="chgPin">Change</button>`;
-    document.getElementById("chgPin").onclick=()=>{session={pincode:null,state:null};store.set(LS.session,session);deliverBar.hidden=true;
-      const b=bubble("bot");b.innerHTML=`<p class="lead-text ask-pin">${PIN_ASK}</p>`};
+    document.getElementById("chgPin").onclick=()=>{session={pincode:null,state:null};store.set(LS.session,session);deliverBar.hidden=true;const b=bubble("bot");b.innerHTML=`<p class="ask-pin">${PIN_ASK}</p>`};
   }else deliverBar.hidden=true;
 }
 function setPincode(pin){
-  const st=stateOfPin(pin);
-  session={pincode:pin,state:st};store.set(LS.session,session);updateDeliverBar();
+  const st=stateOfPin(pin);session={pincode:pin,state:st};store.set(LS.session,session);updateDeliverBar();
   const b=bubble("bot");
-  if(st)b.innerHTML=`<p class="lead-text">✓ Great — we deliver to <b>${esc(st)}</b> (PIN ${esc(pin)}). Showing products available in your area${Object.keys(OFFERS).length?", with any area offers applied":""}.</p>`;
-  else b.innerHTML=`<p class="lead-text">I couldn't map PIN <b>${esc(pin)}</b> to a state from the built-in rules. You can still browse — add it under <b>Train → Deliverability</b> for accuracy.</p>`;
+  if(st)b.innerHTML=`<p class="lead-text">✓ Great — we deliver to <b>${esc(st)}</b> (PIN ${esc(pin)}). Now showing products available in your area.</p>`;
+  else b.innerHTML=`<p class="lead-text">I couldn't map PIN <b>${esc(pin)}</b> to a state. You can still browse — add a Pincode → state source in Train for accuracy.</p>`;
   if(lastQuery){const q=lastQuery;lastQuery=null;setTimeout(()=>{addUser(q);respond(q)},120)}
 }
 
 function respond(q){
   const b=bubble("bot");
   if(!ROWS.length){
-    b.innerHTML='<p class="lead-text">I don\'t have a catalogue yet. Open the <b>Train</b> tab to upload your CSV — or load the sample to try me out.</p>';
+    b.innerHTML='<p class="lead-text">I don\'t have a catalogue yet. Open the <b>Train</b> tab to add your CSV — or tap below to load the sample.</p>';
     const ch=document.createElement("div");ch.className="chips";
-    const c=document.createElement("button");c.className="chip solid";c.textContent="Load samples & search";
-    c.onclick=()=>{loadSample();loadSeoSample();setTab("chat");setTimeout(()=>{addUser(q);respond(q)},120)};
+    const c=document.createElement("button");c.className="chip";c.style.cssText="background:var(--accent);color:var(--on-accent);font-weight:700";c.textContent="Load sample & search";
+    c.onclick=()=>{loadSampleData();setTab("chat");setTimeout(()=>{addUser(q);respond(q)},120)};
     ch.appendChild(c);b.appendChild(ch);return;
   }
   const p=parseQuery(q);
   let results=filterRows(p);
   const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
-  // Deliverable tiles first; non-deliverable stay in the list with an Enquire path.
   if(canDeliver)results.sort((a,b)=>(isDeliverable(a,session.state)?0:1)-(isDeliverable(b,session.state)?0:1));
   const ndCount=canDeliver?results.filter(r=>!isDeliverable(r,session.state)).length:0;
   const delCount=results.length-ndCount;
@@ -654,42 +542,46 @@ function respond(q){
 
   const lead=document.createElement("p");lead.className="lead-text";
   if(!results.length){
-    lead.innerHTML="No tiles matched that. Try fewer details or different wording.";
-    b.appendChild(lead);
-  }else{
-    lead.innerHTML=`Found <b>${results.length}</b> tile${results.length>1?"s":""}.`+
-      (canDeliver?` <span style="color:var(--good);font-weight:600">${delCount} deliverable to ${esc(session.state)}</span>`+(ndCount?` <span style="color:var(--muted)">· ${ndCount} on enquiry</span>`:""):"");
-    b.appendChild(lead);
-    // Image-focused grid, 4 tiles at a time.
-    const grid=document.createElement("div");grid.className="grid";b.appendChild(grid);
-    let shownN=0;const PAGE=5;
-    const moreBtn=document.createElement("button");moreBtn.className="show-more";
-    function renderMore(){
-      results.slice(shownN,shownN+PAGE).forEach(r=>grid.appendChild(card(r,canDeliver?isDeliverable(r,session.state):undefined)));
-      shownN=Math.min(shownN+PAGE,results.length);
-      if(shownN<results.length){moreBtn.textContent=`Show more (${results.length-shownN} left)`;if(!moreBtn.parentElement)b.appendChild(moreBtn)}
-      else if(moreBtn.parentElement)moreBtn.remove();
-      feed.scrollTop=feed.scrollHeight;
-    }
-    moreBtn.addEventListener("click",renderMore);
-    renderMore();
+    lead.innerHTML="I couldn't find that in the catalogue. Try a different size, colour or room — or fewer details.";
+    b.appendChild(lead);b.appendChild(seoBlock(q));return;
+  }
+  lead.innerHTML=`Found <b>${results.length}</b> tile${results.length>1?"s":""}${canDeliver?` <span style="color:var(--good);font-weight:600">${delCount} deliverable to ${esc(session.state)}</span>`+(ndCount?` <span style="color:var(--muted)">· ${ndCount} on enquiry</span>`:""):""}.`;
+  b.appendChild(lead);
+
+  // Clarifying questions when the result set is broad.
+  const refines=refineChips(results,q);
+  if(refines.length){
+    const r=document.createElement("p");r.className="refine";r.textContent="Want to narrow it down — any preference?";b.appendChild(r);
+    const ch=document.createElement("div");ch.className="chips";
+    refines.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
+    b.appendChild(ch);
   }
 
-  const seo=matchSEO(q);
-  if(seo.length){const s=document.createElement("div");s.className="seo";s.innerHTML='<p class="lab">Related pages to explore</p>'+seo.map(e=>`<a href="${esc(e.url)}" target="_blank" rel="noopener">→ ${esc(e.keyword.replace(/\b\w/g,c=>c.toUpperCase()))} <span style="color:var(--muted);font-weight:400">(${esc(e.type)})</span></a>`).join("");b.appendChild(s)}
-
-  if(!session.pincode){
-    const ask=document.createElement("p");ask.className="ask-pin";ask.textContent="📍 "+PIN_ASK;b.appendChild(ask);
-    lastQuery=q;
+  const grid=document.createElement("div");grid.className="grid";b.appendChild(grid);
+  let shownN=0;const PAGE=5;
+  const moreBtn=document.createElement("button");moreBtn.className="show-more";
+  function renderMore(){
+    results.slice(shownN,shownN+PAGE).forEach(r=>grid.appendChild(card(r,canDeliver?isDeliverable(r,session.state):undefined)));
+    shownN=Math.min(shownN+PAGE,results.length);
+    if(shownN<results.length){moreBtn.textContent=`Show more (${results.length-shownN} left)`;if(!moreBtn.parentElement)b.appendChild(moreBtn)}
+    else if(moreBtn.parentElement)moreBtn.remove();
+    feed.scrollTop=feed.scrollHeight;
   }
-  feed.scrollTop=feed.scrollHeight;
+  moreBtn.addEventListener("click",renderMore);renderMore();
+
+  const sb=seoBlock(q);if(sb)b.appendChild(sb);
+  if(!session.pincode){const ask=document.createElement("p");ask.className="ask-pin";ask.textContent="📍 "+PIN_ASK;b.appendChild(ask);lastQuery=q}
+}
+function seoBlock(q){
+  const s=q.toLowerCase();const seen=new Set(),hits=[];
+  SEO.forEach(e=>{if(s.includes(e.keyword)&&!seen.has(e.url)){seen.add(e.url);hits.push(e)}});
+  if(!hits.length)return null;
+  const el=document.createElement("div");el.style.cssText="margin:12px 0 2px;padding:10px 12px;border:1px dashed var(--accent);border-radius:10px;background:var(--gold-soft)";
+  el.innerHTML='<p style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink);font-weight:700;margin:0 0 4px">Related pages</p>'+hits.slice(0,2).map(e=>`<a href="${esc(e.url)}" target="_blank" rel="noopener" style="display:block;color:var(--ink);font-size:13px;font-weight:600;text-decoration:none;padding:3px 0">→ ${esc(e.keyword.replace(/\b\w/g,c=>c.toUpperCase()))}</a>`).join("");
+  return el;
 }
 
-function isPincodeMsg(q){
-  if(/^\s*\d{6}\s*$/.test(q))return q.trim();
-  if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}
-  return null;
-}
+function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
 function search(text){
   const q=(text!=null?text:input.value).trim();if(!q)return;
   input.value="";addUser(q);
@@ -704,64 +596,67 @@ function greet(){
   const ch=document.createElement("div");ch.className="chips";
   ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
   b.appendChild(ch);
-  if(!ROWS.length){const n=document.createElement("p");n.className="lead-text";n.style.cssText="margin-top:8px;color:var(--muted);font-size:12.5px";n.textContent="Tip: load your data in the Train tab first (or tap a chip to auto-load the sample).";b.appendChild(n)}
+  if(!ROWS.length){const n=document.createElement("p");n.className="lead-text";n.style.cssText="margin-top:8px;color:var(--muted);font-size:12.5px";n.textContent="Tip: add your catalogue in the Train tab (or tap a chip to auto-load the sample).";b.appendChild(n)}
 }
 
 /* ============================ view: train ============================ */
-const dot=document.getElementById("dot"),statusText=document.getElementById("statusText");
-const mapWrap=document.getElementById("mapWrap"),mapGrid=document.getElementById("mapGrid"),preview=document.getElementById("preview");
-const dotSeo=document.getElementById("dotSeo"),seoStatus=document.getElementById("seoStatus");
-
-function refreshStatus(){
-  if(ROWS.length){dot.classList.add("on");statusText.innerHTML=`<b>${ROWS.length}</b> products · ${HEADERS.length} columns loaded.`}
-  else{dot.classList.remove("on");statusText.textContent="No catalogue loaded yet."}
-}
-function refreshSeo(){
-  if(SEO.length){dotSeo.classList.add("on");seoStatus.innerHTML=`<b>${SEO.length}</b> keyword → page mappings loaded.`}
-  else{dotSeo.classList.remove("on");seoStatus.textContent="No SEO keywords loaded."}
-}
-function refreshDeliv(){
-  const dotDeliv=document.getElementById("dotDeliv"),delivStatus=document.getElementById("delivStatus");
-  const n=Object.keys(DELIV_CSV).length;
-  if(n){dotDeliv.classList.add("on");delivStatus.innerHTML=`<b>${n}</b> source → states rules loaded from CSV.`}
-  else{dotDeliv.classList.remove("on");delivStatus.textContent="Using the plant → states map below."}
-}
-function renderMapping(){
-  if(!HEADERS.length){mapWrap.hidden=true;return}
-  mapWrap.hidden=false;mapGrid.innerHTML="";
-  ATTRS.forEach(([key,,label])=>{
-    const id="map_"+key;
-    const wrap=document.createElement("label");wrap.textContent=label;wrap.setAttribute("for",id);
-    const sel=document.createElement("select");sel.id=id;
-    sel.innerHTML='<option value="">— none —</option>'+HEADERS.map(h=>`<option value="${esc(h)}"${MAP[key]===h?" selected":""}>${esc(h)}</option>`).join("");
-    sel.onchange=()=>{if(sel.value)MAP[key]=sel.value;else delete MAP[key];store.set(LS.map,MAP)};
-    mapGrid.appendChild(wrap);mapGrid.appendChild(sel);
+const srcList=document.getElementById("srcList"),srcCount=document.getElementById("srcCount");
+function renderSources(){
+  srcCount.textContent=SOURCES.length;
+  if(!SOURCES.length){srcList.innerHTML='<div class="empty-src">No sources yet. Add one above, or load the sample data.</div>';return}
+  srcList.innerHTML="";
+  SOURCES.forEach((s,i)=>{
+    const el=document.createElement("div");el.className="src";
+    const desc=s.desc||TYPE_LABEL[s.type];
+    el.innerHTML=`
+      <div class="src-top">
+        <span class="src-ix">${i+1}</span>
+        <div class="src-info">
+          <div class="src-desc">${esc(desc)}</div>
+          <div class="src-meta">${esc(TYPE_LABEL[s.type])} · ${s.rows.length} rows · ${esc(s.filename)}</div>
+        </div>
+        <div class="src-btns"><button class="v">View</button><button class="d">Delete</button></div>
+      </div>
+      <div class="src-detail" hidden></div>`;
+    const detail=el.querySelector(".src-detail");
+    el.querySelector(".v").addEventListener("click",()=>{
+      if(!detail.hidden){detail.hidden=true;return}
+      detail.hidden=false;if(detail.dataset.built)return;detail.dataset.built="1";
+      if(s.type==="catalogue")detail.appendChild(mappingEditor(s));
+      detail.appendChild(previewTable(s));
+    });
+    el.querySelector(".d").addEventListener("click",()=>{if(confirm("Delete this source?"))deleteSource(s.id)});
+    srcList.appendChild(el);
   });
-  const cols=HEADERS.slice(0,8);
-  preview.innerHTML="<table><thead><tr>"+cols.map(h=>`<th>${esc(h)}</th>`).join("")+"</tr></thead><tbody>"+
-    ROWS.slice(0,5).map(r=>"<tr>"+cols.map(h=>`<td>${esc(r[h])}</td>`).join("")+"</tr>").join("")+"</tbody></table>";
 }
-function ingest(text){
-  const {headers,rows}=parseCSV(text);
-  if(!rows.length){alert("That CSV looks empty or unreadable.");return}
-  ROWS=rows;HEADERS=headers;MAP=autoMap(headers);
-  store.set(LS.cat,ROWS);store.set(LS.map,MAP);
-  refreshStatus();renderMapping();
+function previewTable(s){
+  const wrap=document.createElement("div");wrap.className="tablewrap";
+  const cols=s.headers.slice(0,8);
+  wrap.innerHTML="<table><thead><tr>"+cols.map(h=>`<th>${esc(h)}</th>`).join("")+"</tr></thead><tbody>"+
+    s.rows.slice(0,6).map(r=>"<tr>"+cols.map(h=>`<td>${esc(r[h])}</td>`).join("")+"</tr>").join("")+"</tbody></table>";
+  return wrap;
 }
-function clearData(){ROWS=[];HEADERS=[];MAP={};store.del(LS.cat);store.del(LS.map);refreshStatus();renderMapping()}
+function mappingEditor(s){
+  const box=document.createElement("div");
+  const lab=document.createElement("p");lab.className="maplabel";lab.textContent="Column mapping — fix anything wrong";box.appendChild(lab);
+  const grid=document.createElement("div");grid.className="map";
+  ATTRS.forEach(([key,,label])=>{
+    const l=document.createElement("label");l.textContent=label;
+    const sel=document.createElement("select");
+    sel.innerHTML='<option value="">— none —</option>'+s.headers.map(h=>`<option value="${esc(h)}"${s.map[key]===h?" selected":""}>${esc(h)}</option>`).join("");
+    sel.onchange=()=>{if(sel.value)s.map[key]=sel.value;else delete s.map[key];rebuildEngines()};
+    grid.appendChild(l);grid.appendChild(sel);
+  });
+  box.appendChild(grid);return box;
+}
 
-const DEFAULT_PLANTS=`North Plant = Delhi, Haryana, Punjab, Chandigarh, Uttar Pradesh, Uttarakhand, Rajasthan, Himachal Pradesh, Jammu & Kashmir, Bihar, Jharkhand
-South Plant = Karnataka, Tamil Nadu, Kerala, Telangana, Andhra Pradesh, Puducherry
-West Plant = Gujarat, Maharashtra, Madhya Pradesh, Chhattisgarh, Goa
-East Plant = West Bengal, Odisha, Assam, North East`;
-const DEFAULT_OFFERS=`Delhi = 10%
-Uttar Pradesh = 7%
-Maharashtra = 5%
-Karnataka = 8%`;
-
+/* Samples */
 const SAMPLE=`SKU,Product Name,Size,Colour,Finish,Material,Room,Category,MRP,Price,Plant,Image URL
 OBT-3001,Blush Pink Glossy Wall Tile,300x600,Pink,Glossy,Ceramic,Bathroom,Wall Tiles,68,55,North Plant,https://www.orientbell.com/media/catalog/product/blush-pink-glossy-wall-tile.jpg
 OBT-4001,Aqua White Glossy Wall Tile,300x600,White,Glossy,Ceramic,Bathroom,Wall Tiles,54,42,North Plant,https://www.orientbell.com/media/catalog/product/aqua-white-glossy-wall-tile.jpg
+OBT-2201,Ivory Matt Wall Tile,200x300,Ivory,Matt,Ceramic,Bathroom,Wall Tiles,46,38,North Plant,https://www.orientbell.com/media/catalog/product/ivory-matt-wall-tile.jpg
+OBT-2202,Sky Blue Glossy Wall Tile,200x300,Blue,Glossy,Ceramic,Bathroom,Wall Tiles,48,40,West Plant,https://www.orientbell.com/media/catalog/product/sky-blue-glossy-wall-tile.jpg
+OBT-2203,Sage Green Matt Wall Tile,200x300,Green,Matt,Ceramic,Kitchen,Wall Tiles,52,44,South Plant,https://www.orientbell.com/media/catalog/product/sage-green-matt-wall-tile.jpg
 OBT-4002,Slate Grey Anti-Skid Floor Tile,300x300,Grey,Matt,Vitrified,Bathroom,Floor Tiles,78,62,West Plant,https://www.orientbell.com/media/catalog/product/slate-grey-anti-skid-floor-tile.jpg
 OBT-3003,Dusty Pink Anti-Skid Floor Tile,300x300,Pink,Matt,Ceramic,Bathroom,Floor Tiles,60,48,North Plant,https://www.orientbell.com/media/catalog/product/dusty-pink-anti-skid-floor-tile.jpg
 OBT-5001,Carrara White Subway Tile,75x300,White,Glossy,Ceramic,Kitchen,Wall Tiles,85,68,West Plant,https://www.orientbell.com/media/catalog/product/carrara-white-subway-tile.jpg
@@ -776,44 +671,28 @@ const SAMPLE_SEO=`keyword,url,type
 bathroom tiles,https://www.orientbell.com/tiles/bathroom-tiles,Category
 kitchen tiles,https://www.orientbell.com/tiles/kitchen-tiles,Category
 living room tiles,https://www.orientbell.com/tiles/living-room-tiles,Category
-pink tiles,https://www.orientbell.com/tiles/wall-tiles,PLP
 marble tiles,https://www.orientbell.com/tiles/living-room-tiles,PLP
 wood look tiles,https://www.orientbell.com/tiles/floor-tiles,PLP
 anti skid tiles,https://www.orientbell.com/tiles/outdoor-tiles,Category
-parking tiles,https://www.orientbell.com/tiles/outdoor-tiles,Category
-subway tiles,https://www.orientbell.com/tiles/kitchen-tiles,PLP`;
-function loadSample(){ingest(SAMPLE)}
-function loadSeoSample(){ingestSeo(SAMPLE_SEO)}
+parking tiles,https://www.orientbell.com/tiles/outdoor-tiles,Category`;
+const SAMPLE_DELIV=`Source,Deliverable States
+North Plant,Delhi,Haryana,Punjab,Chandigarh,Uttar Pradesh,Uttarakhand,Rajasthan,Himachal Pradesh,Bihar,Jharkhand
+South Plant,Karnataka,Tamil Nadu,Kerala,Telangana,Andhra Pradesh,Puducherry
+West Plant,Gujarat,Maharashtra,Madhya Pradesh,Chhattisgarh,Goa
+East Plant,West Bengal,Odisha,Assam`;
+function loadSampleData(){
+  addSource("catalogue","Sample Orientbell catalogue (15 tiles)",SAMPLE,"sample-catalogue.csv");
+  addSource("seo","Sample keyword → page map",SAMPLE_SEO,"sample-seo.csv");
+  addSource("deliv","Sample plant → states serviceability",SAMPLE_DELIV,"sample-deliverability.csv");
+}
 
 /* ============================ wiring ============================ */
-function hookDrop(dropId,fileId,handler){
-  const drop=document.getElementById(dropId),file=document.getElementById(fileId);
-  drop.onclick=()=>file.click();
-  file.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>handler(r.result);r.readAsText(f);file.value=""};
-  ["dragover","dragenter"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
-  ["dragleave"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
-  drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");const f=e.dataTransfer.files[0];if(f){const r=new FileReader();r.onload=()=>handler(r.result);r.readAsText(f)}});
-}
-hookDrop("drop","file",ingest);
-hookDrop("dropSeo","fileSeo",ingestSeo);
-hookDrop("dropDeliv","fileDeliv",ingestDeliv);
-hookDrop("dropPin","filePin",text=>{
-  const {headers,rows}=parseCSV(text);const pCol=headers.find(h=>/pin/i.test(h))||headers[0];const sCol=headers.find(h=>/state/i.test(h))||headers[1];
-  rows.forEach(r=>{const p=(r[pCol]||"").replace(/\D/g,"");const s=(r[sCol]||"").trim();if(p.length===6&&s)PIN_OVERRIDE[p]=s});
-  store.set(LS.pin,PIN_OVERRIDE);document.getElementById("delivNote").textContent=`Saved ✓ ${Object.keys(PIN_OVERRIDE).length} pincode overrides.`;setTimeout(()=>document.getElementById("delivNote").textContent="",2500);
-});
-document.getElementById("loadSample").onclick=loadSample;
-document.getElementById("clearData").onclick=clearData;
-document.getElementById("loadSeoSample").onclick=loadSeoSample;
-document.getElementById("clearSeo").onclick=()=>{SEO=[];store.del(LS.seo);refreshSeo()};
-
-const plantsBox=document.getElementById("plants"),offersBox=document.getElementById("offers"),delivNote=document.getElementById("delivNote");
-plantsBox.value=store.get(LS.plants,DEFAULT_PLANTS);
-offersBox.value=store.get(LS.offers,DEFAULT_OFFERS);
-document.getElementById("saveDeliv").onclick=()=>{
-  store.set(LS.plants,plantsBox.value);store.set(LS.offers,offersBox.value);loadDelivConfig();
-  delivNote.textContent="Saved ✓ Deliverability & offers updated.";setTimeout(()=>delivNote.textContent="",2500);
-};
+const srcType=document.getElementById("srcType"),srcDesc=document.getElementById("srcDesc"),srcFile=document.getElementById("srcFile"),srcFileName=document.getElementById("srcFileName");
+document.getElementById("srcPick").onclick=()=>srcFile.click();
+srcFile.onchange=e=>{const f=e.target.files[0];if(!f)return;srcFileName.textContent=f.name;const r=new FileReader();
+  r.onload=()=>{const ok=addSource(srcType.value,srcDesc.value,r.result,f.name);if(ok){srcDesc.value="";srcFileName.textContent="Added ✓"}};
+  r.readAsText(f);srcFile.value="";};
+document.getElementById("loadSample").onclick=loadSampleData;
 
 document.getElementById("send").onclick=()=>search();
 input.onkeydown=e=>{if(e.key==="Enter")search()};
@@ -828,12 +707,6 @@ function setTab(which){
 document.getElementById("tabChat").onclick=()=>setTab("chat");
 document.getElementById("tabTrain").onclick=()=>setTab("train");
 
-/* Knowledge-base expand / collapse */
-document.querySelectorAll(".kb-sum").forEach(s=>s.addEventListener("click",()=>{
-  const d=document.getElementById(s.dataset.tgt),kb=s.closest(".kb"),willOpen=d.hidden;
-  d.hidden=!willOpen;kb.classList.toggle("open",willOpen);
-}));
-
 document.getElementById("themeBtn").onclick=()=>{
   const cur=document.documentElement.getAttribute("data-theme");
   const next=cur==="dark"?"light":cur==="light"?"dark":(matchMedia("(prefers-color-scheme: dark)").matches?"light":"dark");
@@ -842,7 +715,7 @@ document.getElementById("themeBtn").onclick=()=>{
 const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement.setAttribute("data-theme",savedTheme);
 
 /* init */
-loadDelivConfig();refreshStatus();refreshSeo();refreshDeliv();renderMapping();updateDeliverBar();greet();input.focus();
+rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
 </script>
 </body>
 </html>
