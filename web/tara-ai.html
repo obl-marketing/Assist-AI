@@ -281,6 +281,7 @@ function recordLead(rec){
 }
 /* Engine state — rebuilt from SOURCES */
 let ROWS=[],HEADERS=[],MAP={},SEO=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
+let DOMAIN=new Set();   // tile vocabulary, used to tell a search apart from chit-chat
 
 const TYPE_LABEL={catalogue:"Product catalogue",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state"};
 
@@ -359,7 +360,32 @@ function rebuildEngines(){
     else if(s.type==="pincode")Object.assign(PIN_OVERRIDE,pinFrom(s.headers,s.rows));
   });
   loadDelivConfig();
+  DOMAIN=domainVocab();
   store.set(LS.sources,SOURCES);
+}
+/* Tile vocabulary: fixed terms + every distinct value from the catalogue and
+   the SEO keywords. A query touching this vocab is a real tile search. */
+function domainVocab(){
+  const v=new Set("tile tiles floor floors flooring wall walls design designs designer catalogue catalog price budget cheap premium luxury marble wood wooden stone glossy matt matte polished rough textured antiskid anti skid slip vitrified gvt pgvt ceramic double charge subway highlighter backsplash kitchen bathroom washroom balcony terrace parking outdoor bedroom living hall size sizes colour color shade finish".split(" "));
+  ["color","room","finish","material","category","name"].forEach(k=>{
+    if(MAP[k])ROWS.forEach(r=>{(String(r[MAP[k]]||"").toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
+  });
+  SEO.forEach(e=>{(e.keyword.match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
+  return v;
+}
+function tok(s){return (String(s).toLowerCase().match(/[a-z0-9]+/g)||[]).filter(t=>t.length>1)}
+/* "tile" = a real product search; otherwise a small-talk category. */
+function intentKind(q){
+  const p=parseQuery(q);
+  if(p.sizes.length||p.priceMin!=null||p.priceMax!=null)return "tile";
+  if(tok(q).some(t=>DOMAIN.has(t)))return "tile";
+  if(matchSEO(q).length)return "tile";
+  const s=q.toLowerCase();
+  if(/\b(hi+|hello+|hey+|helo|yo|namaste|hola|good\s?(morning|afternoon|evening|day))\b/.test(s))return "greeting";
+  if(/\b(thanks|thank\s?you|thank\s?u|thx|ty|great|awesome|nice|cool|good|ok|okay|okey|sure|perfect)\b/.test(s))return "thanks";
+  if(/\b(bye|good\s?bye|see\s?you|cya|talk\s?later)\b/.test(s))return "bye";
+  if(/\b(who are you|what are you|your name|about you|what can you (do|help)|what do you do|how (do|does) (you|this) work|help|options)\b/.test(s))return "about";
+  return "chitchat";
 }
 function addSource(type,desc,text,filename){
   const {headers,rows}=parseCSV(text);
@@ -537,7 +563,6 @@ function understoodChips(p){
   else if(p.priceMin!=null)fs.push({t:"≥ ₹"+p.priceMin});
   if(p.sort==="asc")fs.push({t:"Budget first"});
   if(p.sort==="desc")fs.push({t:"Premium first"});
-  p.words.forEach(w=>fs.push({t:w}));
   return fs;
 }
 function distinctVals(rows,key){const seen=new Set(),out=[];rows.forEach(r=>{const v=(r[key]||"").trim();const k=v.toLowerCase();if(v&&!seen.has(k)){seen.add(k);out.push(v)}});return out}
@@ -568,6 +593,21 @@ function setPincode(pin){
   if(pendingQuery){const q=pendingQuery;pendingQuery=null;setTimeout(()=>runSearch(q),140)}
 }
 
+function conversationalReply(b,kind){
+  const msg={
+    greeting:"Hi there! 😊 I can help you find the right Orientbell tiles — by room, size, colour, finish or budget. What are you looking for?",
+    thanks:"You’re welcome! 🙌 Want to see a few more options? Try one of these:",
+    bye:"Thanks for stopping by! 👋 Whenever you’re ready, I’m here to help you find the perfect tiles.",
+    about:"I’m <b>Tara</b>, Orientbell’s tile shopping assistant. Tell me a room, size, colour, finish or budget and I’ll pull matching tiles from our catalogue — and our team can help you order. Try:",
+    chitchat:"I’m best at helping you find tiles from the Orientbell catalogue 🙂 — by room, size, colour, finish or budget. What are you looking for?"
+  }[kind]||"How can I help you find tiles today?";
+  b.innerHTML='<p class="lead-text">'+msg+'</p>';
+  if(kind==="bye")return;
+  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
+  const ch=document.createElement("div");ch.className="chips";
+  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
+}
 function respond(q){
   const b=bubble("bot");
   if(!ROWS.length){
@@ -577,6 +617,9 @@ function respond(q){
     c.onclick=()=>{loadSampleData();setTab("chat");setTimeout(()=>{addUser(q);respond(q)},120)};
     ch.appendChild(c);b.appendChild(ch);return;
   }
+  // Just chatting, not searching → reply warmly and steer to the catalogue.
+  const kind=intentKind(q);
+  if(kind!=="tile"){conversationalReply(b,kind);return}
   const p=parseQuery(q);
   let results=filterRows(p);
   const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
