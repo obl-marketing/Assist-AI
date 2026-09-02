@@ -86,16 +86,17 @@
   .pcard h4{margin:0;font-size:16px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
   .pcard h4 a{color:inherit;text-decoration:none}
   .pcard h4 a:hover{color:var(--gold-ink)}
-  .pcard .price{font-size:17px;margin:0;font-variant-numeric:tabular-nums}
-  .pcard .price .now{font-weight:700;color:var(--ink)}
-  .pcard .price .was{color:var(--muted);text-decoration:line-through;margin-left:8px;font-size:14px}
-  .pcard .price .off{margin-left:8px;font-size:12px;font-weight:700;color:var(--good)}
-  .pcard .price.enq-only{color:var(--muted);font-size:13.5px;font-weight:600}
-  .pcard .cta{display:flex;gap:9px}
+  .pcard .cta{display:flex;gap:8px}
   .pcard .cta .enq{flex:1;background:var(--accent);color:var(--on-accent);border:none;border-radius:10px;padding:11px;font:700 13.5px "Hanken Grotesk";cursor:pointer}
   .pcard .cta .enq:hover{background:var(--accent-2)}
-  .pcard .cta .vd{flex:1;background:var(--navy-soft);color:var(--brand);border:none;border-radius:10px;padding:11px;font:600 13.5px "Hanken Grotesk";text-align:center;text-decoration:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .pcard .cta .vd:hover{filter:brightness(.97)}
+  .pcard .cta .vd{flex:1;background:var(--brand);color:var(--on-brand);border:none;border-radius:10px;padding:11px;font:600 13.5px "Hanken Grotesk";text-align:center;text-decoration:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .pcard .cta .vd:hover{background:var(--brand-2)}
+  .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+  .pcard .acts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--muted);font:600 10.5px "Hanken Grotesk";letter-spacing:.01em;padding:2px;transition:color .15s}
+  .pcard .acts button:hover{color:var(--gold-ink)}
+  .pcard .acts .ic{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--ink);transition:.15s}
+  .pcard .acts button:hover .ic{border-color:var(--accent);background:var(--gold-soft)}
+  .pcard .acts button.on .ic{border-color:var(--good);background:var(--good-soft);color:var(--good)}
   .show-more{display:block;margin:12px auto 2px;background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:10px 20px;font:600 13px "Hanken Grotesk";cursor:pointer}
   .show-more:hover{border-color:var(--accent);background:var(--gold-soft)}
 
@@ -138,6 +139,8 @@
   .startform .err{min-height:14px;font-size:11.5px;color:var(--bad);font-weight:600;margin:1px 0 6px}
   .startform .go{width:100%;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:11px;font:700 14px "Hanken Grotesk";cursor:pointer}
   .startform .go:hover{background:var(--accent-2)}
+  .startform .skip{display:block;width:100%;margin:8px 0 0;background:transparent;border:none;color:var(--muted);font:600 12.5px "Hanken Grotesk";cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .startform .skip:hover{color:var(--gold-ink)}
   .startform .fine{font-size:10.5px;color:var(--muted);margin:8px 0 0;line-height:1.4}
 
   .composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
@@ -232,6 +235,7 @@
           <label>What kind of data is this?</label>
           <select id="srcType">
             <option value="catalogue">Product catalogue — the tiles Tara searches &amp; shows</option>
+            <option value="site">Website pages — category / collection pages (bathroom, living room…)</option>
             <option value="seo">Keywords → pages — helps read intent</option>
             <option value="deliv">Deliverability — which source delivers to which states</option>
             <option value="pincode">Pincode → state — exact overrides</option>
@@ -260,7 +264,7 @@
 
 <script>
 /* ============================ storage ============================ */
-const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist",contact:"tara_contact",leads:"tara_leads"};
+const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist",contact:"tara_contact",leads:"tara_leads",seeded:"tara_seeded"};
 const API_BASE=(window.TARA_API||"").replace(/\/$/,"");  // same-origin by default
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
@@ -280,10 +284,11 @@ function recordLead(rec){
   try{fetch(API_BASE+"/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{})}catch(e){}
 }
 /* Engine state — rebuilt from SOURCES */
-let ROWS=[],HEADERS=[],MAP={},SEO=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
+let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
 let DOMAIN=new Set();   // tile vocabulary, used to tell a search apart from chit-chat
+let PRICE_STATS=null;   // {n, med} — lets the bot understand budget vs premium from the catalogue
 
-const TYPE_LABEL={catalogue:"Product catalogue",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state"};
+const TYPE_LABEL={catalogue:"Product catalogue",site:"Website pages",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state"};
 
 /* ============================ CSV parser ============================ */
 function parseCSV(text){
@@ -337,6 +342,13 @@ function seoFrom(headers,rows){
   const tCol=headers.find(h=>/type|kind/i.test(h));
   return rows.map(r=>({keyword:(r[kCol]||"").toLowerCase().trim(),url:(r[uCol]||"").trim(),type:tCol?(r[tCol]||"").trim():"Page"})).filter(e=>e.keyword&&e.url);
 }
+function siteFrom(headers,rows){
+  const nCol=headers.find(h=>/name|category|page|title|collection/i.test(h))||headers[0];
+  const uCol=headers.find(h=>/url|link/i.test(h))||headers[1];
+  const aCol=headers.find(h=>/alias|synonym|keyword|also|match/i.test(h));
+  return rows.map(r=>({name:(r[nCol]||"").trim(),url:(r[uCol]||"").trim(),
+    aliases:aCol?String(r[aCol]||"").split(/[|,;]/).map(x=>x.trim()).filter(Boolean):[]})).filter(p=>p.name&&p.url);
+}
 function delivFrom(headers,rows){
   const map={};
   rows.forEach(r=>{const vals=headers.map(h=>r[h]);const key=(vals[0]||"").toLowerCase().trim();if(!key)return;
@@ -352,16 +364,25 @@ function pinFrom(headers,rows){
 
 /* Rebuild all engine data from the SOURCES list (single source of truth). */
 function rebuildEngines(){
-  ROWS=[];HEADERS=[];MAP={};SEO=[];DELIV_CSV={};PIN_OVERRIDE={};
+  ROWS=[];HEADERS=[];MAP={};SEO=[];SITE=[];DELIV_CSV={};PIN_OVERRIDE={};
   SOURCES.forEach(s=>{
     if(s.type==="catalogue"){ROWS=s.rows;HEADERS=s.headers;if(!s.map)s.map=autoMap(s.headers);MAP=s.map}
     else if(s.type==="seo")SEO=SEO.concat(seoFrom(s.headers,s.rows));
+    else if(s.type==="site"){const arr=siteFrom(s.headers,s.rows);SITE=SITE.concat(arr);
+      arr.forEach(p=>{SEO.push({keyword:p.name.toLowerCase(),url:p.url,type:"Category"});p.aliases.forEach(a=>SEO.push({keyword:a.toLowerCase(),url:p.url,type:"Category"}))});}
     else if(s.type==="deliv")Object.assign(DELIV_CSV,delivFrom(s.headers,s.rows));
     else if(s.type==="pincode")Object.assign(PIN_OVERRIDE,pinFrom(s.headers,s.rows));
   });
   loadDelivConfig();
   DOMAIN=domainVocab();
+  PRICE_STATS=priceStats();
   store.set(LS.sources,SOURCES);
+}
+/* Budget/premium understanding, learned from the catalogue's own prices. */
+function priceStats(){
+  const vals=ROWS.map(r=>priceOf(r)).filter(v=>v!=null).sort((a,b)=>a-b);
+  if(!vals.length)return null;
+  return {n:vals.length,med:vals[Math.floor(vals.length/2)]};
 }
 /* Tile vocabulary: fixed terms + every distinct value from the catalogue and
    the SEO keywords. A query touching this vocab is a real tile search. */
@@ -371,6 +392,7 @@ function domainVocab(){
     if(MAP[k])ROWS.forEach(r=>{(String(r[MAP[k]]||"").toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
   });
   SEO.forEach(e=>{(e.keyword.match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
+  SITE.forEach(p=>{[p.name,...p.aliases].forEach(t=>{(t.toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})})});
   return v;
 }
 function tok(s){return (String(s).toLowerCase().match(/[a-z0-9]+/g)||[]).filter(t=>t.length>1)}
@@ -409,14 +431,21 @@ function parseQuery(raw){
   if(m=q.match(/(?:under|below|less than|upto|up to|within|max|cheaper than)\s*(?:rs\.?|₹|inr)?\s*(\d+)/))priceMax=+m[1];
   if(m=q.match(/(?:above|over|more than|greater than|min|at least|starting)\s*(?:rs\.?|₹|inr)?\s*(\d+)/))priceMin=+m[1];
   if(m=q.match(/(?:between|from)\s*(\d+)\s*(?:to|-|and|–)\s*(\d+)/)){priceMin=+m[1];priceMax=+m[2]}
+  const hadExplicitPrice=priceMin!=null||priceMax!=null;
   let sort=null;
-  if(/\b(budget|cheap|cheapest|affordable|economical|low ?cost)\b/.test(q))sort="asc";
+  if(/\b(budget|cheap|cheapest|affordable|economical|low ?cost|value)\b/.test(q))sort="asc";
   if(/\b(premium|luxury|luxurious|expensive|high ?end|classy)\b/.test(q))sort="desc";
+  // Turn budget/premium into an actual price range using the catalogue's median.
+  if(PRICE_STATS){
+    if(sort==="asc"&&priceMax==null)priceMax=PRICE_STATS.med;
+    if(sort==="desc"&&priceMin==null)priceMin=PRICE_STATS.med;
+  }
+  const bandPrice=!hadExplicitPrice&&(priceMin!=null||priceMax!=null);
   let kw=q.replace(/(\d{2,4})\s*[x×*]\s*(\d{2,4})/g," ")
           .replace(/(?:under|below|less than|upto|up to|within|above|over|more than|between|from|max|min)\s*(?:rs\.?|₹|inr)?\s*\d+(\s*(?:to|and|-|–)\s*\d+)?/g," ")
           .replace(/[₹$,]/g," ");
   const words=(kw.match(/[a-z0-9\-]+/g)||[]).filter(w=>!STOP.has(w)&&w.length>1);
-  return{sizes,priceMin,priceMax,sort,words};
+  return{sizes,priceMin,priceMax,sort,words,bandPrice};
 }
 
 /* ============================ filtering (strictly over uploaded CSV) ==== */
@@ -474,6 +503,7 @@ const feed=document.getElementById("feed");
 const input=document.getElementById("input");
 const deliverBar=document.getElementById("deliverBar");
 let pendingQuery=null;
+let detailsAsked=false;   // whether we've prompted for name/mobile/pincode this session
 
 function bubble(role){const w=document.createElement("div");w.className="msg "+role;const b=document.createElement("div");b.className="bubble";w.appendChild(b);feed.appendChild(w);feed.scrollTop=feed.scrollHeight;return b}
 function addUser(t){bubble("user").textContent=t}
@@ -492,6 +522,11 @@ function priceInner(row){
   if(mrp!=null&&mrp>bse)return`<span class="now">₹${bse}</span><span class="was">₹${mrp}</span>`;
   return`<span class="now">₹${bse}</span>`;
 }
+function findSimilar(row){
+  const parts=[];
+  ["finish","color","room"].forEach(k=>{if(MAP[k]&&row[MAP[k]])parts.push(String(row[MAP[k]]).split(/[,/]/)[0].trim())});
+  search((parts.join(" ")+" tiles").trim()||"tiles");
+}
 function card(row,deliverable){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
   const id=(MAP.sku&&row[MAP.sku])||name;
@@ -502,18 +537,23 @@ function card(row,deliverable){
       ${img?`<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onerror="this.remove()">`:""}
       ${nd?`<span class="badge">Not in ${esc(session.state||"area")}</span>`:""}
     </a>
-    <button class="wish${wished?' on':''}" title="Wishlist" aria-label="Wishlist">${wished?'♥':'♡'}</button>
     <div class="pbody">
       <h4><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a></h4>
-      ${nd?`<p class="price enq-only">Available on enquiry</p>`:`<p class="price">${priceInner(row)}</p>`}
       <div class="cta">
         <button class="enq">Enquire Now</button>
         <a class="vd" href="${esc(url)}" target="_blank" rel="noopener">View details</a>
       </div>
+      <div class="acts">
+        <button class="a-wl${wished?' on':''}"><span class="ic">${wished?'♥':'♡'}</span>Wishlist</button>
+        <button class="a-try"><span class="ic">⌂</span>Try in My Room</button>
+        <button class="a-sim"><span class="ic">⇆</span>Find Similar</button>
+      </div>
     </div>`;
-  const wb=el.querySelector(".wish");
-  wb.addEventListener("click",()=>{const on=wlToggle(id);wb.className="wish"+(on?" on":"");wb.textContent=on?"♥":"♡"});
   el.querySelector(".enq").addEventListener("click",()=>openEnquire(row));
+  const wb=el.querySelector(".a-wl");
+  wb.addEventListener("click",()=>{const on=wlToggle(id);wb.className="a-wl"+(on?" on":"");wb.querySelector(".ic").textContent=on?"♥":"♡"});
+  el.querySelector(".a-try").addEventListener("click",()=>window.open(url,"_blank","noopener"));
+  el.querySelector(".a-sim").addEventListener("click",()=>findSimilar(row));
   return el;
 }
 
@@ -558,11 +598,13 @@ function understoodChips(p){
   const fs=[];
   if(session.state)fs.push({t:"📍 "+session.state,loc:true});
   p.sizes.forEach(s=>fs.push({t:"Size "+s}));
-  if(p.priceMin!=null&&p.priceMax!=null)fs.push({t:"₹"+p.priceMin+"–"+p.priceMax});
-  else if(p.priceMax!=null)fs.push({t:"≤ ₹"+p.priceMax});
-  else if(p.priceMin!=null)fs.push({t:"≥ ₹"+p.priceMin});
-  if(p.sort==="asc")fs.push({t:"Budget first"});
-  if(p.sort==="desc")fs.push({t:"Premium first"});
+  if(!p.bandPrice){
+    if(p.priceMin!=null&&p.priceMax!=null)fs.push({t:"₹"+p.priceMin+"–"+p.priceMax});
+    else if(p.priceMax!=null)fs.push({t:"≤ ₹"+p.priceMax});
+    else if(p.priceMin!=null)fs.push({t:"≥ ₹"+p.priceMin});
+  }
+  if(p.sort==="asc")fs.push({t:"Budget"});
+  if(p.sort==="desc")fs.push({t:"Premium"});
   return fs;
 }
 function distinctVals(rows,key){const seen=new Set(),out=[];rows.forEach(r=>{const v=(r[key]||"").trim();const k=v.toLowerCase();if(v&&!seen.has(k)){seen.add(k);out.push(v)}});return out}
@@ -593,6 +635,16 @@ function setPincode(pin){
   if(pendingQuery){const q=pendingQuery;pendingQuery=null;setTimeout(()=>runSearch(q),140)}
 }
 
+function listCategories(b){
+  b.innerHTML='<p class="lead-text">Here are our main tile collections — tap any to explore on the website 👇</p>';
+  const wrap=document.createElement("div");wrap.style.cssText="display:flex;flex-direction:column;gap:6px;margin-top:6px";
+  const seen=new Set();
+  SITE.forEach(p=>{if(seen.has(p.url))return;seen.add(p.url);
+    const a=document.createElement("a");a.href=p.url;a.target="_blank";a.rel="noopener";
+    a.style.cssText="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);text-decoration:none;font-size:13.5px;font-weight:600";
+    a.innerHTML=`${esc(p.name)}<span style="color:var(--gold-ink)">↗</span>`;wrap.appendChild(a)});
+  b.appendChild(wrap);feed.scrollTop=feed.scrollHeight;
+}
 function conversationalReply(b,kind){
   const msg={
     greeting:"Hi there! 😊 I can help you find the right Orientbell tiles — by room, size, colour, finish or budget. What are you looking for?",
@@ -658,6 +710,8 @@ function respond(q){
     c.onclick=()=>{loadSampleData();setTab("chat");setTimeout(()=>{addUser(q);respond(q)},120)};
     ch.appendChild(c);b.appendChild(ch);return;
   }
+  // "What categories / collections do you have?" → list the website pages.
+  if(SITE.length&&/\b(categor|collection|section|range|what.*(offer|have|sell)|browse|all\s+(tiles|categories|collections))\b/i.test(q)){listCategories(b);return}
   // Just chatting, not searching → reply warmly and steer to the catalogue.
   const kind=intentKind(q);
   if(kind!=="tile"){conversationalReply(b,kind);return}
@@ -714,11 +768,10 @@ function search(text){
   const q=(text!=null?text:input.value).trim();if(!q)return;
   input.value="";
   const pin=isPincodeMsg(q);
-  // Collect the 3 details the first time the visitor engages.
-  if(!contact){addUser(q);pendingQuery=pin?null:q;askDetails(pin||"");return}
+  // Ask for the 3 details once on first engage — but the visitor may skip.
+  if(!contact&&!detailsAsked){detailsAsked=true;addUser(q);pendingQuery=pin?null:q;askDetails(pin||"");return}
   addUser(q);
   if(pin){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{t.parentElement.remove();setPincode(pin)},220);return}
-  if(!session.pincode){pendingQuery=q;bubble("bot").innerHTML='<p class="ask-pin">📍 Please share your 6-digit pincode so I can show what’s deliverable near you.</p>';return}
   runSearch(q);
 }
 function showSuggestions(prefix){
@@ -775,10 +828,15 @@ function askDetails(prefillPin){
     </div>
     <p class="err"></p>
     <button class="go">Show me tiles →</button>
+    <button class="skip" type="button">Skip for now — I’ll share later</button>
     <p class="fine">We use this only to check delivery to your area and to have our team call you back if you enquire.</p>`;
   b.appendChild(f);feed.scrollTop=feed.scrollHeight;
   const nm=f.querySelector(".s-name"),mb=f.querySelector(".s-mob"),pn=f.querySelector(".s-pin"),err=f.querySelector(".err");
   if(prefillPin)pn.value=prefillPin;
+  f.querySelector(".skip").addEventListener("click",()=>{
+    f.className="startform";f.innerHTML='<p style="margin:0;font-size:13px;color:var(--muted)">No problem — browse away! You can share your details anytime you enquire or wishlist. 🙂</p>';
+    if(pendingQuery){const q=pendingQuery;pendingQuery=null;runSearch(q)}else showSuggestions();
+  });
   [nm,mb,pn].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
   setTimeout(()=>nm.focus(),50);
   f.querySelector(".go").addEventListener("click",()=>{
@@ -879,8 +937,19 @@ North Plant,Delhi,Haryana,Punjab,Chandigarh,Uttar Pradesh,Uttarakhand,Rajasthan,
 South Plant,Karnataka,Tamil Nadu,Kerala,Telangana,Andhra Pradesh,Puducherry
 West Plant,Gujarat,Maharashtra,Madhya Pradesh,Chhattisgarh,Goa
 East Plant,West Bengal,Odisha,Assam`;
+const DEFAULT_SITE=`Category,URL,Aliases
+Bathroom Tiles,https://www.orientbell.com/tiles/bathroom-tiles,bathroom|washroom|toilet
+Kitchen Tiles,https://www.orientbell.com/tiles/kitchen-tiles,kitchen|backsplash
+Living Room Tiles,https://www.orientbell.com/tiles/living-room-tiles,living room|hall|drawing room|lounge
+Bedroom Tiles,https://www.orientbell.com/tiles/bedroom-tiles,bedroom|master bedroom|kids room
+Floor Tiles,https://www.orientbell.com/tiles/floor-tiles,floor|flooring
+Wall Tiles,https://www.orientbell.com/tiles/wall-tiles,wall|feature wall|highlighter
+Outdoor & Parking Tiles,https://www.orientbell.com/tiles/outdoor-tiles,outdoor|parking|balcony|terrace|driveway
+Bathroom Floor Tiles,https://www.orientbell.com/tiles/bathroom-floor-tiles,bathroom floor
+Kitchen Wall Tiles,https://www.orientbell.com/tiles/kitchen-wall-tiles,kitchen wall|kitchen backsplash`;
 function loadSampleData(){
   addSource("catalogue","Sample Orientbell catalogue (15 tiles)",SAMPLE,"sample-catalogue.csv");
+  addSource("site","Orientbell category pages",DEFAULT_SITE,"orientbell-categories.csv");
   addSource("seo","Sample keyword → page map",SAMPLE_SEO,"sample-seo.csv");
   addSource("deliv","Sample plant → states serviceability",SAMPLE_DELIV,"sample-deliverability.csv");
 }
@@ -940,6 +1009,15 @@ const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement
 })();
 
 /* init */
+// One-time seed of Orientbell category pages so Tara can point to them out of
+// the box. Won't return if the user deletes it (the seeded flag persists).
+if(!store.get(LS.seeded,false)){
+  store.set(LS.seeded,true);
+  if(!SOURCES.some(s=>s.type==="site")){
+    const {headers,rows}=parseCSV(DEFAULT_SITE);
+    SOURCES.push({id:"seed-site",type:"site",desc:"Orientbell category pages (auto-added — the site's collections)",filename:"orientbell-categories.csv",headers,rows});
+  }
+}
 rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
 </script>
 </body>
