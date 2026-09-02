@@ -79,20 +79,18 @@
   .pcard .img{position:relative;display:block;aspect-ratio:16/10;overflow:hidden}
   .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
   .pcard .img::after{content:"";position:absolute;inset:0;z-index:0;background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 33.3%),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 1px,transparent 1px 25%);mix-blend-mode:multiply}
-  .pcard .wish{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
+  .pcard .wish{position:absolute;top:12px;left:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
   .pcard .wish:active{transform:scale(.85)}
   .pcard .wish.on{color:var(--accent);background:var(--brand)}
-  .pcard .badge{position:absolute;left:12px;top:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
-  .pcard .pbody{padding:14px 15px 15px;display:flex;flex-direction:column;gap:10px}
-  .pcard h4{margin:0;font-size:16px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+  .pcard .badge{position:absolute;right:12px;top:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
+  .pcard .pbody{padding:13px 15px 14px;display:flex;flex-direction:column;gap:11px}
+  .pcard .namerow{display:flex;align-items:center;gap:10px}
+  .pcard h4{margin:0;flex:1;min-width:0;font-size:15.5px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
   .pcard h4 a{color:inherit;text-decoration:none}
   .pcard h4 a:hover{color:var(--gold-ink)}
-  .pcard .cta{display:flex;gap:8px}
-  .pcard .cta .enq{flex:1;background:var(--accent);color:var(--on-accent);border:none;border-radius:10px;padding:11px;font:700 13.5px "Hanken Grotesk";cursor:pointer}
-  .pcard .cta .enq:hover{background:var(--accent-2)}
-  .pcard .cta .vd{flex:1;background:var(--brand);color:var(--on-brand);border:none;border-radius:10px;padding:11px;font:600 13.5px "Hanken Grotesk";text-align:center;text-decoration:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .pcard .cta .vd:hover{background:var(--brand-2)}
-  .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+  .pcard .enq{flex:0 0 auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 15px;font:700 12.5px "Hanken Grotesk";cursor:pointer;white-space:nowrap}
+  .pcard .enq:hover{background:var(--accent-2)}
+  .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:11px}
   .pcard .acts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--muted);font:600 10.5px "Hanken Grotesk";letter-spacing:.01em;padding:2px;transition:color .15s}
   .pcard .acts button:hover{color:var(--gold-ink)}
   .pcard .acts .ic{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--ink);transition:.15s}
@@ -538,21 +536,20 @@ function card(row,deliverable){
       ${img?`<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onerror="this.remove()">`:""}
       ${nd?`<span class="badge">Not in ${esc(session.state||"area")}</span>`:""}
     </a>
+    <button class="wish${wished?' on':''}" title="Wishlist" aria-label="Wishlist">${wished?'♥':'♡'}</button>
     <div class="pbody">
-      <h4><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a></h4>
-      <div class="cta">
+      <div class="namerow">
+        <h4><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a></h4>
         <button class="enq">Enquire Now</button>
-        <a class="vd" href="${esc(url)}" target="_blank" rel="noopener">View details</a>
       </div>
       <div class="acts">
-        <button class="a-wl${wished?' on':''}"><span class="ic">${wished?'♥':'♡'}</span>Wishlist</button>
         <button class="a-try"><span class="ic">⌂</span>Try in My Room</button>
-        <button class="a-sim"><span class="ic">⇆</span>Find Similar</button>
+        <button class="a-sim"><span class="ic">⇆</span>View Similar Tiles</button>
       </div>
     </div>`;
+  const wb=el.querySelector(".wish");
+  wb.addEventListener("click",()=>{const on=wlToggle(id);wb.className="wish"+(on?" on":"");wb.textContent=on?"♥":"♡"});
   el.querySelector(".enq").addEventListener("click",()=>openEnquire(row));
-  const wb=el.querySelector(".a-wl");
-  wb.addEventListener("click",()=>{const on=wlToggle(id);wb.className="a-wl"+(on?" on":"");wb.querySelector(".ic").textContent=on?"♥":"♡"});
   el.querySelector(".a-try").addEventListener("click",()=>window.open(url,"_blank","noopener"));
   el.querySelector(".a-sim").addEventListener("click",()=>findSimilar(row));
   return el;
