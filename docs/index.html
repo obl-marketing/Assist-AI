@@ -16,6 +16,7 @@
     --gold-ink:#8A6D00; --gold-soft:#FFF3CC; --navy-soft:#E7EAF4;
     --good:#008D36; --good-soft:#E2F3E9; --bad:#C62F44;
     --shadow:0 6px 22px rgba(0,13,54,.10);
+    --spoke:rgba(10,18,48,.05); --facet:rgba(10,18,48,.035); --glow:rgba(255,255,255,.85);
     --radius:14px; --maxw:760px;
   }
   :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
@@ -26,6 +27,7 @@
     --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
     --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
     --shadow:0 6px 22px rgba(0,0,0,.4);
+    --spoke:rgba(255,255,255,.06); --facet:rgba(255,255,255,.04); --glow:rgba(120,150,255,.06);
   }}
   :root[data-theme="dark"]{
     --ground:#070C22; --surface:#111834; --surface-2:#0C1230;
@@ -35,6 +37,7 @@
     --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
     --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
     --shadow:0 6px 22px rgba(0,0,0,.4);
+    --spoke:rgba(255,255,255,.06); --facet:rgba(255,255,255,.04); --glow:rgba(120,150,255,.06);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -60,7 +63,14 @@
   .deliver .chg{margin-left:auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:600 11.5px "Hanken Grotesk";padding:4px 9px;cursor:pointer}
   .deliver .chg:hover{border-color:var(--accent);color:var(--gold-ink)}
 
-  .feed{flex:1;overflow-y:auto;padding:8px 16px 16px}
+  .feed{flex:1;overflow-y:auto;padding:8px 16px 16px;
+    background-color:var(--ground);
+    background-image:
+      radial-gradient(150% 90% at 50% -12%, var(--glow), transparent 55%),
+      repeating-conic-gradient(from 0deg at 50% 20%, var(--spoke) 0 .55deg, transparent .55deg 6deg),
+      repeating-conic-gradient(from 3deg at 50% 20%, var(--facet) 0 .4deg, transparent .4deg 12deg),
+      repeating-radial-gradient(circle at 50% 20%, transparent 0 33px, var(--facet) 33px 34px);
+    background-attachment:local,scroll,scroll,scroll}
   .msg{margin-bottom:14px;display:flex;animation:rise .24s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
   .msg.user{justify-content:flex-end}
