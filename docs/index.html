@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tara AI — Orientbell Tiles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ground:#F4F5F8; --surface:#FFFFFF; --surface-2:#EEF0F6;
+    --ink:#0A1230; --muted:#5C648A; --line:#E0E3EE;
+    --brand:#000D36; --brand-2:#111C4C; --on-brand:#FFFFFF;
+    --accent:#FFCC00; --accent-2:#F0BE00; --on-accent:#000D36;
+    --gold-ink:#8A6D00; --gold-soft:#FFF3CC; --navy-soft:#E7EAF4;
+    --good:#008D36; --good-soft:#E2F3E9; --bad:#C62F44;
+    --shadow:0 6px 22px rgba(0,13,54,.10);
+    --radius:14px; --maxw:760px;
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
+    --ground:#070C22; --surface:#111834; --surface-2:#0C1230;
+    --ink:#EEF1FA; --muted:#9AA3C8; --line:#28315C;
+    --brand:#0A1442; --brand-2:#1B2A63; --on-brand:#FFFFFF;
+    --accent:#FFD633; --accent-2:#FFCC00; --on-accent:#000D36;
+    --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
+    --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
+    --shadow:0 6px 22px rgba(0,0,0,.4);
+  }}
+  :root[data-theme="dark"]{
+    --ground:#070C22; --surface:#111834; --surface-2:#0C1230;
+    --ink:#EEF1FA; --muted:#9AA3C8; --line:#28315C;
+    --brand:#0A1442; --brand-2:#1B2A63; --on-brand:#FFFFFF;
+    --accent:#FFD633; --accent-2:#FFCC00; --on-accent:#000D36;
+    --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
+    --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
+    --shadow:0 6px 22px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{background:var(--ground);color:var(--ink);font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;line-height:1.5;overflow:hidden}
+  .app{max-width:var(--maxw);margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column}
+
+  .topbar{display:flex;align-items:center;gap:12px;padding:14px 16px}
+  .logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:0 0 auto}
+  .brand-name{font-weight:700;font-size:15px;line-height:1.1}
+  .brand-name b{color:var(--gold-ink)}
+  .brand-sub{font-size:11px;color:var(--muted)}
+  .spacer{flex:1}
+  .seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .seg button{border:none;background:transparent;color:var(--muted);font:600 13px "Hanken Grotesk";padding:7px 15px;border-radius:999px;cursor:pointer}
+  .seg button.active{background:var(--brand);color:var(--on-brand)}
+  .icon-btn{width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px}
+  .icon-btn:hover{color:var(--gold-ink);border-color:var(--accent)}
+  .view{display:none;flex:1;flex-direction:column;min-height:0}
+  .view.active{display:flex}
+
+  .deliver{display:flex;align-items:center;gap:8px;margin:0 16px 6px;padding:8px 12px;background:var(--good-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px}
+  .deliver b{color:var(--ink)}
+  .deliver .chg{margin-left:auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:600 11.5px "Hanken Grotesk";padding:4px 9px;cursor:pointer}
+  .deliver .chg:hover{border-color:var(--accent);color:var(--gold-ink)}
+
+  .feed{flex:1;overflow-y:auto;padding:8px 16px 16px}
+  .msg{margin-bottom:14px;display:flex;animation:rise .24s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .msg.user{justify-content:flex-end}
+  .bubble{max-width:90%;padding:10px 13px;border-radius:14px;font-size:14.5px}
+  .msg.user .bubble{background:var(--brand);color:var(--on-brand);border-bottom-right-radius:4px}
+  .msg.bot .bubble{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px;box-shadow:var(--shadow)}
+  .bot .lead-text{margin:0}
+  .ask-pin{margin:8px 0 0;padding:10px 12px;background:var(--gold-soft);border:1px solid var(--accent);border-radius:10px;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .understood{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
+  .understood .f{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--gold-soft);color:var(--gold-ink)}
+  .understood .f.loc{background:var(--good-soft);color:var(--good)}
+  .refine{font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 2px}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:10px 0 2px}
+  .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both}
+  .pcard .img{position:relative;display:block;aspect-ratio:16/10;overflow:hidden}
+  .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+  .pcard .img::after{content:"";position:absolute;inset:0;z-index:0;background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 33.3%),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 1px,transparent 1px 25%);mix-blend-mode:multiply}
+  .pcard .wish{position:absolute;top:12px;left:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
+  .pcard .wish:active{transform:scale(.85)}
+  .pcard .wish.on{color:var(--accent);background:var(--brand)}
+  .pcard .badge{position:absolute;right:12px;top:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
+  .pcard .pbody{padding:13px 15px 14px;display:flex;flex-direction:column;gap:11px}
+  .pcard .namerow{display:flex;align-items:center;gap:10px}
+  .pcard h4{margin:0;flex:1;min-width:0;font-size:15.5px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+  .pcard h4 a{color:inherit;text-decoration:none}
+  .pcard h4 a:hover{color:var(--gold-ink)}
+  .pcard .enq{flex:0 0 auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 15px;font:700 12.5px "Hanken Grotesk";cursor:pointer;white-space:nowrap}
+  .pcard .enq:hover{background:var(--accent-2)}
+  .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:11px}
+  .pcard .acts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--muted);font:600 10.5px "Hanken Grotesk";letter-spacing:.01em;padding:2px;transition:color .15s}
+  .pcard .acts button:hover{color:var(--gold-ink)}
+  .pcard .acts .ic{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--ink);transition:.15s}
+  .pcard .acts button:hover .ic{border-color:var(--accent);background:var(--gold-soft)}
+  .pcard .acts button.on .ic{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+  .show-more{display:block;margin:12px auto 2px;background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:10px 20px;font:600 13px "Hanken Grotesk";cursor:pointer}
+  .show-more:hover{border-color:var(--accent);background:var(--gold-soft)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 2px}
+  .chip{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 12.5px "Hanken Grotesk";cursor:pointer}
+  .chip:hover{border-color:var(--accent);background:var(--gold-soft)}
+
+  .lead{background:var(--brand);color:var(--on-brand);border-radius:12px;padding:13px;margin:8px 0}
+  .lead h5{margin:0 0 3px;font-size:14px;display:flex;gap:6px;align-items:center}
+  .lead h5 .star{color:var(--accent)}
+  .lead .s2{margin:0 0 9px;font-size:12px;opacity:.85}
+  .lead input{width:100%;border:1px solid transparent;border-radius:8px;padding:9px 11px;font-size:13.5px;margin-bottom:7px;background:#fff;color:#0A1230;outline:none}
+  .lead input:focus{box-shadow:0 0 0 3px var(--accent)}
+  .lead input.bad{box-shadow:0 0 0 2px #FF6B6B}
+  .lead .err{min-height:13px;font-size:11.5px;color:#FFD633;font-weight:600;margin:0 0 6px}
+  .lead .go{width:100%;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:10px;font:700 13.5px "Hanken Grotesk";cursor:pointer}
+  .lead .fine{font-size:10.5px;opacity:.6;margin:8px 0 0}
+  .lead.done{text-align:center}
+  .lead .tick{font-size:26px;color:var(--good);margin-bottom:4px}
+
+  /* Scrolling tile strip — simple, elegant, square edges */
+  .strip{position:relative;overflow:hidden;margin:12px 0 4px}
+  .track2{display:flex;gap:8px;width:max-content;animation:marquee 28s linear infinite}
+  .strip:hover .track2{animation-play-state:paused}
+  .ttile{flex:0 0 116px;overflow:hidden;background:var(--surface-2);text-decoration:none}
+  .ttile .tim{position:relative;aspect-ratio:1/1;overflow:hidden}
+  .ttile .tim img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ttile .tnm{padding:7px 2px 2px;font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion: reduce){.track2{animation:none}.strip{overflow-x:auto}}
+
+  /* Start form (name / mobile / pincode) */
+  .startform{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
+  .startform label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 4px;display:block}
+  .startform .fl{margin-bottom:9px}
+  .startform .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .startform input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:10px 12px;font-size:14px;outline:none}
+  .startform input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--gold-soft)}
+  .startform input.bad{border-color:var(--bad);box-shadow:0 0 0 2px rgba(198,47,68,.22)}
+  .startform .err{min-height:14px;font-size:11.5px;color:var(--bad);font-weight:600;margin:1px 0 6px}
+  .startform .go{width:100%;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:11px;font:700 14px "Hanken Grotesk";cursor:pointer}
+  .startform .go:hover{background:var(--accent-2)}
+  .startform .skip{display:block;width:100%;margin:8px 0 0;background:transparent;border:none;color:var(--muted);font:600 12.5px "Hanken Grotesk";cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .startform .skip:hover{color:var(--gold-ink)}
+  .startform .fine{font-size:10.5px;color:var(--muted);margin:8px 0 0;line-height:1.4}
+
+  .composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
+  .composer input{flex:1;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:11px 15px;font-size:14.5px;outline:none}
+  .composer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--gold-soft)}
+  .composer .send{background:var(--accent);color:var(--on-accent);border:none;border-radius:999px;padding:0 18px;font-weight:700;cursor:pointer}
+
+  /* Train — simple sources */
+  .train{flex:1;overflow-y:auto;padding:16px}
+  .addbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);margin-bottom:16px}
+  .addbox h3{margin:0 0 3px;font-size:15px}
+  .addbox .hint{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
+  .addbox .field{margin-bottom:9px}
+  .addbox label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px}
+  .addbox select,.addbox input[type=text]{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:9px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit}
+  .addbox select:focus,.addbox input[type=text]:focus{border-color:var(--accent)}
+  .btn{border:none;border-radius:9px;padding:10px 15px;font:600 13px "Hanken Grotesk";cursor:pointer}
+  .btn.gold{background:var(--accent);color:var(--on-accent)}
+  .btn.solid{background:var(--brand);color:var(--on-brand)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .row-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .fname{font-size:12px;color:var(--muted)}
+  .src-head{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:2px 0 10px;display:flex;align-items:center;gap:8px}
+  .src-head .n{font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:999px;padding:2px 10px;font-size:11px;letter-spacing:0;text-transform:none}
+  .src{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .src-top{display:flex;align-items:flex-start;gap:12px;padding:13px 14px}
+  .src-ix{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:13px;display:grid;place-items:center}
+  .src-info{flex:1;min-width:0}
+  .src-desc{font-size:14px;font-weight:700;line-height:1.3}
+  .src-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .src-btns{display:flex;gap:6px;flex:0 0 auto}
+  .src-btns button{border:none;border-radius:8px;padding:6px 11px;font:600 12px "Hanken Grotesk";cursor:pointer}
+  .src-btns .v{background:var(--navy-soft);color:var(--brand)}
+  .src-btns .d{background:transparent;border:1px solid var(--line);color:var(--bad)}
+  .src-detail{padding:0 14px 14px;border-top:1px solid var(--line)}
+  .src-detail>*:first-child{margin-top:12px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  table{border-collapse:collapse;font-size:11.5px;white-space:nowrap;min-width:100%}
+  th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--surface-2);font-weight:700}
+  td{color:var(--muted)}
+  .map{display:grid;grid-template-columns:130px 1fr;gap:8px 10px;align-items:center;margin:4px 0 12px}
+  .map label{font-size:12.5px;color:var(--muted);font-weight:600}
+  .map select{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:8px;font-size:13px}
+  .maplabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:2px 0 6px}
+  .empty-src{color:var(--muted);font-size:13.5px;text-align:center;padding:10px 6px}
+  .kb-foot{font-size:12px;color:var(--muted);text-align:center;margin:16px 6px 0;line-height:1.55}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+  @media(max-width:520px){.bubble{max-width:94%}.map{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M12 2.4a1.7 1.7 0 0 0-1.7 1.7v.5C7.7 5.5 5.9 7.9 5.9 10.7v4.4l-1.6 2v1.1h15.4v-1.1l-1.6-2v-4.4c0-2.8-1.8-5.2-4.4-6.1v-.5A1.7 1.7 0 0 0 12 2.4Z" fill="var(--accent)"/>
+        <path d="M9.5 19.4a2.5 2.5 0 0 0 5 0Z" fill="var(--accent)"/>
+      </svg>
+    </span>
+    <div>
+      <div class="brand-name">Tara <b>AI</b></div>
+      <div class="brand-sub">Tile Shopping Assistant</div>
+    </div>
+    <span class="spacer"></span>
+    <div class="seg">
+      <button id="tabChat" class="active">Chat</button>
+      <button id="tabTrain">Train</button>
+    </div>
+    <button class="icon-btn" id="resetBtn" title="Reset chat" aria-label="Reset chat">↺</button>
+    <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+  </div>
+
+  <!-- CHAT -->
+  <div class="view active" id="chatView">
+    <div class="deliver" id="deliverBar" hidden></div>
+    <div class="feed" id="feed"></div>
+    <div class="composer">
+      <input id="input" autocomplete="off" placeholder="Looking for Bathroom Tiles" aria-label="Search tiles or enter pincode">
+      <button class="send" id="send">Send</button>
+    </div>
+  </div>
+
+  <!-- TRAIN -->
+  <div class="view" id="trainView">
+    <div class="train">
+      <div class="addbox">
+        <h3>Add a knowledge source</h3>
+        <p class="hint">Upload a CSV, say what it is, and describe it. You can view or delete it any time.</p>
+        <div class="field">
+          <label>What kind of data is this?</label>
+          <select id="srcType">
+            <option value="catalogue">Product catalogue — the tiles Tara searches &amp; shows</option>
+            <option value="site">Website pages — category / collection pages (bathroom, living room…)</option>
+            <option value="seo">Keywords → pages — helps read intent</option>
+            <option value="deliv">Deliverability — which source delivers to which states</option>
+            <option value="pincode">Pincode → state — exact overrides</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Describe this source</label>
+          <input type="text" id="srcDesc" placeholder="e.g. Full tile catalogue — Aug 2026">
+        </div>
+        <div class="row-btns">
+          <button class="btn gold" id="srcPick">Choose CSV…</button>
+          <span class="fname" id="srcFileName"></span>
+          <input type="file" id="srcFile" accept=".csv,text/csv" hidden>
+        </div>
+        <div class="row-btns" style="margin-top:10px">
+          <button class="btn ghost" id="loadSample">Load sample data</button>
+        </div>
+      </div>
+
+      <div class="src-head">Your sources <span class="n" id="srcCount">0</span></div>
+      <div id="srcList"></div>
+      <p class="kb-foot">Coming soon — live integrations that replace these CSVs: Magento, Stock, Deliverability &amp; Price APIs, plus continuous training.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================ storage ============================ */
+const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist",contact:"tara_contact",leads:"tara_leads",seeded:"tara_seeded"};
+const API_BASE=(window.TARA_API||"").replace(/\/$/,"");  // same-origin by default
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  del(k){try{localStorage.removeItem(k)}catch(e){}}
+};
+let SOURCES=store.get(LS.sources,[]);
+let session=store.get(LS.session,{pincode:null,state:null});
+let contact=store.get(LS.contact,null);   // {name, mobile}
+
+/* Record a lead: keep locally AND post to the backend (which appends it to a
+   CSV/Excel for daily pickup). The POST is best-effort; it silently no-ops on
+   the static preview where no backend exists. */
+function recordLead(rec){
+  rec.ts=new Date().toISOString();
+  try{const a=JSON.parse(localStorage.getItem(LS.leads)||"[]");a.push(rec);localStorage.setItem(LS.leads,JSON.stringify(a))}catch(e){}
+  try{fetch(API_BASE+"/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{})}catch(e){}
+}
+/* Engine state — rebuilt from SOURCES */
+let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
+let DOMAIN=new Set();   // tile vocabulary, used to tell a search apart from chit-chat
+let PRICE_STATS=null;   // {n, med} — lets the bot understand budget vs premium from the catalogue
+
+const TYPE_LABEL={catalogue:"Product catalogue",site:"Website pages",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state"};
+
+/* ============================ CSV parser ============================ */
+function parseCSV(text){
+  text=text.replace(/^﻿/,"");
+  const rows=[];let row=[],field="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){field+='"';i++} else q=false } else field+=c; }
+    else{ if(c==='"')q=true; else if(c===','){row.push(field);field=""}
+      else if(c==='\n'){row.push(field);rows.push(row);row=[];field=""}
+      else if(c==='\r'){} else field+=c; }
+  }
+  if(field.length||row.length){row.push(field);rows.push(row)}
+  const clean=rows.filter(r=>r.some(c=>c.trim()!==""));
+  if(!clean.length)return{headers:[],rows:[]};
+  const headers=clean[0].map(h=>h.trim());
+  const maxLen=clean.reduce((m,r)=>Math.max(m,r.length),headers.length);
+  for(let i=headers.length;i<maxLen;i++)headers.push("column_"+(i+1));
+  const objs=clean.slice(1).map(r=>{const o={};headers.forEach((h,i)=>o[h]=(r[i]||"").trim());return o});
+  return{headers,rows:objs};
+}
+
+/* ============================ catalogue mapping ============================ */
+const ATTRS=[
+  ["name",/name|title|product|descri/i,"Product name"],
+  ["sku",/sku|code|item.?id|article/i,"SKU / code"],
+  ["size",/size|dimension/i,"Size"],
+  ["color",/colou?r|shade|tone/i,"Colour"],
+  ["finish",/finish|surface/i,"Finish"],
+  ["material",/material|body/i,"Material"],
+  ["room",/room|applicat|space|area|usage/i,"Room / application"],
+  ["category",/categ|collection|series/i,"Category"],
+  ["mrp",/mrp|list.?price|max.?price|was/i,"MRP"],
+  ["price",/price|rate|cost|selling|amount/i,"Price"],
+  ["plant",/plant|factory|unit|source|origin|warehouse/i,"Plant / source"],
+  ["image",/image|img|photo|thumb|picture|visual/i,"Image URL"],
+  ["url",/product.?url|product.?link|page.?url|^url$|^link$|permalink/i,"Product URL"]
+];
+function autoMap(headers){
+  const m={};
+  ATTRS.forEach(([key,re])=>{const h=headers.find(h=>re.test(h));if(h)m[key]=h});
+  if(m.mrp&&m.mrp===m.price)delete m.mrp;
+  if(m.url&&m.url===m.image)delete m.url;
+  if(!m.name&&headers.length)m.name=headers[0];
+  return m;
+}
+
+/* ============================ source builders ============================ */
+function seoFrom(headers,rows){
+  const kCol=headers.find(h=>/keyword|query|phrase|term|intent/i.test(h))||headers[0];
+  const uCol=headers.find(h=>/url|link|page/i.test(h))||headers[1];
+  const tCol=headers.find(h=>/type|kind/i.test(h));
+  return rows.map(r=>({keyword:(r[kCol]||"").toLowerCase().trim(),url:(r[uCol]||"").trim(),type:tCol?(r[tCol]||"").trim():"Page"})).filter(e=>e.keyword&&e.url);
+}
+function siteFrom(headers,rows){
+  const nCol=headers.find(h=>/name|category|page|title|collection/i.test(h))||headers[0];
+  const uCol=headers.find(h=>/url|link/i.test(h))||headers[1];
+  const aCol=headers.find(h=>/alias|synonym|keyword|also|match/i.test(h));
+  return rows.map(r=>({name:(r[nCol]||"").trim(),url:(r[uCol]||"").trim(),
+    aliases:aCol?String(r[aCol]||"").split(/[|,;]/).map(x=>x.trim()).filter(Boolean):[]})).filter(p=>p.name&&p.url);
+}
+function delivFrom(headers,rows){
+  const map={};
+  rows.forEach(r=>{const vals=headers.map(h=>r[h]);const key=(vals[0]||"").toLowerCase().trim();if(!key)return;
+    const dests=vals.slice(1).join(",").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+    if(dests.length)map[key]=map[key]?[...new Set(map[key].concat(dests))]:dests});
+  return map;
+}
+function pinFrom(headers,rows){
+  const pCol=headers.find(h=>/pin/i.test(h))||headers[0];const sCol=headers.find(h=>/state/i.test(h))||headers[1];
+  const map={};rows.forEach(r=>{const p=(r[pCol]||"").replace(/\D/g,"");const s=(r[sCol]||"").trim();if(p.length===6&&s)map[p]=s});
+  return map;
+}
+
+/* Rebuild all engine data from the SOURCES list (single source of truth). */
+function rebuildEngines(){
+  ROWS=[];HEADERS=[];MAP={};SEO=[];SITE=[];DELIV_CSV={};PIN_OVERRIDE={};
+  SOURCES.forEach(s=>{
+    if(s.type==="catalogue"){ROWS=s.rows;HEADERS=s.headers;if(!s.map)s.map=autoMap(s.headers);MAP=s.map}
+    else if(s.type==="seo")SEO=SEO.concat(seoFrom(s.headers,s.rows));
+    else if(s.type==="site"){const arr=siteFrom(s.headers,s.rows);SITE=SITE.concat(arr);
+      arr.forEach(p=>{SEO.push({keyword:p.name.toLowerCase(),url:p.url,type:"Category"});p.aliases.forEach(a=>SEO.push({keyword:a.toLowerCase(),url:p.url,type:"Category"}))});}
+    else if(s.type==="deliv")Object.assign(DELIV_CSV,delivFrom(s.headers,s.rows));
+    else if(s.type==="pincode")Object.assign(PIN_OVERRIDE,pinFrom(s.headers,s.rows));
+  });
+  loadDelivConfig();
+  DOMAIN=domainVocab();
+  PRICE_STATS=priceStats();
+  store.set(LS.sources,SOURCES);
+}
+/* Budget/premium understanding, learned from the catalogue's own prices. */
+function priceStats(){
+  const vals=ROWS.map(r=>priceOf(r)).filter(v=>v!=null).sort((a,b)=>a-b);
+  if(!vals.length)return null;
+  return {n:vals.length,med:vals[Math.floor(vals.length/2)]};
+}
+/* Tile vocabulary: fixed terms + every distinct value from the catalogue and
+   the SEO keywords. A query touching this vocab is a real tile search. */
+function domainVocab(){
+  const v=new Set("tile tiles floor floors flooring wall walls design designs designer catalogue catalog price budget cheap premium luxury marble wood wooden stone glossy matt matte polished rough textured antiskid anti skid slip vitrified gvt pgvt ceramic double charge subway highlighter backsplash kitchen bathroom washroom balcony terrace parking outdoor bedroom living hall size sizes colour color shade finish".split(" "));
+  ["color","room","finish","material","category","name"].forEach(k=>{
+    if(MAP[k])ROWS.forEach(r=>{(String(r[MAP[k]]||"").toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
+  });
+  SEO.forEach(e=>{(e.keyword.match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
+  SITE.forEach(p=>{[p.name,...p.aliases].forEach(t=>{(t.toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})})});
+  return v;
+}
+function tok(s){return (String(s).toLowerCase().match(/[a-z0-9]+/g)||[]).filter(t=>t.length>1)}
+/* "tile" = a real product search; otherwise a small-talk category. */
+function intentKind(q){
+  const p=parseQuery(q);
+  if(p.sizes.length||p.priceMin!=null||p.priceMax!=null)return "tile";
+  if(tok(q).some(t=>DOMAIN.has(t)))return "tile";
+  if(matchSEO(q).length)return "tile";
+  const s=q.toLowerCase();
+  if(/\b(hi+|hello+|hey+|helo|yo|namaste|hola|good\s?(morning|afternoon|evening|day))\b/.test(s))return "greeting";
+  if(/\b(thanks|thank\s?you|thank\s?u|thx|ty|great|awesome|nice|cool|good|ok|okay|okey|sure|perfect)\b/.test(s))return "thanks";
+  if(/\b(bye|good\s?bye|see\s?you|cya|talk\s?later)\b/.test(s))return "bye";
+  if(/\b(who are you|what are you|your name|about you|what can you (do|help)|what do you do|how (do|does) (you|this) work|help|options)\b/.test(s))return "about";
+  return "chitchat";
+}
+function addSource(type,desc,text,filename){
+  const {headers,rows}=parseCSV(text);
+  if(!rows.length){alert("That CSV looks empty or unreadable.");return false}
+  const s={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};
+  if(type==="catalogue")s.map=autoMap(headers);
+  SOURCES=SOURCES.filter(x=>x.type!==type);   // one active source per type
+  SOURCES.push(s);
+  rebuildEngines();renderSources();
+  return true;
+}
+function deleteSource(id){SOURCES=SOURCES.filter(s=>s.id!==id);rebuildEngines();renderSources()}
+
+/* ============================ query parsing ============================ */
+const STOP=new Set("a an the is are for i am looking want need show me my in on of with tiles tile some any good best suitable to and or under over above below within upto rs pincode pin deliver delivery area mm cm".split(" "));
+function normSize(s){return s.toLowerCase().replace(/\s+/g,"").replace(/[×*]/g,"x").replace(/mm|cm|inch|in|ft|feet/g,"")}
+function parseQuery(raw){
+  const q=raw.toLowerCase();
+  const sizes=[...q.matchAll(/(\d{2,4})\s*[x×*]\s*(\d{2,4})/g)].map(m=>m[1]+"x"+m[2]);
+  let priceMax=null,priceMin=null,m;
+  if(m=q.match(/(?:under|below|less than|upto|up to|within|max|cheaper than)\s*(?:rs\.?|₹|inr)?\s*(\d+)/))priceMax=+m[1];
+  if(m=q.match(/(?:above|over|more than|greater than|min|at least|starting)\s*(?:rs\.?|₹|inr)?\s*(\d+)/))priceMin=+m[1];
+  if(m=q.match(/(?:between|from)\s*(\d+)\s*(?:to|-|and|–)\s*(\d+)/)){priceMin=+m[1];priceMax=+m[2]}
+  const hadExplicitPrice=priceMin!=null||priceMax!=null;
+  let sort=null;
+  if(/\b(budget|cheap|cheapest|affordable|economical|low ?cost|value)\b/.test(q))sort="asc";
+  if(/\b(premium|luxury|luxurious|expensive|high ?end|classy)\b/.test(q))sort="desc";
+  // Turn budget/premium into an actual price range using the catalogue's median.
+  if(PRICE_STATS){
+    if(sort==="asc"&&priceMax==null)priceMax=PRICE_STATS.med;
+    if(sort==="desc"&&priceMin==null)priceMin=PRICE_STATS.med;
+  }
+  const bandPrice=!hadExplicitPrice&&(priceMin!=null||priceMax!=null);
+  let kw=q.replace(/(\d{2,4})\s*[x×*]\s*(\d{2,4})/g," ")
+          .replace(/(?:under|below|less than|upto|up to|within|above|over|more than|between|from|max|min)\s*(?:rs\.?|₹|inr)?\s*\d+(\s*(?:to|and|-|–)\s*\d+)?/g," ")
+          .replace(/[₹$,]/g," ");
+  const words=(kw.match(/[a-z0-9\-]+/g)||[]).filter(w=>!STOP.has(w)&&w.length>1);
+  return{sizes,priceMin,priceMax,sort,words,bandPrice};
+}
+
+/* ============================ filtering (strictly over uploaded CSV) ==== */
+function priceOf(row){const raw=MAP.price?row[MAP.price]:"";const n=parseFloat(String(raw).replace(/[^\d.]/g,""));return isNaN(n)?null:n}
+function mrpOf(row){const raw=MAP.mrp?row[MAP.mrp]:"";const n=parseFloat(String(raw).replace(/[^\d.]/g,""));return isNaN(n)?null:n}
+function rowText(row){return Object.values(row).join(" ").toLowerCase()}
+function filterRows(p){
+  let out=ROWS.map(r=>({r,score:0}));
+  if(p.sizes.length){out=out.filter(({r})=>{const hay=MAP.size?normSize(r[MAP.size]||""):normSize(rowText(r));return p.sizes.some(s=>hay.includes(normSize(s)))})}
+  if(p.priceMin!=null||p.priceMax!=null){out=out.filter(({r})=>{const v=priceOf(r);if(v==null)return false;if(p.priceMin!=null&&v<p.priceMin)return false;if(p.priceMax!=null&&v>p.priceMax)return false;return true})}
+  if(p.words.length){
+    out.forEach(o=>{const t=rowText(o.r);o.score=p.words.reduce((a,w)=>a+(t.includes(w)?1:0),0)});
+    let strong=out.filter(o=>o.score===p.words.length);
+    if(!strong.length)strong=out.filter(o=>o.score>0);
+    const hard=p.sizes.length||p.priceMin!=null||p.priceMax!=null;
+    if(strong.length||!hard)out=strong;
+  }
+  if(p.sort){out.sort((a,b)=>{const x=priceOf(a.r),y=priceOf(b.r);if(x==null)return 1;if(y==null)return -1;return p.sort==="asc"?x-y:y-x})}
+  else out.sort((a,b)=>b.score-a.score);
+  return out.map(o=>o.r);
+}
+
+/* ============================ deliverability ============================ */
+const PIN2STATE={"11":"Delhi","12":"Haryana","13":"Haryana","14":"Punjab","15":"Punjab","16":"Punjab","17":"Himachal Pradesh","18":"Jammu & Kashmir","19":"Jammu & Kashmir",
+"20":"Uttar Pradesh","21":"Uttar Pradesh","22":"Uttar Pradesh","23":"Uttar Pradesh","24":"Uttar Pradesh","25":"Uttar Pradesh","26":"Uttar Pradesh","27":"Uttar Pradesh","28":"Uttar Pradesh",
+"30":"Rajasthan","31":"Rajasthan","32":"Rajasthan","33":"Rajasthan","34":"Rajasthan","36":"Gujarat","37":"Gujarat","38":"Gujarat","39":"Gujarat",
+"40":"Maharashtra","41":"Maharashtra","42":"Maharashtra","43":"Maharashtra","44":"Maharashtra","45":"Madhya Pradesh","46":"Madhya Pradesh","47":"Madhya Pradesh","48":"Madhya Pradesh","49":"Chhattisgarh",
+"50":"Telangana","51":"Andhra Pradesh","52":"Andhra Pradesh","53":"Andhra Pradesh","56":"Karnataka","57":"Karnataka","58":"Karnataka","59":"Karnataka",
+"60":"Tamil Nadu","61":"Tamil Nadu","62":"Tamil Nadu","63":"Tamil Nadu","64":"Tamil Nadu","67":"Kerala","68":"Kerala","69":"Kerala",
+"70":"West Bengal","71":"West Bengal","72":"West Bengal","73":"West Bengal","74":"West Bengal","75":"Odisha","76":"Odisha","77":"Odisha","78":"Assam","79":"North East",
+"80":"Bihar","81":"Bihar","82":"Bihar","83":"Jharkhand","84":"Bihar","85":"Jharkhand"};
+function stateOfPin(pin){return PIN_OVERRIDE[pin]||PIN2STATE[pin.slice(0,2)]||null}
+const DEFAULT_PLANTS=`North Plant = Delhi, Haryana, Punjab, Chandigarh, Uttar Pradesh, Uttarakhand, Rajasthan, Himachal Pradesh, Jammu & Kashmir, Bihar, Jharkhand
+South Plant = Karnataka, Tamil Nadu, Kerala, Telangana, Andhra Pradesh, Puducherry
+West Plant = Gujarat, Maharashtra, Madhya Pradesh, Chhattisgarh, Goa
+East Plant = West Bengal, Odisha, Assam, North East`;
+const DEFAULT_OFFERS=`Delhi = 10%
+Uttar Pradesh = 7%
+Maharashtra = 5%
+Karnataka = 8%`;
+function loadDelivConfig(){
+  PLANTS={};DEFAULT_PLANTS.split("\n").forEach(l=>{const m=l.split("=");if(m.length>=2){const k=m[0].trim().toLowerCase();const st=m.slice(1).join("=").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);if(k&&st.length)PLANTS[k]=st}});
+  Object.assign(PLANTS,DELIV_CSV);
+  OFFERS={};DEFAULT_OFFERS.split("\n").forEach(l=>{const m=l.split("=");if(m.length===2){const k=m[0].trim().toLowerCase();let v=m[1].trim();if(k&&v){if(v.endsWith("%"))OFFERS[k]={type:"pct",val:parseFloat(v)};else OFFERS[k]={type:"flat",val:parseFloat(v.replace(/[^\d.]/g,""))}}}});
+}
+function servedStates(plantName){const k=(plantName||"").toLowerCase().trim();if(!k)return null;if(PLANTS[k])return PLANTS[k];for(const key in PLANTS){const base=key.split("(")[0].trim();if(key.includes(k)||k.includes(base))return PLANTS[key]}return null}
+function isDeliverable(row,state){if(!MAP.plant)return true;const s=servedStates(row[MAP.plant]);if(!s)return true;return s.includes((state||"").toLowerCase())}
+function offerFor(base,state){const rule=OFFERS[(state||"").toLowerCase()];if(!rule||base==null)return null;const off=rule.type==="pct"?base*rule.val/100:rule.val;return{now:Math.max(0,Math.round(base-off)),was:base,label:rule.type==="pct"?rule.val+"% off":"₹"+rule.val+" off"}}
+
+/* ============================ view: chat ============================ */
+const SWATCH={pink:"#F4A6C0",blush:"#F4A6C0",rose:"#EC87A9",mauve:"#CF9DBE",white:"#EFEDEC",ivory:"#F1EAD9",cream:"#EFE4CE",beige:"#E4D5B7",sand:"#E1CFA9",grey:"#BDB6B8",gray:"#BDB6B8",silver:"#CBCBD0",slate:"#8A97A3",charcoal:"#5B5257",black:"#3A3338",brown:"#A07E6E",oak:"#C69A5F",honey:"#D6A23C",wood:"#C69A5F",graphite:"#514B50",aqua:"#AEDDE1",blue:"#98C4E8",navy:"#2A3670",green:"#9DC6A0",terracotta:"#C56A48",rust:"#AC553A",gold:"#E5C15A",marble:"#E7E6E4",stone:"#C6C2BD",red:"#D98A8A",yellow:"#EBD98A"};
+function swatchFor(row){const raw=(MAP.color?row[MAP.color]:"")||rowText(row);const w=raw.toLowerCase().match(/[a-z]+/g)||[];const c=w.find(x=>SWATCH[x]);const c2=w.slice((w.indexOf(c)||0)+1).find(x=>SWATCH[x]);const a=SWATCH[c]||"#D9D2D4",b=SWATCH[c2]||a;return`linear-gradient(135deg,${a},${b})`}
+const esc=s=>{const d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML};
+const feed=document.getElementById("feed");
+const input=document.getElementById("input");
+const deliverBar=document.getElementById("deliverBar");
+let pendingQuery=null;
+let detailsAsked=false;   // whether we've prompted for name/mobile/pincode this session
+
+function bubble(role){const w=document.createElement("div");w.className="msg "+role;const b=document.createElement("div");b.className="bubble";w.appendChild(b);feed.appendChild(w);feed.scrollTop=feed.scrollHeight;return b}
+function addUser(t){bubble("user").textContent=t}
+
+function slugify(s){return String(s).toLowerCase().trim().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
+function productURL(row,name){if(MAP.url&&row[MAP.url])return row[MAP.url];return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com"}
+function imageURL(row){return MAP.image?row[MAP.image]:""}
+
+function wl(){return store.get(LS.wish,[])}
+function wlToggle(id){const a=wl();const i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);store.set(LS.wish,a);return i<0}
+
+function priceInner(row){
+  const base=priceOf(row),mrp=mrpOf(row);if(base==null&&mrp==null)return"";
+  const bse=base!=null?base:mrp;
+  if(session.state){const o=offerFor(bse,session.state);if(o)return`<span class="now">₹${o.now}</span><span class="was">₹${o.was}</span><span class="off">${esc(o.label)} · ${esc(session.state)}</span>`}
+  if(mrp!=null&&mrp>bse)return`<span class="now">₹${bse}</span><span class="was">₹${mrp}</span>`;
+  return`<span class="now">₹${bse}</span>`;
+}
+function findSimilar(row){
+  const parts=[];
+  ["finish","color","room"].forEach(k=>{if(MAP[k]&&row[MAP[k]])parts.push(String(row[MAP[k]]).split(/[,/]/)[0].trim())});
+  search((parts.join(" ")+" tiles").trim()||"tiles");
+}
+function card(row,deliverable){
+  const name=MAP.name?row[MAP.name]:Object.values(row)[0];
+  const id=(MAP.sku&&row[MAP.sku])||name;
+  const url=productURL(row,name),img=imageURL(row),wished=wl().includes(id),nd=deliverable===false;
+  const el=document.createElement("div");el.className="pcard";
+  el.innerHTML=`
+    <a class="img" href="${esc(url)}" target="_blank" rel="noopener" style="background:${swatchFor(row)}">
+      ${img?`<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onerror="this.remove()">`:""}
+      ${nd?`<span class="badge">Not in ${esc(session.state||"area")}</span>`:""}
+    </a>
+    <button class="wish${wished?' on':''}" title="Wishlist" aria-label="Wishlist">${wished?'♥':'♡'}</button>
+    <div class="pbody">
+      <div class="namerow">
+        <h4><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a></h4>
+        <button class="enq">Enquire Now</button>
+      </div>
+      <div class="acts">
+        <button class="a-try"><span class="ic">⌂</span>Try in My Room</button>
+        <button class="a-sim"><span class="ic">⇆</span>View Similar Tiles</button>
+      </div>
+    </div>`;
+  const wb=el.querySelector(".wish");
+  wb.addEventListener("click",()=>{const on=wlToggle(id);wb.className="wish"+(on?" on":"");wb.textContent=on?"♥":"♡"});
+  el.querySelector(".enq").addEventListener("click",()=>openEnquire(row));
+  el.querySelector(".a-try").addEventListener("click",()=>window.open(url,"_blank","noopener"));
+  el.querySelector(".a-sim").addEventListener("click",()=>findSimilar(row));
+  return el;
+}
+
+function enquireConfirm(name){
+  const b=bubble("bot");const box=document.createElement("div");box.className="lead done";
+  box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(contact.name)}!</h5>
+    <p class="s2" style="opacity:.9">Our team will call you on <b>${esc(contact.mobile)}</b> about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+}
+function openEnquire(row){
+  const name=MAP.name?row[MAP.name]:Object.values(row)[0];
+  // Contact already captured at the start of the chat — just log the product interest.
+  if(contact&&contact.mobile){
+    recordLead({name:contact.name,mobile:contact.mobile,pincode:session.pincode,state:session.state,product:name,source:"enquire"});
+    enquireConfirm(name);return;
+  }
+  const b=bubble("bot");const box=document.createElement("div");box.className="lead";
+  box.innerHTML=`<h5><span class="star">✦</span> Enquire about this tile</h5>
+    <p class="s2">Leave your name &amp; mobile — our team will call you back about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>
+    <input class="l-name" type="text" placeholder="Full name" autocomplete="name">
+    <input class="l-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel">
+    <p class="err"></p>
+    <button class="go">Request a callback →</button>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+  const nm=box.querySelector(".l-name"),mb=box.querySelector(".l-mob"),err=box.querySelector(".err");
+  [nm,mb].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),40);
+  box.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
+    if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    recordLead({name:nameV,mobile:mob,pincode:session.pincode,state:session.state,product:name,source:"enquire"});
+    box.className="lead done";
+    box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(nameV)}!</h5>
+      <p class="s2" style="opacity:.9">Our team will call you on <b>${esc(mob)}</b> about the <b>${esc(name)}</b>${session.state?(" for "+esc(session.state)):""}.</p>`;
+    feed.scrollTop=feed.scrollHeight;
+  });
+}
+
+function understoodChips(p){
+  const fs=[];
+  if(session.state)fs.push({t:"📍 "+session.state,loc:true});
+  p.sizes.forEach(s=>fs.push({t:"Size "+s}));
+  if(!p.bandPrice){
+    if(p.priceMin!=null&&p.priceMax!=null)fs.push({t:"₹"+p.priceMin+"–"+p.priceMax});
+    else if(p.priceMax!=null)fs.push({t:"≤ ₹"+p.priceMax});
+    else if(p.priceMin!=null)fs.push({t:"≥ ₹"+p.priceMin});
+  }
+  if(p.sort==="asc")fs.push({t:"Budget"});
+  if(p.sort==="desc")fs.push({t:"Premium"});
+  return fs;
+}
+function distinctVals(rows,key){const seen=new Set(),out=[];rows.forEach(r=>{const v=(r[key]||"").trim();const k=v.toLowerCase();if(v&&!seen.has(k)){seen.add(k);out.push(v)}});return out}
+/* Clarifying refine options from the distinct values present in the matches. */
+function refineChips(results,q){
+  if(results.length<3)return[];
+  const ql=q.toLowerCase();const chips=[];
+  [["room"],["finish"],["color"]].forEach(([key])=>{
+    if(chips.length>=5||!MAP[key])return;
+    const vals=distinctVals(results,MAP[key]).filter(v=>!ql.includes(v.toLowerCase()));
+    if(vals.length>=2)vals.slice(0,3).forEach(v=>{if(chips.length<5)chips.push(v)});
+  });
+  return chips;
+}
+
+const PIN_ASK="To show deliverable products to your area, please enter the pincode.";
+function updateDeliverBar(){
+  if(session.pincode){deliverBar.hidden=false;
+    deliverBar.innerHTML=`📍 Delivering to <b>${session.state?esc(session.state):"—"}</b> · PIN ${esc(session.pincode)} <button class="chg" id="chgPin">Change</button>`;
+    document.getElementById("chgPin").onclick=()=>{session={pincode:null,state:null};store.set(LS.session,session);deliverBar.hidden=true;const b=bubble("bot");b.innerHTML=`<p class="ask-pin">📍 Please share your new 6-digit pincode.</p>`};
+  }else deliverBar.hidden=true;
+}
+function setPincode(pin){
+  const st=stateOfPin(pin);session={pincode:pin,state:st};store.set(LS.session,session);updateDeliverBar();
+  const b=bubble("bot");
+  if(st)b.innerHTML=`<p class="lead-text">✓ Great — we deliver to <b>${esc(st)}</b> (PIN ${esc(pin)}). Now showing products available in your area.</p>`;
+  else b.innerHTML=`<p class="lead-text">I couldn't map PIN <b>${esc(pin)}</b> to a state. You can still browse — add a Pincode → state source in Train for accuracy.</p>`;
+  if(pendingQuery){const q=pendingQuery;pendingQuery=null;setTimeout(()=>runSearch(q),140)}
+}
+
+function listCategories(b){
+  b.innerHTML='<p class="lead-text">Here are our main tile collections — tap any to explore on the website 👇</p>';
+  const wrap=document.createElement("div");wrap.style.cssText="display:flex;flex-direction:column;gap:6px;margin-top:6px";
+  const seen=new Set();
+  SITE.forEach(p=>{if(seen.has(p.url))return;seen.add(p.url);
+    const a=document.createElement("a");a.href=p.url;a.target="_blank";a.rel="noopener";
+    a.style.cssText="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);text-decoration:none;font-size:13.5px;font-weight:600";
+    a.innerHTML=`${esc(p.name)}<span style="color:var(--gold-ink)">↗</span>`;wrap.appendChild(a)});
+  b.appendChild(wrap);feed.scrollTop=feed.scrollHeight;
+}
+function conversationalReply(b,kind){
+  const msg={
+    greeting:"Hi there! 😊 I can help you find the right Orientbell tiles — by room, size, colour, finish or budget. What are you looking for?",
+    thanks:"You’re welcome! 🙌 Want to see a few more options? Try one of these:",
+    bye:"Thanks for stopping by! 👋 Whenever you’re ready, I’m here to help you find the perfect tiles.",
+    about:"I’m <b>Tara</b>, Orientbell’s tile shopping assistant. Tell me a room, size, colour, finish or budget and I’ll pull matching tiles from our catalogue — and our team can help you order. Try:",
+    chitchat:"I’m best at helping you find tiles from the Orientbell catalogue 🙂 — by room, size, colour, finish or budget. What are you looking for?"
+  }[kind]||"How can I help you find tiles today?";
+  b.innerHTML='<p class="lead-text">'+msg+'</p>';
+  if(kind==="bye")return;
+  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
+  const ch=document.createElement("div");ch.className="chips";
+  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
+}
+/* No catalogue match → turn it into a lead: reassure + capture a callback. */
+function notFoundLead(b,q){
+  const lead=document.createElement("p");lead.className="lead-text";
+  lead.innerHTML=`I couldn’t find an exact match for “<b>${esc(q)}</b>” in the catalogue — but our tile experts can help you find it, or suggest a great alternative. ✨`;
+  b.appendChild(lead);
+  const sb=seoBlock(q);if(sb)b.appendChild(sb);
+  const box=document.createElement("div");box.className="lead";
+  if(contact&&contact.mobile){
+    box.innerHTML=`<h5><span class="star">✦</span> Get expert help</h5>
+      <p class="s2">Shall we have our team call you back with the best options for “${esc(q)}”? It’s quick and free.</p>
+      <button class="go">Yes, call me back →</button>`;
+    b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+    box.querySelector(".go").addEventListener("click",()=>{
+      recordLead({name:contact.name,mobile:contact.mobile,pincode:session.pincode,state:session.state,product:q,source:"not-found"});
+      box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(contact.name.split(" ")[0])}!</h5>
+        <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(contact.mobile)}</b> to help with “${esc(q)}” — and share the closest matches.</p>`;
+      feed.scrollTop=feed.scrollHeight;
+    });
+    return;
+  }
+  box.innerHTML=`<h5><span class="star">✦</span> Let our experts help</h5>
+    <p class="s2">Leave your name &amp; mobile and we’ll help you find “${esc(q)}” or a great alternative — no charge.</p>
+    <input class="l-name" type="text" placeholder="Full name" autocomplete="name">
+    <input class="l-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel">
+    <p class="err"></p>
+    <button class="go">Request a callback →</button>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+  const nm=box.querySelector(".l-name"),mb=box.querySelector(".l-mob"),err=box.querySelector(".err");
+  [nm,mb].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),40);
+  box.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
+    if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    recordLead({name:nameV,mobile:mob,pincode:session.pincode,state:session.state,product:q,source:"not-found"});
+    box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(nameV.split(" ")[0])}!</h5>
+      <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(mob)}</b> to help with “${esc(q)}”.</p>`;
+    feed.scrollTop=feed.scrollHeight;
+  });
+}
+function respond(q){
+  const b=bubble("bot");
+  if(!ROWS.length){
+    b.innerHTML='<p class="lead-text">I don\'t have a catalogue yet. Open the <b>Train</b> tab to add your CSV — or tap below to load the sample.</p>';
+    const ch=document.createElement("div");ch.className="chips";
+    const c=document.createElement("button");c.className="chip";c.style.cssText="background:var(--accent);color:var(--on-accent);font-weight:700";c.textContent="Load sample & search";
+    c.onclick=()=>{loadSampleData();setTab("chat");setTimeout(()=>{addUser(q);respond(q)},120)};
+    ch.appendChild(c);b.appendChild(ch);return;
+  }
+  // "What categories / collections do you have?" → list the website pages.
+  if(SITE.length&&/\b(categor|collection|section|range|what.*(offer|have|sell)|browse|all\s+(tiles|categories|collections))\b/i.test(q)){listCategories(b);return}
+  // Just chatting, not searching → reply warmly and steer to the catalogue.
+  const kind=intentKind(q);
+  if(kind!=="tile"){conversationalReply(b,kind);return}
+  const p=parseQuery(q);
+  let results=filterRows(p);
+  const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
+  if(canDeliver)results.sort((a,b)=>(isDeliverable(a,session.state)?0:1)-(isDeliverable(b,session.state)?0:1));
+  const ndCount=canDeliver?results.filter(r=>!isDeliverable(r,session.state)).length:0;
+  const delCount=results.length-ndCount;
+
+  const fs=understoodChips(p);
+  if(fs.length){const u=document.createElement("div");u.className="understood";u.innerHTML=fs.map(f=>`<span class="f${f.loc?' loc':''}">${esc(f.t)}</span>`).join("");b.appendChild(u)}
+
+  if(!results.length){notFoundLead(b,q);return;}
+  const lead=document.createElement("p");lead.className="lead-text";
+  lead.innerHTML=`Found <b>${results.length}</b> tile${results.length>1?"s":""}${canDeliver?` <span style="color:var(--good);font-weight:600">${delCount} deliverable to ${esc(session.state)}</span>`+(ndCount?` <span style="color:var(--muted)">· ${ndCount} on enquiry</span>`:""):""}.`;
+  b.appendChild(lead);
+
+  // Clarifying questions when the result set is broad.
+  const refines=refineChips(results,q);
+  if(refines.length){
+    const r=document.createElement("p");r.className="refine";r.textContent="Want to narrow it down — any preference?";b.appendChild(r);
+    const ch=document.createElement("div");ch.className="chips";
+    refines.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
+    b.appendChild(ch);
+  }
+
+  const grid=document.createElement("div");grid.className="grid";b.appendChild(grid);
+  let shownN=0;const PAGE=5;
+  const moreBtn=document.createElement("button");moreBtn.className="show-more";
+  function renderMore(){
+    results.slice(shownN,shownN+PAGE).forEach(r=>grid.appendChild(card(r,canDeliver?isDeliverable(r,session.state):undefined)));
+    shownN=Math.min(shownN+PAGE,results.length);
+    if(shownN<results.length){moreBtn.textContent=`Show more (${results.length-shownN} left)`;if(!moreBtn.parentElement)b.appendChild(moreBtn)}
+    else if(moreBtn.parentElement)moreBtn.remove();
+    feed.scrollTop=feed.scrollHeight;
+  }
+  moreBtn.addEventListener("click",renderMore);renderMore();
+
+  const sb=seoBlock(q);if(sb)b.appendChild(sb);
+}
+function seoBlock(q){
+  const s=q.toLowerCase();const seen=new Set(),hits=[];
+  SEO.forEach(e=>{if(s.includes(e.keyword)&&!seen.has(e.url)){seen.add(e.url);hits.push(e)}});
+  if(!hits.length)return null;
+  const el=document.createElement("div");el.style.cssText="margin:12px 0 2px;padding:10px 12px;border:1px dashed var(--accent);border-radius:10px;background:var(--gold-soft)";
+  el.innerHTML='<p style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink);font-weight:700;margin:0 0 4px">Related pages</p>'+hits.slice(0,2).map(e=>`<a href="${esc(e.url)}" target="_blank" rel="noopener" style="display:block;color:var(--ink);font-size:13px;font-weight:600;text-decoration:none;padding:3px 0">→ ${esc(e.keyword.replace(/\b\w/g,c=>c.toUpperCase()))}</a>`).join("");
+  return el;
+}
+
+function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
+function runSearch(q){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{t.parentElement.remove();respond(q)},240)}
+function search(text){
+  const q=(text!=null?text:input.value).trim();if(!q)return;
+  input.value="";
+  const pin=isPincodeMsg(q);
+  // Ask for the 3 details once on first engage — but the visitor may skip.
+  if(!contact&&!detailsAsked){detailsAsked=true;addUser(q);pendingQuery=pin?null:q;askDetails(pin||"");return}
+  addUser(q);
+  if(pin){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{t.parentElement.remove();setPincode(pin)},220);return}
+  runSearch(q);
+}
+function showSuggestions(prefix){
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text">'+(prefix||"What are you looking for today?")+'</p>';
+  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
+  const ch=document.createElement("div");ch.className="chips";
+  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  b.appendChild(ch);
+  if(!ROWS.length){const n=document.createElement("p");n.className="lead-text";n.style.cssText="margin-top:8px;color:var(--muted);font-size:12.5px";n.textContent="Tip: add your catalogue in the Train tab (or tap a chip to auto-load the sample).";b.appendChild(n)}
+}
+function buildCarousel(){
+  let items;
+  if(ROWS.length){
+    items=ROWS.slice(0,10).map(r=>{const nm=MAP.name?r[MAP.name]:Object.values(r)[0];return{name:nm,img:imageURL(r),bg:swatchFor(r),url:productURL(r,nm)}});
+  }else{
+    items=[
+      {name:"Marble-look floors",bg:"linear-gradient(135deg,#E7E6E4,#C6C2BD)"},
+      {name:"Wood-look planks",bg:"linear-gradient(135deg,#C69A5F,#A07E6E)"},
+      {name:"Anti-skid bathroom",bg:"linear-gradient(135deg,#AEDDE1,#8A97A3)"},
+      {name:"Glossy white walls",bg:"linear-gradient(135deg,#EFEDEC,#CBCBD0)"},
+      {name:"Pink & pastels",bg:"linear-gradient(135deg,#F4A6C0,#EC87A9)"},
+      {name:"Stone-look outdoor",bg:"linear-gradient(135deg,#C6C2BD,#8A97A3)"}
+    ];
+  }
+  const loop=items.concat(items); // duplicate for a seamless marquee
+  const el=document.createElement("div");el.className="strip";
+  el.innerHTML='<div class="track2">'+loop.map(s=>`
+    <a class="ttile" ${s.url?`href="${esc(s.url)}" target="_blank" rel="noopener"`:'style="cursor:default"'}>
+      <div class="tim" style="background:${s.bg}">${s.img?`<img src="${esc(s.img)}" alt="${esc(s.name)}" loading="lazy" onerror="this.remove()">`:''}</div>
+      <div class="tnm">${esc(s.name)}</div>
+    </a>`).join("")+'</div>';
+  return el;
+}
+function greet(){
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text"><b>Welcome to Orientbell Tiles!</b> 👋<br>I’m Tara, your tile shopping assistant — here to help you find the best tiles for your space.</p><p class="lead-text" style="margin-top:10px">What are you looking for?</p>';
+  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
+  const ch=document.createElement("div");ch.className="chips";
+  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  b.appendChild(ch);
+  feed.scrollTop=feed.scrollHeight;
+}
+/* Collect name + mobile + pincode when the visitor first engages. */
+function askDetails(prefillPin){
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text">Great pick! Just 3 quick details so I can show what’s deliverable near you 👇</p>';
+  const f=document.createElement("div");f.className="startform";
+  f.innerHTML=`
+    <div class="fl"><label>Your name</label><input class="s-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name"></div>
+    <div class="two">
+      <div class="fl"><label>Mobile</label><input class="s-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"></div>
+      <div class="fl"><label>Pincode</label><input class="s-pin" type="text" inputmode="numeric" placeholder="6-digit pincode" autocomplete="postal-code"></div>
+    </div>
+    <p class="err"></p>
+    <button class="go">Show me tiles →</button>
+    <button class="skip" type="button">Skip for now — I’ll share later</button>
+    <p class="fine">We use this only to check delivery to your area and to have our team call you back if you enquire.</p>`;
+  b.appendChild(f);feed.scrollTop=feed.scrollHeight;
+  const nm=f.querySelector(".s-name"),mb=f.querySelector(".s-mob"),pn=f.querySelector(".s-pin"),err=f.querySelector(".err");
+  if(prefillPin)pn.value=prefillPin;
+  f.querySelector(".skip").addEventListener("click",()=>{
+    f.className="startform";f.innerHTML='<p style="margin:0;font-size:13px;color:var(--muted)">No problem — browse away! You can share your details anytime you enquire or wishlist. 🙂</p>';
+    if(pendingQuery){const q=pendingQuery;pendingQuery=null;runSearch(q)}else showSuggestions();
+  });
+  [nm,mb,pn].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),50);
+  f.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();
+    const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    const pin=pn.value.replace(/\D/g,"");
+    let bad=null;
+    if(nameV.length<2){bad=nm;err.textContent="Please enter your name."}
+    else if(mob.length!==10){bad=mb;err.textContent="Please enter a valid 10-digit mobile number."}
+    else if(pin.length!==6){bad=pn;err.textContent="Please enter a valid 6-digit pincode."}
+    if(bad){[nm,mb,pn].forEach(e=>e.classList.remove("bad"));bad.classList.add("bad");bad.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    const st=stateOfPin(pin);session={pincode:pin,state:st};store.set(LS.session,session);updateDeliverBar();
+    recordLead({name:nameV,mobile:mob,pincode:pin,state:st,product:null,source:"chat-start"});
+    f.className="startform";f.innerHTML=`<p style="margin:0;font-size:13.5px"><b>Thanks, ${esc(nameV.split(" ")[0])}!</b> ${st?("We deliver to <b>"+esc(st)+"</b> (PIN "+esc(pin)+")."):("Noted PIN "+esc(pin)+".")}</p>`;
+    if(pendingQuery){const q=pendingQuery;pendingQuery=null;runSearch(q)}else showSuggestions();
+  });
+}
+
+/* ============================ view: train ============================ */
+const srcList=document.getElementById("srcList"),srcCount=document.getElementById("srcCount");
+function renderSources(){
+  srcCount.textContent=SOURCES.length;
+  if(!SOURCES.length){srcList.innerHTML='<div class="empty-src">No sources yet. Add one above, or load the sample data.</div>';return}
+  srcList.innerHTML="";
+  SOURCES.forEach((s,i)=>{
+    const el=document.createElement("div");el.className="src";
+    const desc=s.desc||TYPE_LABEL[s.type];
+    el.innerHTML=`
+      <div class="src-top">
+        <span class="src-ix">${i+1}</span>
+        <div class="src-info">
+          <div class="src-desc">${esc(desc)}</div>
+          <div class="src-meta">${esc(TYPE_LABEL[s.type])} · ${s.rows.length} rows · ${esc(s.filename)}</div>
+        </div>
+        <div class="src-btns"><button class="v">View</button><button class="d">Delete</button></div>
+      </div>
+      <div class="src-detail" hidden></div>`;
+    const detail=el.querySelector(".src-detail");
+    el.querySelector(".v").addEventListener("click",()=>{
+      if(!detail.hidden){detail.hidden=true;return}
+      detail.hidden=false;if(detail.dataset.built)return;detail.dataset.built="1";
+      if(s.type==="catalogue")detail.appendChild(mappingEditor(s));
+      detail.appendChild(previewTable(s));
+    });
+    el.querySelector(".d").addEventListener("click",()=>deleteSource(s.id));
+    srcList.appendChild(el);
+  });
+}
+function previewTable(s){
+  const wrap=document.createElement("div");wrap.className="tablewrap";
+  const cols=s.headers.slice(0,8);
+  wrap.innerHTML="<table><thead><tr>"+cols.map(h=>`<th>${esc(h)}</th>`).join("")+"</tr></thead><tbody>"+
+    s.rows.slice(0,6).map(r=>"<tr>"+cols.map(h=>`<td>${esc(r[h])}</td>`).join("")+"</tr>").join("")+"</tbody></table>";
+  return wrap;
+}
+function mappingEditor(s){
+  const box=document.createElement("div");
+  const lab=document.createElement("p");lab.className="maplabel";lab.textContent="Column mapping — fix anything wrong";box.appendChild(lab);
+  const grid=document.createElement("div");grid.className="map";
+  ATTRS.forEach(([key,,label])=>{
+    const l=document.createElement("label");l.textContent=label;
+    const sel=document.createElement("select");
+    sel.innerHTML='<option value="">— none —</option>'+s.headers.map(h=>`<option value="${esc(h)}"${s.map[key]===h?" selected":""}>${esc(h)}</option>`).join("");
+    sel.onchange=()=>{if(sel.value)s.map[key]=sel.value;else delete s.map[key];rebuildEngines()};
+    grid.appendChild(l);grid.appendChild(sel);
+  });
+  box.appendChild(grid);return box;
+}
+
+/* Samples */
+const SAMPLE=`SKU,Product Name,Size,Colour,Finish,Material,Room,Category,MRP,Price,Plant,Image URL
+OBT-3001,Blush Pink Glossy Wall Tile,300x600,Pink,Glossy,Ceramic,Bathroom,Wall Tiles,68,55,North Plant,https://www.orientbell.com/media/catalog/product/blush-pink-glossy-wall-tile.jpg
+OBT-4001,Aqua White Glossy Wall Tile,300x600,White,Glossy,Ceramic,Bathroom,Wall Tiles,54,42,North Plant,https://www.orientbell.com/media/catalog/product/aqua-white-glossy-wall-tile.jpg
+OBT-2201,Ivory Matt Wall Tile,200x300,Ivory,Matt,Ceramic,Bathroom,Wall Tiles,46,38,North Plant,https://www.orientbell.com/media/catalog/product/ivory-matt-wall-tile.jpg
+OBT-2202,Sky Blue Glossy Wall Tile,200x300,Blue,Glossy,Ceramic,Bathroom,Wall Tiles,48,40,West Plant,https://www.orientbell.com/media/catalog/product/sky-blue-glossy-wall-tile.jpg
+OBT-2203,Sage Green Matt Wall Tile,200x300,Green,Matt,Ceramic,Kitchen,Wall Tiles,52,44,South Plant,https://www.orientbell.com/media/catalog/product/sage-green-matt-wall-tile.jpg
+OBT-4002,Slate Grey Anti-Skid Floor Tile,300x300,Grey,Matt,Vitrified,Bathroom,Floor Tiles,78,62,West Plant,https://www.orientbell.com/media/catalog/product/slate-grey-anti-skid-floor-tile.jpg
+OBT-3003,Dusty Pink Anti-Skid Floor Tile,300x300,Pink,Matt,Ceramic,Bathroom,Floor Tiles,60,48,North Plant,https://www.orientbell.com/media/catalog/product/dusty-pink-anti-skid-floor-tile.jpg
+OBT-5001,Carrara White Subway Tile,75x300,White,Glossy,Ceramic,Kitchen,Wall Tiles,85,68,West Plant,https://www.orientbell.com/media/catalog/product/carrara-white-subway-tile.jpg
+OBT-5002,Graphite Wood-Look Floor Tile,200x1200,Brown,Matt,GVT,Kitchen,Floor Tiles,98,78,South Plant,https://www.orientbell.com/media/catalog/product/graphite-wood-look-floor-tile.jpg
+OBT-6001,Statuario Marble Double Charge Tile,800x800,White,Polished,Double Charge,Living Room,Floor Tiles,150,120,West Plant,https://www.orientbell.com/media/catalog/product/statuario-marble-double-charge-tile.jpg
+OBT-6002,Beige Travertine Matt Tile,600x600,Beige,Matt,GVT,Living Room,Floor Tiles,90,72,South Plant,https://www.orientbell.com/media/catalog/product/beige-travertine-matt-tile.jpg
+OBT-3002,Rose Quartz Marble GVT Tile,600x1200,Pink,Matt,GVT,Living Room,Floor Tiles,180,145,North Plant,https://www.orientbell.com/media/catalog/product/rose-quartz-marble-gvt-tile.jpg
+OBT-7001,Oak Wood-Look Floor Tile,200x1200,Brown,Matt,GVT,Bedroom,Floor Tiles,92,74,South Plant,https://www.orientbell.com/media/catalog/product/oak-wood-look-floor-tile.jpg
+OBT-8001,Terra Rustic Anti-Skid Parking Tile,300x300,Terracotta,Rough,Vitrified,Parking,Outdoor Tiles,72,58,West Plant,https://www.orientbell.com/media/catalog/product/terra-rustic-anti-skid-parking-tile.jpg
+OBT-8002,Grey Stone-Look Balcony Tile,600x600,Grey,Matt,Vitrified,Balcony,Outdoor Tiles,82,66,East Plant,https://www.orientbell.com/media/catalog/product/grey-stone-look-balcony-tile.jpg`;
+const SAMPLE_SEO=`keyword,url,type
+bathroom tiles,https://www.orientbell.com/tiles/bathroom-tiles,Category
+kitchen tiles,https://www.orientbell.com/tiles/kitchen-tiles,Category
+living room tiles,https://www.orientbell.com/tiles/living-room-tiles,Category
+marble tiles,https://www.orientbell.com/tiles/living-room-tiles,PLP
+wood look tiles,https://www.orientbell.com/tiles/floor-tiles,PLP
+anti skid tiles,https://www.orientbell.com/tiles/outdoor-tiles,Category
+parking tiles,https://www.orientbell.com/tiles/outdoor-tiles,Category`;
+const SAMPLE_DELIV=`Source,Deliverable States
+North Plant,Delhi,Haryana,Punjab,Chandigarh,Uttar Pradesh,Uttarakhand,Rajasthan,Himachal Pradesh,Bihar,Jharkhand
+South Plant,Karnataka,Tamil Nadu,Kerala,Telangana,Andhra Pradesh,Puducherry
+West Plant,Gujarat,Maharashtra,Madhya Pradesh,Chhattisgarh,Goa
+East Plant,West Bengal,Odisha,Assam`;
+const DEFAULT_SITE=`Category,URL,Aliases
+Bathroom Tiles,https://www.orientbell.com/tiles/bathroom-tiles,bathroom|washroom|toilet
+Kitchen Tiles,https://www.orientbell.com/tiles/kitchen-tiles,kitchen|backsplash
+Living Room Tiles,https://www.orientbell.com/tiles/living-room-tiles,living room|hall|drawing room|lounge
+Bedroom Tiles,https://www.orientbell.com/tiles/bedroom-tiles,bedroom|master bedroom|kids room
+Floor Tiles,https://www.orientbell.com/tiles/floor-tiles,floor|flooring
+Wall Tiles,https://www.orientbell.com/tiles/wall-tiles,wall|feature wall|highlighter
+Outdoor & Parking Tiles,https://www.orientbell.com/tiles/outdoor-tiles,outdoor|parking|balcony|terrace|driveway
+Bathroom Floor Tiles,https://www.orientbell.com/tiles/bathroom-floor-tiles,bathroom floor
+Kitchen Wall Tiles,https://www.orientbell.com/tiles/kitchen-wall-tiles,kitchen wall|kitchen backsplash`;
+function loadSampleData(){
+  addSource("catalogue","Sample Orientbell catalogue (15 tiles)",SAMPLE,"sample-catalogue.csv");
+  addSource("site","Orientbell category pages",DEFAULT_SITE,"orientbell-categories.csv");
+  addSource("seo","Sample keyword → page map",SAMPLE_SEO,"sample-seo.csv");
+  addSource("deliv","Sample plant → states serviceability",SAMPLE_DELIV,"sample-deliverability.csv");
+}
+
+/* ============================ wiring ============================ */
+const srcType=document.getElementById("srcType"),srcDesc=document.getElementById("srcDesc"),srcFile=document.getElementById("srcFile"),srcFileName=document.getElementById("srcFileName");
+document.getElementById("srcPick").onclick=()=>srcFile.click();
+srcFile.onchange=e=>{const f=e.target.files[0];if(!f)return;srcFileName.textContent=f.name;const r=new FileReader();
+  r.onload=()=>{const ok=addSource(srcType.value,srcDesc.value,r.result,f.name);if(ok){srcDesc.value="";srcFileName.textContent="Added ✓"}};
+  r.readAsText(f);srcFile.value="";};
+document.getElementById("loadSample").onclick=loadSampleData;
+
+document.getElementById("send").onclick=()=>search();
+input.onkeydown=e=>{if(e.key==="Enter")search()};
+
+function setTab(which){
+  document.getElementById("tabChat").classList.toggle("active",which==="chat");
+  document.getElementById("tabTrain").classList.toggle("active",which==="train");
+  document.getElementById("chatView").classList.toggle("active",which==="chat");
+  document.getElementById("trainView").classList.toggle("active",which==="train");
+  if(which==="chat")input.focus();
+}
+document.getElementById("tabChat").onclick=()=>setTab("chat");
+document.getElementById("tabTrain").onclick=()=>setTab("train");
+
+/* Reset chat — clears the conversation and re-asks for details (keeps trained data) */
+document.getElementById("resetBtn").onclick=()=>{
+  session={pincode:null,state:null};store.set(LS.session,session);
+  contact=null;store.del(LS.contact);
+  updateDeliverBar();feed.innerHTML="";pendingQuery=null;
+  setTab("chat");greet();
+};
+
+document.getElementById("themeBtn").onclick=()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const next=cur==="dark"?"light":cur==="light"?"dark":(matchMedia("(prefers-color-scheme: dark)").matches?"light":"dark");
+  document.documentElement.setAttribute("data-theme",next);store.set(LS.theme,next);
+};
+const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement.setAttribute("data-theme",savedTheme);
+
+/* Rotating placeholder hint — "Looking for …" with a cycling, typewritten tail */
+(function(){
+  const HINTS=["Bathroom Tiles","600x1200 tiles","Premium Living Room Tiles","Anti-skid Kitchen tiles","Pink Wall Tiles","Marble-look Floor Tiles","Wood-look Bedroom Tiles","Tiles under ₹80"];
+  let i=0,pos=0,deleting=false;
+  function step(){
+    const w=HINTS[i];
+    input.placeholder="Looking for "+w.slice(0,pos);
+    if(!deleting){
+      if(pos<w.length){pos++;setTimeout(step,70)}
+      else{deleting=true;setTimeout(step,1500)}
+    }else{
+      if(pos>0){pos--;setTimeout(step,35)}
+      else{deleting=false;i=(i+1)%HINTS.length;setTimeout(step,250)}
+    }
+  }
+  setTimeout(step,1200);
+})();
+
+/* init */
+// One-time seed of Orientbell category pages so Tara can point to them out of
+// the box. Won't return if the user deletes it (the seeded flag persists).
+if(!store.get(LS.seeded,false)){
+  store.set(LS.seeded,true);
+  if(!SOURCES.some(s=>s.type==="site")){
+    const {headers,rows}=parseCSV(DEFAULT_SITE);
+    SOURCES.push({id:"seed-site",type:"site",desc:"Orientbell category pages (auto-added — the site's collections)",filename:"orientbell-categories.csv",headers,rows});
+  }
+}
+rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
+</script>
+</body>
+</html>
