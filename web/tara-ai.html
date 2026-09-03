@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tara AI — Orientbell Tiles</title>
+<title>Tara AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
@@ -202,7 +202,6 @@
 </style>
 </head>
 <body>
-
 <div class="app">
   <div class="topbar">
     <span class="logo" aria-hidden="true">
@@ -277,7 +276,7 @@
 /* ============================ storage ============================ */
 /* ---- Supabase (shared, persistent catalogue + leads across all users) ---- */
 const SUPABASE_URL="https://tavrnbkzfiiathgqnpuj.supabase.co";
-const SUPABASE_ANON_KEY="";   // paste your Supabase anon public key here to turn on cloud sync
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhdnJuYmt6ZmlpYXRoZ3FucHVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDI5MDMsImV4cCI6MjEwMzk3ODkwM30._lwHdfp3qq_YJOyBZ6mpQ2HLD2imGr9sYdgXN3kMv0M";   // anon public key (safe to embed)
 let sb=null;
 function supaOn(){return !!(SUPABASE_ANON_KEY && window.supabase && window.supabase.createClient)}
 function supa(){if(!sb&&supaOn())sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);return sb}
