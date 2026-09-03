@@ -539,7 +539,7 @@ function bubble(role){const w=document.createElement("div");w.className="msg "+r
 function addUser(t){bubble("user").textContent=t}
 
 function slugify(s){return String(s).toLowerCase().trim().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
-function normURL(u){return String(u||"").trim().replace(/^https?:\/\/server\.orientbell\.com/i,"https://www.orientbell.com")}
+function normURL(u){u=String(u||"").trim().replace(/^https?:\/\/server\.orientbell\.com/i,"https://www.orientbell.com");return u.replace(/\.html?(?=$|[?#])/i,"")}
 function productURL(row,name){if(MAP.url&&row[MAP.url])return normURL(row[MAP.url]);return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com"}
 function imageURL(row){return MAP.image?row[MAP.image]:""}
 
