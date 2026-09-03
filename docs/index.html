@@ -284,9 +284,34 @@ const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:
 const API_BASE=(window.TARA_API||"").replace(/\/$/,"");  // same-origin by default
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
+let CLOUD={ok:false,err:""};
+function mapSupaErr(e){
+  const m=((e&&(e.message||e.error_description||e.msg||e.hint))||"").toLowerCase();const code=e&&e.code;
+  if(code==="42P01"||m.includes("does not exist")||m.includes("could not find the table")||m.includes("schema cache"))return "the tables aren’t created yet — run the setup SQL in Supabase";
+  if(code==="42501"||m.includes("row-level security")||m.includes("permission")||m.includes("not authorized")||m.includes("policy"))return "blocked by security rules — run the setup SQL (it adds the access policies)";
+  if(m.includes("failed to fetch")||m.includes("networkerror")||m.includes("load failed")||m.includes("fetch"))return "can’t reach Supabase — open the live site, not the claude.ai preview";
+  return (e&&(e.message||e.msg))||"unknown error";
+}
+function setCloudStatus(msg,kind){
+  const cs=document.getElementById("cloudStatus");if(!cs)return;
+  const d=cs.querySelector(".dot"),t=cs.querySelector("span:last-child");
+  const col=kind==="on"?"#008D36":kind==="warn"?"#C9971A":"var(--muted)";
+  cs.style.display="flex";cs.style.alignItems="center";cs.style.fontSize="12px";
+  if(d)d.style.cssText="display:inline-block;flex:0 0 auto;width:8px;height:8px;border-radius:50%;margin-right:7px;background:"+col;
+  if(t){t.innerHTML=msg;t.style.color=kind==="warn"?"#9A7400":"var(--muted)"}
+}
+/* Persist sources locally without blowing the ~5MB quota: when cloud is on it
+   is the source of truth, so the big catalogue rows are kept in the cloud, not
+   duplicated into localStorage (which would silently overflow and wipe it). */
+function persistSources(){
+  const slim=supaOn()?SOURCES.map(s=>s.type==="catalogue"?{...s,rows:[],_cloudRows:(s.rows||[]).length}:s):SOURCES;
+  if(store.set(LS.sources,slim))return;
+  if(supaOn())store.set(LS.sources,SOURCES.filter(s=>s.type!=="catalogue"));
+  else setCloudStatus("This catalogue is too large for this browser’s local storage — turn on Supabase cloud sync so it persists across reloads.","warn");
+}
 let SOURCES=store.get(LS.sources,[]);
 let session=store.get(LS.session,{pincode:null,state:null});
 let contact=store.get(LS.contact,null);   // {name, mobile}
@@ -301,17 +326,25 @@ function recordLead(rec){
   try{fetch(API_BASE+"/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{})}catch(e){}
 }
 /* Push one source (upsert) or delete it in Supabase — one row per source id. */
-function cloudSaveSource(s){if(!supaOn())return;try{supa().from("sources").upsert({id:s.id,type:s.type,description:s.desc||"",filename:s.filename||"",headers:s.headers,rows:s.rows,map:s.map||null,updated_at:new Date().toISOString()}).then(()=>{},()=>{})}catch(e){}}
-function cloudDeleteSource(id){if(!supaOn())return;try{supa().from("sources").delete().eq("id",id).then(()=>{},()=>{})}catch(e){}}
+async function cloudSaveSource(s){
+  if(!supaOn())return {ok:false};
+  setCloudStatus("Saving “"+esc(s.desc||s.type)+"” to the cloud…","");
+  try{
+    const {error}=await supa().from("sources").upsert({id:s.id,type:s.type,description:s.desc||"",filename:s.filename||"",headers:s.headers,rows:s.rows,map:s.map||null,updated_at:new Date().toISOString()});
+    if(error){const r=mapSupaErr(error);CLOUD={ok:false,err:r};setCloudStatus("Not saved to cloud — "+r+".","warn");return {ok:false,err:r}}
+    CLOUD={ok:true,err:""};setCloudStatus("Cloud sync <b>on</b> — saved &amp; shared with everyone.","on");return {ok:true};
+  }catch(e){const r=mapSupaErr(e);CLOUD={ok:false,err:r};setCloudStatus("Not saved to cloud — "+r+".","warn");return {ok:false,err:r}}
+}
+async function cloudDeleteSource(id){if(!supaOn())return;try{const {error}=await supa().from("sources").delete().eq("id",id);if(error)setCloudStatus("Cloud delete failed — "+mapSupaErr(error)+".","warn")}catch(e){}}
 /* Load all shared sources from Supabase into SOURCES. */
 async function cloudLoadSources(){
   if(!supaOn())return false;
   try{
     const {data,error}=await supa().from("sources").select("*");
-    if(error||!data)return false;
-    SOURCES=data.map(r=>({id:r.id,type:r.type,desc:r.description||"",filename:r.filename||"",headers:r.headers||[],rows:r.rows||[],map:r.map||undefined}));
-    return true;
-  }catch(e){return false}
+    if(error){CLOUD={ok:false,err:mapSupaErr(error)};return false}
+    SOURCES=(data||[]).map(r=>({id:r.id,type:r.type,desc:r.description||"",filename:r.filename||"",headers:r.headers||[],rows:r.rows||[],map:r.map||undefined}));
+    CLOUD={ok:true,err:""};return true;
+  }catch(e){CLOUD={ok:false,err:mapSupaErr(e)};return false}
 }
 /* Engine state — rebuilt from SOURCES */
 let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
@@ -406,7 +439,7 @@ function rebuildEngines(){
   loadDelivConfig();
   DOMAIN=domainVocab();
   PRICE_STATS=priceStats();
-  store.set(LS.sources,SOURCES);
+  persistSources();
 }
 /* Budget/premium understanding, learned from the catalogue's own prices. */
 function priceStats(){
@@ -744,7 +777,8 @@ function respond(q){
   if(SITE.length&&/\b(categor|collection|section|range|what.*(offer|have|sell)|browse|all\s+(tiles|categories|collections))\b/i.test(q)){listCategories(b);return}
   // Just chatting, not searching → reply warmly and steer to the catalogue.
   const kind=intentKind(q);
-  if(kind!=="tile"){conversationalReply(b,kind);return}
+  if(kind==="greeting"||kind==="thanks"||kind==="bye"||kind==="about"){conversationalReply(b,kind);return}
+  if(kind!=="tile"){notFoundLead(b,q);return}   // unrecognized → capture as a lead
   const p=parseQuery(q);
   let results=filterRows(p);
   const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
@@ -900,7 +934,7 @@ function renderSources(){
         <span class="src-ix">${i+1}</span>
         <div class="src-info">
           <div class="src-desc">${esc(desc)}</div>
-          <div class="src-meta">${esc(TYPE_LABEL[s.type])} · ${s.rows.length} rows · ${esc(s.filename)}</div>
+          <div class="src-meta">${esc(TYPE_LABEL[s.type])} · ${s.rows.length||s._cloudRows||0} rows · ${esc(s.filename)}</div>
         </div>
         <div class="src-btns"><button class="v">View</button><button class="d">Delete</button></div>
       </div>
@@ -1055,10 +1089,9 @@ async function initApp(){
   if(supaOn()){const ok=await cloudLoadSources();if(!ok&&!SOURCES.length)seedSiteIfNeeded();else if(!SOURCES.some(s=>s.type==="site"))seedSiteIfNeeded();}
   else seedSiteIfNeeded();
   rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
-  const cs=document.getElementById("cloudStatus");
-  if(cs){const d=cs.querySelector(".dot"),t=cs.querySelector("span:last-child");
-    if(supaOn()){d.classList.add("on");t.innerHTML="Cloud sync <b>on</b> — sources are shared with everyone & saved."}
-    else{t.innerHTML="Cloud sync off — add your Supabase anon key to share sources across users."}}
+  if(!supaOn())setCloudStatus("Cloud sync off — this browser only. Data may not survive a reload.","warn");
+  else if(CLOUD.ok)setCloudStatus("Cloud sync <b>on</b> — sources are shared with everyone &amp; saved.","on");
+  else setCloudStatus("Cloud sync problem — "+(CLOUD.err||"not connected")+".","warn");
 }
 initApp();
 </script>
