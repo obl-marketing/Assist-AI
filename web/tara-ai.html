@@ -240,6 +240,7 @@
       <div class="addbox">
         <h3>Add a knowledge source</h3>
         <p class="hint">Upload a CSV, say what it is, and describe it. You can view or delete it any time.</p>
+        <div class="status" id="cloudStatus" style="margin:0 0 12px"><span class="dot"></span><span>Checking sync…</span></div>
         <div class="field">
           <label>What kind of data is this?</label>
           <select id="srcType">
@@ -271,8 +272,15 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* ============================ storage ============================ */
+/* ---- Supabase (shared, persistent catalogue + leads across all users) ---- */
+const SUPABASE_URL="https://tavrnbkzfiiathgqnpuj.supabase.co";
+const SUPABASE_ANON_KEY="";   // paste your Supabase anon public key here to turn on cloud sync
+let sb=null;
+function supaOn(){return !!(SUPABASE_ANON_KEY && window.supabase && window.supabase.createClient)}
+function supa(){if(!sb&&supaOn())sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);return sb}
 const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist",contact:"tara_contact",leads:"tara_leads",seeded:"tara_seeded"};
 const API_BASE=(window.TARA_API||"").replace(/\/$/,"");  // same-origin by default
 const store={
@@ -290,7 +298,21 @@ let contact=store.get(LS.contact,null);   // {name, mobile}
 function recordLead(rec){
   rec.ts=new Date().toISOString();
   try{const a=JSON.parse(localStorage.getItem(LS.leads)||"[]");a.push(rec);localStorage.setItem(LS.leads,JSON.stringify(a))}catch(e){}
+  if(supaOn()){try{supa().from("leads").insert({name:rec.name,mobile:rec.mobile,pincode:rec.pincode||null,state:rec.state||null,product:rec.product||null,source:rec.source||"chat"}).then(()=>{},()=>{})}catch(e){}}
   try{fetch(API_BASE+"/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{})}catch(e){}
+}
+/* Push one source (upsert) or delete it in Supabase — one row per source id. */
+function cloudSaveSource(s){if(!supaOn())return;try{supa().from("sources").upsert({id:s.id,type:s.type,description:s.desc||"",filename:s.filename||"",headers:s.headers,rows:s.rows,map:s.map||null,updated_at:new Date().toISOString()}).then(()=>{},()=>{})}catch(e){}}
+function cloudDeleteSource(id){if(!supaOn())return;try{supa().from("sources").delete().eq("id",id).then(()=>{},()=>{})}catch(e){}}
+/* Load all shared sources from Supabase into SOURCES. */
+async function cloudLoadSources(){
+  if(!supaOn())return false;
+  try{
+    const {data,error}=await supa().from("sources").select("*");
+    if(error||!data)return false;
+    SOURCES=data.map(r=>({id:r.id,type:r.type,desc:r.description||"",filename:r.filename||"",headers:r.headers||[],rows:r.rows||[],map:r.map||undefined}));
+    return true;
+  }catch(e){return false}
 }
 /* Engine state — rebuilt from SOURCES */
 let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
@@ -421,14 +443,14 @@ function intentKind(q){
 function addSource(type,desc,text,filename){
   const {headers,rows}=parseCSV(text);
   if(!rows.length){alert("That CSV looks empty or unreadable.");return false}
-  const s={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};
+  const s={id:type,type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};  // one active source per type
   if(type==="catalogue")s.map=autoMap(headers);
-  SOURCES=SOURCES.filter(x=>x.type!==type);   // one active source per type
+  SOURCES=SOURCES.filter(x=>x.type!==type);
   SOURCES.push(s);
-  rebuildEngines();renderSources();
+  rebuildEngines();renderSources();cloudSaveSource(s);
   return true;
 }
-function deleteSource(id){SOURCES=SOURCES.filter(s=>s.id!==id);rebuildEngines();renderSources()}
+function deleteSource(id){SOURCES=SOURCES.filter(s=>s.id!==id);rebuildEngines();renderSources();cloudDeleteSource(id)}
 
 /* ============================ query parsing ============================ */
 const STOP=new Set("a an the is are for i am looking want need show me my in on of with tiles tile some any good best suitable to and or under over above below within upto rs pincode pin deliver delivery area mm cm".split(" "));
@@ -1017,16 +1039,28 @@ const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement
 })();
 
 /* init */
-// One-time seed of Orientbell category pages so Tara can point to them out of
-// the box. Won't return if the user deletes it (the seeded flag persists).
-if(!store.get(LS.seeded,false)){
+function seedSiteIfNeeded(){
+  // One-time seed of Orientbell category pages so Tara can point to them out of
+  // the box. Won't return if the user deletes it (the seeded flag persists).
+  if(store.get(LS.seeded,false))return;
   store.set(LS.seeded,true);
   if(!SOURCES.some(s=>s.type==="site")){
     const {headers,rows}=parseCSV(DEFAULT_SITE);
-    SOURCES.push({id:"seed-site",type:"site",desc:"Orientbell category pages (auto-added — the site's collections)",filename:"orientbell-categories.csv",headers,rows});
+    const s={id:"site",type:"site",desc:"Orientbell category pages (auto-added — the site's collections)",filename:"orientbell-categories.csv",headers,rows};
+    SOURCES.push(s);cloudSaveSource(s);
   }
 }
-rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
+async function initApp(){
+  // Prefer the shared Supabase catalogue; fall back to this browser's local copy.
+  if(supaOn()){const ok=await cloudLoadSources();if(!ok&&!SOURCES.length)seedSiteIfNeeded();else if(!SOURCES.some(s=>s.type==="site"))seedSiteIfNeeded();}
+  else seedSiteIfNeeded();
+  rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
+  const cs=document.getElementById("cloudStatus");
+  if(cs){const d=cs.querySelector(".dot"),t=cs.querySelector("span:last-child");
+    if(supaOn()){d.classList.add("on");t.innerHTML="Cloud sync <b>on</b> — sources are shared with everyone & saved."}
+    else{t.innerHTML="Cloud sync off — add your Supabase anon key to share sources across users."}}
+}
+initApp();
 </script>
 </body>
 </html>
