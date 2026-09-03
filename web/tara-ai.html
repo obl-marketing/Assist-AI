@@ -681,8 +681,8 @@ function conversationalReply(b,kind){
     thanks:"You’re welcome! 🙌 Want to see a few more options? Try one of these:",
     bye:"Thanks for stopping by! 👋 Whenever you’re ready, I’m here to help you find the perfect tiles.",
     about:"I’m <b>Tara</b>, Orientbell’s tile shopping assistant. Tell me a room, size, colour, finish or budget and I’ll pull matching tiles from our catalogue — and our team can help you order. Try:",
-    chitchat:"I’m best at helping you find tiles from the Orientbell catalogue 🙂 — by room, size, colour, finish or budget. What are you looking for?"
-  }[kind]||"How can I help you find tiles today?";
+    chitchat:"I’m not sure I caught that 🙂 Could you be a little more specific — tell me a <b>room</b>, <b>size</b>, <b>colour</b>, <b>finish</b> or <b>budget</b>? For example:"
+  }[kind]||"Could you be a little more specific? Try one of these:";
   b.innerHTML='<p class="lead-text">'+msg+'</p>';
   if(kind==="bye")return;
   const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
@@ -693,7 +693,7 @@ function conversationalReply(b,kind){
 /* No catalogue match → turn it into a lead: reassure + capture a callback. */
 function notFoundLead(b,q){
   const lead=document.createElement("p");lead.className="lead-text";
-  lead.innerHTML=`I couldn’t find an exact match for “<b>${esc(q)}</b>” in the catalogue — but our tile experts can help you find it, or suggest a great alternative. ✨`;
+  lead.innerHTML=`Sorry, I couldn’t help you with “<b>${esc(q)}</b>” from our catalogue just yet 😔 — share your details and one of our tile experts will personally help you find it, or suggest a great alternative. ✨`;
   b.appendChild(lead);
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const box=document.createElement("div");box.className="lead";
@@ -793,7 +793,7 @@ function seoBlock(q){
 }
 
 function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
-function runSearch(q){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{t.parentElement.remove();respond(q)},240)}
+function runSearch(q){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{if(t.parentElement)t.parentElement.remove();try{respond(q)}catch(e){const b=bubble("bot");notFoundLead(b,q)}},200)}
 function search(text){
   const q=(text!=null?text:input.value).trim();if(!q)return;
   input.value="";
