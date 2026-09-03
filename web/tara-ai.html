@@ -354,7 +354,7 @@ const ATTRS=[
   ["price",/price|rate|cost|selling|amount/i,"Price"],
   ["plant",/plant|factory|unit|source|origin|warehouse/i,"Plant / source"],
   ["image",/image|img|photo|thumb|picture|visual/i,"Image URL"],
-  ["url",/product.?url|product.?link|page.?url|^url$|^link$|permalink/i,"Product URL"]
+  ["url",/product.?url|product.?link|page.?url|pdp|^url$|^link$|permalink/i,"Product URL"]
 ];
 function autoMap(headers){
   const m={};
@@ -539,7 +539,8 @@ function bubble(role){const w=document.createElement("div");w.className="msg "+r
 function addUser(t){bubble("user").textContent=t}
 
 function slugify(s){return String(s).toLowerCase().trim().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
-function productURL(row,name){if(MAP.url&&row[MAP.url])return row[MAP.url];return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com"}
+function normURL(u){return String(u||"").trim().replace(/^https?:\/\/server\.orientbell\.com/i,"https://www.orientbell.com")}
+function productURL(row,name){if(MAP.url&&row[MAP.url])return normURL(row[MAP.url]);return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com"}
 function imageURL(row){return MAP.image?row[MAP.image]:""}
 
 function wl(){return store.get(LS.wish,[])}
