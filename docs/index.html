@@ -107,9 +107,21 @@
 
   .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:10px 0 2px}
   .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both}
-  .pcard .img{position:relative;display:block;aspect-ratio:16/10;overflow:hidden}
-  .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
-  .pcard .img::after{content:"";position:absolute;inset:0;z-index:0;background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 33.3%),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 1px,transparent 1px 25%);mix-blend-mode:multiply}
+  .pcard .img{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;background:var(--surface-2)}
+  .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease}
+  .pcard .img img.on{opacity:1}
+  /* Loading: a calm shimmer, not a fake tile */
+  .pcard .img.loading::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%);background-size:200% 100%;animation:tara-shimmer 1.15s ease-in-out infinite}
+  /* No / failed image: neutral placeholder, clearly not a product photo */
+  .pcard .img.noimg::after{content:"◱  Image unavailable";position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.02em;color:var(--muted);background:var(--surface-2)}
+  @keyframes tara-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  /* "Finding the best tiles…" typing indicator */
+  .thinking{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+  .tdots{display:inline-flex;gap:3px}
+  .tdots i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:tara-bounce 1s infinite ease-in-out}
+  .tdots i:nth-child(2){animation-delay:.15s}
+  .tdots i:nth-child(3){animation-delay:.3s}
+  @keyframes tara-bounce{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
   .pcard .wish{position:absolute;top:12px;left:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
   .pcard .wish:active{transform:scale(.85)}
   .pcard .wish.on{color:var(--accent);background:var(--brand)}
@@ -346,11 +358,14 @@ function setCloudStatus(msg,kind){
    is the source of truth, so the big catalogue rows are kept in the cloud, not
    duplicated into localStorage (which would silently overflow and wipe it). */
 function persistSources(){
-  const slim=supaOn()?SOURCES.map(s=>s.type==="catalogue"?{...s,rows:[],_cloudRows:(s.rows||[]).length}:s):SOURCES;
+  if(store.set(LS.sources,SOURCES))return;               // full copy fit — reloads work offline
+  // Too big for localStorage → keep a slim copy; the cloud is the source of truth.
+  const slim=SOURCES.map(s=>s.type==="catalogue"?{...s,rows:[],_cloudRows:(s.rows||[]).length}:s);
   if(store.set(LS.sources,slim))return;
   if(supaOn())store.set(LS.sources,SOURCES.filter(s=>s.type!=="catalogue"));
   else setCloudStatus("This catalogue is too large for this browser’s local storage — turn on Supabase cloud sync so it persists across reloads.","warn");
 }
+function hasCatalogueSource(){return SOURCES.some(s=>s.type==="catalogue"&&(((s.rows&&s.rows.length)||s._cloudRows)>0))}
 let SOURCES=store.get(LS.sources,[]);
 let session=store.get(LS.session,{pincode:null,state:null});
 let contact=store.get(LS.contact,null);   // {name, mobile}
@@ -387,6 +402,7 @@ async function cloudLoadSources(){
 }
 /* Engine state — rebuilt from SOURCES */
 let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
+let engineReady=false,bootDone=null;   // catalogue-load readiness (see initApp)
 let DOMAIN=new Set();   // tile vocabulary, used to tell a search apart from chit-chat
 let PRICE_STATS=null;   // {n, med} — lets the bot understand budget vs premium from the catalogue
 
@@ -637,8 +653,8 @@ function card(row,deliverable){
   const url=productURL(row,name),img=imageURL(row),wished=wl().includes(id),nd=deliverable===false;
   const el=document.createElement("div");el.className="pcard";
   el.innerHTML=`
-    <a class="img" href="${esc(url)}" target="_blank" rel="noopener" style="background:${swatchFor(row)}">
-      ${img?`<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onerror="this.remove()">`:""}
+    <a class="img ${img?'loading':'noimg'}" href="${esc(url)}" target="_blank" rel="noopener">
+      ${img?`<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onload="this.classList.add('on');this.parentElement.classList.remove('loading')" onerror="this.remove();this.parentElement.classList.remove('loading');this.parentElement.classList.add('noimg')">`:""}
       ${nd?`<span class="badge">Not in ${esc(session.state||"area")}</span>`:""}
     </a>
     <button class="wish${wished?' on':''}" title="Wishlist" aria-label="Wishlist">${wished?'♥':'♡'}</button>
@@ -823,6 +839,17 @@ function exampleChips(b){
 function respond(q,ai){
   const b=bubble("bot");
   if(!ROWS.length){
+    if(hasCatalogueSource()){
+      // Catalogue exists (shown in Train) but its rows aren't in memory yet —
+      // the shared cloud copy is still loading or a load hiccupped. Recover.
+      b.innerHTML='<p class="lead-text">One moment — loading the tile catalogue…</p>';
+      (async()=>{
+        for(let i=0;i<2&&!ROWS.length;i++){await cloudLoadSources();rebuildEngines()}
+        if(ROWS.length){if(b.parentElement)b.parentElement.remove();respond(q,ai)}
+        else b.innerHTML='<p class="lead-text">I couldn’t load the catalogue just now — please check your connection and try again in a moment.</p>';
+      })();
+      return;
+    }
     b.innerHTML='<p class="lead-text">I don\'t have a catalogue yet. Open the <b>Train</b> tab to add your CSV — or tap below to load the sample.</p>';
     const ch=document.createElement("div");ch.className="chips";
     const c=document.createElement("button");c.className="chip";c.style.cssText="background:var(--accent);color:var(--on-accent);font-weight:700";c.textContent="Load sample & search";
@@ -900,7 +927,8 @@ function seoBlock(q){
 
 function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
 async function runSearch(q){
-  const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';feed.scrollTop=feed.scrollHeight;
+  const t=bubble("bot");t.innerHTML='<span class="thinking"><span class="tdots"><i></i><i></i><i></i></span> Finding the best tiles for you…</span>';feed.scrollTop=feed.scrollHeight;
+  if(!engineReady&&bootDone){try{await bootDone}catch(e){}}   // wait for the catalogue to finish loading
   let ai=null;
   if(aiOn()){try{ai=await aiAssist(q)}catch(e){ai=null}}else{await new Promise(r=>setTimeout(r,200))}
   if(t.parentElement)t.parentElement.remove();
@@ -1165,9 +1193,7 @@ function seedSiteIfNeeded(){
     SOURCES.push(s);cloudSaveSource(s);
   }
 }
-async function initApp(){
-  // Show the welcome instantly — don't wait for the catalogue to download.
-  greet();input.focus();updateDeliverBar();setCloudStatus("Checking sync…","");
+async function boot(){
   // Then load the shared Supabase catalogue in the background (fallback: local copy).
   if(supaOn()){const ok=await cloudLoadSources();if(!ok&&!SOURCES.length)seedSiteIfNeeded();else if(!SOURCES.some(s=>s.type==="site"))seedSiteIfNeeded();}
   else seedSiteIfNeeded();
@@ -1175,6 +1201,12 @@ async function initApp(){
   if(!supaOn())setCloudStatus("Cloud sync off — this browser only. Data may not survive a reload.","warn");
   else if(CLOUD.ok)setCloudStatus("Cloud sync <b>on</b> — sources are shared with everyone &amp; saved.","on");
   else setCloudStatus("Cloud sync problem — "+(CLOUD.err||"not connected")+".","warn");
+  engineReady=true;
+}
+function initApp(){
+  // Show the welcome instantly — don't wait for the catalogue to download.
+  greet();input.focus();updateDeliverBar();setCloudStatus("Checking sync…","");
+  bootDone=boot();   // searches await this so they never race an unloaded catalogue
 }
 initApp();
 </script>
