@@ -55,6 +55,27 @@
   .seg button.active{background:var(--brand);color:var(--on-brand)}
   .icon-btn{width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px}
   .icon-btn:hover{color:var(--gold-ink);border-color:var(--accent)}
+  .icon-btn:active{transform:scale(.94)}
+  /* Keep the header on one tidy line on phones */
+  @media(max-width:560px){
+    .topbar{gap:8px;padding:10px 12px}
+    .logo{width:30px;height:30px}
+    .brand-name{font-size:14px}
+    .brand-sub{font-size:10px}
+    .seg button{padding:6px 12px;font-size:12px}
+    .icon-btn{width:34px;height:34px;font-size:14px}
+  }
+  @media(max-width:400px){
+    .topbar{gap:6px;padding:9px 10px}
+    .brand-sub{display:none}         /* free up room; brand name stays */
+    .seg{padding:2px}
+    .seg button{padding:6px 10px;font-size:12px}
+    .icon-btn{width:32px;height:32px}
+  }
+  @media(max-width:340px){
+    .logo{display:none}
+    .seg button{padding:5px 8px}
+  }
   .view{display:none;flex:1;flex-direction:column;min-height:0}
   .view.active{display:flex}
 
@@ -1101,10 +1122,12 @@ function seedSiteIfNeeded(){
   }
 }
 async function initApp(){
-  // Prefer the shared Supabase catalogue; fall back to this browser's local copy.
+  // Show the welcome instantly — don't wait for the catalogue to download.
+  greet();input.focus();updateDeliverBar();setCloudStatus("Checking sync…","");
+  // Then load the shared Supabase catalogue in the background (fallback: local copy).
   if(supaOn()){const ok=await cloudLoadSources();if(!ok&&!SOURCES.length)seedSiteIfNeeded();else if(!SOURCES.some(s=>s.type==="site"))seedSiteIfNeeded();}
   else seedSiteIfNeeded();
-  rebuildEngines();renderSources();updateDeliverBar();greet();input.focus();
+  rebuildEngines();renderSources();
   if(!supaOn())setCloudStatus("Cloud sync off — this browser only. Data may not survive a reload.","warn");
   else if(CLOUD.ok)setCloudStatus("Cloud sync <b>on</b> — sources are shared with everyone &amp; saved.","on");
   else setCloudStatus("Cloud sync problem — "+(CLOUD.err||"not connected")+".","warn");
