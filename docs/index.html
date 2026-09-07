@@ -301,6 +301,24 @@ const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 let sb=null;
 function supaOn(){return !!(SUPABASE_ANON_KEY && window.supabase && window.supabase.createClient)}
 function supa(){if(!sb&&supaOn())sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);return sb}
+
+/* ---- Claude conversational layer (optional) ----
+   Paste your Supabase Edge Function URL below to switch Tara from the built-in
+   rule-based understanding to Claude for richer conversation. The catalogue
+   search still supplies every product card (Claude never invents tiles). Leave
+   it "" to keep the fast, free, offline mode. */
+const AI_ENDPOINT="";
+function aiOn(){return !!AI_ENDPOINT}
+let chatHistory=[];   // recent {role, content} turns sent to Claude for context
+function aiFmt(t){return esc(String(t||"")).replace(/\n/g,"<br>")}
+async function aiAssist(q){
+  if(!aiOn())return null;
+  const res=await fetch(AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q,history:chatHistory.slice(-6)})});
+  if(!res.ok)return null;
+  const d=await res.json();if(!d||typeof d!=="object"||d.error)return null;
+  const intent=String(d.intent||"").toLowerCase();
+  return {intent:["search","clarify","smalltalk"].includes(intent)?intent:"search",query:d.query||q,reply:d.reply||""};
+}
 const LS={sources:"tara_sources",session:"tara_session",theme:"tara_theme",wish:"tara_wishlist",contact:"tara_contact",leads:"tara_leads",seeded:"tara_seeded"};
 const API_BASE=(window.TARA_API||"").replace(/\/$/,"");  // same-origin by default
 const store={
@@ -796,7 +814,13 @@ function notFoundLead(b,q){
     feed.scrollTop=feed.scrollHeight;
   });
 }
-function respond(q){
+function exampleChips(b){
+  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
+  const ch=document.createElement("div");ch.className="chips";
+  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
+}
+function respond(q,ai){
   const b=bubble("bot");
   if(!ROWS.length){
     b.innerHTML='<p class="lead-text">I don\'t have a catalogue yet. Open the <b>Train</b> tab to add your CSV — or tap below to load the sample.</p>';
@@ -807,7 +831,15 @@ function respond(q){
   }
   // "What categories / collections do you have?" → list the website pages.
   if(SITE.length&&/\b(categor|collection|section|range|what.*(offer|have|sell)|browse|all\s+(tiles|categories|collections))\b/i.test(q)){listCategories(b);return}
-  // Just chatting, not searching → reply warmly and steer to the catalogue.
+  // Claude-assisted path: it phrases the reply / asks for clarity; retrieval still supplies the cards.
+  if(ai){
+    if(ai.reply){const p=document.createElement("p");p.className="lead-text";p.innerHTML=aiFmt(ai.reply);b.appendChild(p)}
+    if(ai.intent==="search"){unclearTries=0;renderResults(b,ai.query||q)}
+    else if(ai.intent==="clarify"){unclearTries++;if(unclearTries>=2){unclearTries=0;notFoundLead(b,q)}else exampleChips(b)}
+    else unclearTries=0;   // smalltalk — reply already shown
+    feed.scrollTop=feed.scrollHeight;return;
+  }
+  // Rule-based path (no Claude): classify intent locally.
   const kind=intentKind(q);
   if(kind==="greeting"||kind==="thanks"||kind==="bye"||kind==="about"){unclearTries=0;conversationalReply(b,kind);return}
   if(kind!=="tile"){                       // couldn't understand the request
@@ -816,6 +848,9 @@ function respond(q){
     clarifyReply(b);return;                                       // first time → ask for clarity
   }
   unclearTries=0;
+  renderResults(b,q);
+}
+function renderResults(b,q){
   const p=parseQuery(q);
   let results=filterRows(p);
   const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
@@ -864,7 +899,16 @@ function seoBlock(q){
 }
 
 function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
-function runSearch(q){const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';setTimeout(()=>{if(t.parentElement)t.parentElement.remove();try{respond(q)}catch(e){const b=bubble("bot");notFoundLead(b,q)}},200)}
+async function runSearch(q){
+  const t=bubble("bot");t.innerHTML='<span style="color:var(--muted)">…</span>';feed.scrollTop=feed.scrollHeight;
+  let ai=null;
+  if(aiOn()){try{ai=await aiAssist(q)}catch(e){ai=null}}else{await new Promise(r=>setTimeout(r,200))}
+  if(t.parentElement)t.parentElement.remove();
+  try{respond(q,ai)}catch(e){const b=bubble("bot");notFoundLead(b,q)}
+  chatHistory.push({role:"user",content:q});
+  if(ai&&ai.reply)chatHistory.push({role:"assistant",content:ai.reply});
+  if(chatHistory.length>12)chatHistory=chatHistory.slice(-12);
+}
 function search(text){
   const q=(text!=null?text:input.value).trim();if(!q)return;
   input.value="";
