@@ -780,10 +780,10 @@ function distinctVals(rows,key){const seen=new Set(),out=[];rows.forEach(r=>{con
 function refineChips(results,q){
   if(results.length<3)return[];
   const ql=q.toLowerCase();const chips=[];
-  [["room"],["finish"],["color"]].forEach(([key])=>{
-    if(chips.length>=5||!MAP[key])return;
-    const vals=distinctVals(results,MAP[key]).filter(v=>!ql.includes(v.toLowerCase()));
-    if(vals.length>=2)vals.slice(0,3).forEach(v=>{if(chips.length<5)chips.push(v)});
+  [["color"],["finish"],["size"],["room"],["material"]].forEach(([key])=>{
+    if(chips.length>=4||!MAP[key])return;
+    const vals=distinctVals(results,MAP[key]).filter(v=>v&&!ql.includes(v.toLowerCase()));
+    if(vals.length>=2)vals.slice(0,2).forEach(v=>{if(chips.length<4)chips.push(v)});
   });
   return chips;
 }
@@ -838,10 +838,22 @@ function conversationalReply(b,kind){
   ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
   b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
 }
+/* A dismissible "Skip ✕" on a lead box (top-right); on skip it steps aside. */
+function addLeadSkip(box){
+  const s=document.createElement("button");s.type="button";s.textContent="Skip ✕";s.setAttribute("aria-label","Skip");
+  s.style.cssText="position:absolute;top:10px;right:10px;background:transparent;border:1px solid var(--line);color:var(--muted);font:600 11px 'Hanken Grotesk';padding:4px 10px;border-radius:999px;cursor:pointer;z-index:2";
+  box.style.position="relative";box.appendChild(s);
+  s.addEventListener("click",()=>{const n=document.createElement("p");n.className="lead-text";n.style.margin="0";n.textContent="No problem 🙂 — pick one of the ideas below whenever you’re ready.";box.replaceWith(n);feed.scrollTop=feed.scrollHeight});
+}
+/* Keep the conversation going under any fallback: a few tappable suggestions. */
+function leadTail(b){
+  const p=document.createElement("p");p.className="refine";p.textContent="Or explore a few popular picks:";b.appendChild(p);
+  exampleChips(b);
+}
 /* No catalogue match → turn it into a lead: reassure + capture a callback. */
 function notFoundLead(b,q){
   const lead=document.createElement("p");lead.className="lead-text";
-  lead.innerHTML=`Sorry, I couldn’t help you with “<b>${esc(q)}</b>” from our catalogue just yet 😔 — share your details and one of our tile experts will personally help you find it, or suggest a great alternative. ✨`;
+  lead.innerHTML=`Couldn’t find “<b>${esc(q)}</b>” just yet 😔 — leave your details and a tile expert will help.`;
   b.appendChild(lead);
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const db=docBlock(q);if(db)b.appendChild(db);
@@ -857,6 +869,7 @@ function notFoundLead(b,q){
         <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(contact.mobile)}</b> to help with “${esc(q)}” — and share the closest matches.</p>`;
       feed.scrollTop=feed.scrollHeight;
     });
+    addLeadSkip(box);leadTail(b);
     return;
   }
   box.innerHTML=`<h5><span class="star">✦</span> Let our experts help</h5>
@@ -879,6 +892,7 @@ function notFoundLead(b,q){
       <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(mob)}</b> to help with “${esc(q)}”.</p>`;
     feed.scrollTop=feed.scrollHeight;
   });
+  addLeadSkip(box);leadTail(b);
 }
 function exampleChips(b){
   const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
@@ -1055,18 +1069,17 @@ function greet(){
 /* Collect name + mobile + pincode when the visitor first engages. */
 function askDetails(prefillPin){
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text">Great pick! Just 3 quick details so I can show what’s deliverable near you 👇</p>';
-  const f=document.createElement("div");f.className="startform";
+  const f=document.createElement("div");f.className="startform";f.style.position="relative";
   f.innerHTML=`
+    <button class="skip" type="button" aria-label="Skip" style="position:absolute;top:0;right:0;background:transparent;border:1px solid var(--line);color:var(--muted);font:600 11px 'Hanken Grotesk';padding:4px 10px;border-radius:999px;cursor:pointer">Skip ✕</button>
+    <p class="lead-text" style="margin:0 0 12px;padding-right:64px"><b>Welcome! 👋</b><br>Share your details to see tiles we deliver to you.</p>
     <div class="fl"><label>Your name</label><input class="s-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name"></div>
     <div class="two">
       <div class="fl"><label>Mobile</label><input class="s-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"></div>
       <div class="fl"><label>Pincode</label><input class="s-pin" type="text" inputmode="numeric" placeholder="6-digit pincode" autocomplete="postal-code"></div>
     </div>
     <p class="err"></p>
-    <button class="go">Show me tiles →</button>
-    <button class="skip" type="button">Skip for now — I’ll share later</button>
-    <p class="fine">We use this only to check delivery to your area and to have our team call you back if you enquire.</p>`;
+    <button class="go">Show deliverable tiles →</button>`;
   b.appendChild(f);feed.scrollTop=feed.scrollHeight;
   const nm=f.querySelector(".s-name"),mb=f.querySelector(".s-mob"),pn=f.querySelector(".s-pin"),err=f.querySelector(".err");
   if(prefillPin)pn.value=prefillPin;
