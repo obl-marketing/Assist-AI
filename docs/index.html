@@ -41,8 +41,12 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{background:var(--ground);color:var(--ink);font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;line-height:1.5;overflow:hidden}
-  .app{max-width:var(--maxw);margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column}
+  body{background-color:var(--ground);color:var(--ink);font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;line-height:1.5;overflow:hidden;
+    /* Decorative tile pattern shown in the gutters outside the chat column.
+       Drop your image at assets/tara-bg.jpg — it loads on the live site; the
+       plain ground shows if it's absent (e.g. the claude.ai preview). */
+    background-image:url("assets/tara-bg.jpg");background-size:460px auto;background-position:center;background-attachment:fixed}
+  .app{max-width:var(--maxw);margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--ground);box-shadow:0 0 40px rgba(0,13,54,.10)}
 
   .topbar{display:flex;align-items:center;gap:12px;padding:14px 16px}
   .logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:0 0 auto}
@@ -105,7 +109,7 @@
   .understood .f.loc{background:var(--good-soft);color:var(--good)}
   .refine{font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 2px}
 
-  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:10px 0 2px}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:10px auto 2px;max-width:440px;padding:0 4px}
   .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both}
   .pcard .img{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;background:var(--surface-2)}
   .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease}
@@ -133,6 +137,10 @@
   .pcard h4 a:hover{color:var(--gold-ink)}
   .pcard .enq{flex:0 0 auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 15px;font:700 12.5px "Hanken Grotesk";cursor:pointer;white-space:nowrap}
   .pcard .enq:hover{background:var(--accent-2)}
+  .pcard .pmeta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:-2px}
+  .pcard .psize{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 11px}
+  .pcard .pprice{font-size:14px;font-weight:700;color:var(--ink)}
+  .pcard .pprice small{font-weight:600;color:var(--muted);font-size:10.5px;letter-spacing:.02em}
   .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:11px}
   .pcard .acts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--muted);font:600 10.5px "Hanken Grotesk";letter-spacing:.01em;padding:2px;transition:color .15s}
   .pcard .acts button:hover{color:var(--gold-ink)}
@@ -700,6 +708,9 @@ function card(row,deliverable){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
   const id=(MAP.sku&&row[MAP.sku])||name;
   const url=productURL(row,name),img=imageURL(row),wished=wl().includes(id),nd=deliverable===false;
+  const size=MAP.size?String(row[MAP.size]||"").replace(/\s+/g," ").trim():"";
+  const pr=priceOf(row);
+  const metaHTML=(size||pr!=null)?`<div class="pmeta">${size?`<span class="psize">${esc(size)}</span>`:""}${pr!=null?`<span class="pprice">≈ ₹${pr.toLocaleString("en-IN")} <small>est.</small></span>`:""}</div>`:"";
   const el=document.createElement("div");el.className="pcard";
   el.innerHTML=`
     <a class="img ${img?'loading':'noimg'}" href="${esc(url)}" target="_blank" rel="noopener">
@@ -712,6 +723,7 @@ function card(row,deliverable){
         <h4><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a></h4>
         <button class="enq">Enquire Now</button>
       </div>
+      ${metaHTML}
       <div class="acts">
         <button class="a-try"><span class="ic">⌂</span>Try in My Room</button>
         <button class="a-sim"><span class="ic">⇆</span>View Similar Tiles</button>
@@ -978,7 +990,7 @@ function renderResults(b,q){
 /* After results, a follow-up message with filters grouped by facet — each
    facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
 const SPACE_DEFS=[["Living Room","living room"],["Bedroom","bedroom"],["Bathroom","bathroom"],["Kitchen","kitchen"],["Balcony","balcony"],["Dining Room","dining"],["Outdoor","outdoor"],["Parking","parking"],["Terrace","terrace"]];
-function cleanFacet(v){return String(v).split(/[,/|]/)[0].replace(/\s*(finish|tiles?)\s*$/i,"").trim()}
+function cleanFacet(v){return String(v).split(/[,/|;&]| and | with |\+/i)[0].replace(/\s*(finish|tiles?)\s*$/i,"").trim()}
 function suggestFilters(q,results){
   if(!results.length)return;
   const ql=q.toLowerCase();const groups=[];
