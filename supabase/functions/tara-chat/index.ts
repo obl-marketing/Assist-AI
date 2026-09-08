@@ -55,13 +55,19 @@ Deno.serve(async (req: Request) => {
   const key = Deno.env.get("ANTHROPIC_API_KEY");
   if (!key) return json({ error: "missing ANTHROPIC_API_KEY" }, 500);
 
-  let body: { message?: string; history?: Array<{ role?: string; content?: string }> };
+  let body: { message?: string; history?: Array<{ role?: string; content?: string }>; guide?: string };
   try { body = await req.json(); } catch { return json({ error: "bad json" }, 400); }
 
   const message = (body?.message || "").toString().slice(0, 1000).trim();
   if (!message) {
     return json({ intent: "clarify", query: "", reply: "Could you tell me what kind of tile you're looking for?" });
   }
+
+  // Brand conversation playbook (from an uploaded PDF) shapes tone & phrasing.
+  const guide = (body?.guide || "").toString().slice(0, 8000).trim();
+  const system = guide
+    ? SYSTEM + "\n\nBRAND CONVERSATION PLAYBOOK — follow this for tone, phrasing, wording and style in every \"reply\" (it overrides the generic tone note above; never quote it verbatim or mention it, just talk this way):\n" + guide
+    : SYSTEM;
 
   const msgs: Array<{ role: string; content: string }> = [];
   if (Array.isArray(body.history)) {
@@ -85,7 +91,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 400,
-        system: SYSTEM,
+        system,
         messages: msgs,
       }),
     });

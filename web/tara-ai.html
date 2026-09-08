@@ -322,13 +322,22 @@ const AI_ENDPOINT="https://tavrnbkzfiiathgqnpuj.functions.supabase.co/tara-chat"
 function aiOn(){return !!AI_ENDPOINT}
 let chatHistory=[];   // recent {role, content} turns sent to Claude for context
 function aiFmt(t){return esc(String(t||"")).replace(/\n/g,"<br>")}
+/* Pull the brand "conversation playbook" from uploaded docs so Claude follows
+   its tone & phrasing. Prefers docs named like a playbook; caps the length. */
+function playbookText(){
+  const re=/playbook|tone|voice|style|convers|guideline|persona|brand|script/i;
+  let parts=DOCS.filter(d=>re.test(d.src||"")).map(d=>d.t);
+  if(!parts.length&&DOCS.length)parts=DOCS.map(d=>d.t);
+  const s=parts.join("\n").replace(/\s+/g," ").trim();
+  return s.length>6000?s.slice(0,6000)+"…":s;
+}
 async function aiAssist(q){
   if(!aiOn())return null;
   const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),9000);
   try{
     const res=await fetch(AI_ENDPOINT,{method:"POST",signal:ctrl.signal,
       headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},
-      body:JSON.stringify({message:q,history:chatHistory.slice(-6)})});
+      body:JSON.stringify({message:q,history:chatHistory.slice(-6),guide:playbookText()})});
     if(!res.ok)return null;
     const d=await res.json();if(!d||typeof d!=="object"||d.error)return null;
     const intent=String(d.intent||"").toLowerCase();
