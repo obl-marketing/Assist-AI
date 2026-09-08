@@ -272,7 +272,7 @@
     <div class="train">
       <div class="addbox">
         <h3>Add a knowledge source</h3>
-        <p class="hint">Just give it a name and upload any CSV — Tara reads the columns and figures out how to use it.</p>
+        <p class="hint">Just give it a name and load your data — CSV, Excel (.xlsx), TSV, JSON or PDF. Tara reads it and figures out how to use it.</p>
         <div class="status" id="cloudStatus" style="margin:0 0 12px"><span class="dot"></span><span>Checking sync…</span></div>
         <div class="field">
           <label>Name / title</label>
@@ -283,9 +283,9 @@
           <input type="text" id="srcDesc" placeholder="Any notes about this data">
         </div>
         <div class="row-btns">
-          <button class="btn gold" id="srcPick">Choose CSV…</button>
+          <button class="btn gold" id="srcPick">Load data</button>
           <span class="fname" id="srcFileName"></span>
-          <input type="file" id="srcFile" accept=".csv,text/csv" hidden>
+          <input type="file" id="srcFile" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.xlsm,.pdf" hidden>
         </div>
         <div class="row-btns" style="margin-top:10px">
           <button class="btn ghost" id="loadSample">Load sample data</button>
@@ -302,6 +302,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 /* ============================ storage ============================ */
 /* ---- Supabase (shared, persistent catalogue + leads across all users) ---- */
@@ -403,12 +405,12 @@ async function cloudLoadSources(){
   }catch(e){CLOUD={ok:false,err:mapSupaErr(e)};return false}
 }
 /* Engine state — rebuilt from SOURCES */
-let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={};
+let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={},DOCS=[];
 let engineReady=false,bootDone=null;   // catalogue-load readiness (see initApp)
 let DOMAIN=new Set();   // tile vocabulary, used to tell a search apart from chit-chat
 let PRICE_STATS=null;   // {n, med} — lets the bot understand budget vs premium from the catalogue
 
-const TYPE_LABEL={catalogue:"Product catalogue",site:"Website pages",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state"};
+const TYPE_LABEL={catalogue:"Product catalogue",site:"Website pages",seo:"Keywords → pages",deliv:"Deliverability",pincode:"Pincode → state",doc:"Document / notes"};
 
 /* ============================ CSV parser ============================ */
 function parseCSV(text){
@@ -484,7 +486,7 @@ function pinFrom(headers,rows){
 
 /* Rebuild all engine data from the SOURCES list (single source of truth). */
 function rebuildEngines(){
-  ROWS=[];HEADERS=[];MAP={};SEO=[];SITE=[];DELIV_CSV={};PIN_OVERRIDE={};
+  ROWS=[];HEADERS=[];MAP={};SEO=[];SITE=[];DELIV_CSV={};PIN_OVERRIDE={};DOCS=[];
   SOURCES.forEach(s=>{
     if(s.type==="catalogue"){ROWS=s.rows;HEADERS=s.headers;if(!s.map)s.map=autoMap(s.headers);MAP=s.map}
     else if(s.type==="seo")SEO=SEO.concat(seoFrom(s.headers,s.rows));
@@ -492,6 +494,7 @@ function rebuildEngines(){
       arr.forEach(p=>{SEO.push({keyword:p.name.toLowerCase(),url:p.url,type:"Category"});p.aliases.forEach(a=>SEO.push({keyword:a.toLowerCase(),url:p.url,type:"Category"}))});}
     else if(s.type==="deliv")Object.assign(DELIV_CSV,delivFrom(s.headers,s.rows));
     else if(s.type==="pincode")Object.assign(PIN_OVERRIDE,pinFrom(s.headers,s.rows));
+    else if(s.type==="doc")(s.rows||[]).forEach(r=>{const t=Object.values(r).join(" ").replace(/\s+/g," ").trim();if(t.length>15)DOCS.push({t,src:s.desc||s.filename})});
   });
   loadDelivConfig();
   DOMAIN=domainVocab();
@@ -513,6 +516,7 @@ function domainVocab(){
   });
   SEO.forEach(e=>{(e.keyword.match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})});
   SITE.forEach(p=>{[p.name,...p.aliases].forEach(t=>{(t.toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>2)v.add(w)})})});
+  DOCS.forEach(d=>{(d.t.toLowerCase().match(/[a-z0-9]+/g)||[]).forEach(w=>{if(w.length>3)v.add(w)})});
   return v;
 }
 function tok(s){return (String(s).toLowerCase().match(/[a-z0-9]+/g)||[]).filter(t=>t.length>1)}
@@ -534,6 +538,8 @@ function intentKind(q){
 function detectType(headers){
   const H=(headers||[]).map(h=>String(h).toLowerCase());
   const has=re=>H.some(h=>re.test(h));
+  if(H.filter(Boolean).length<=1)return "doc";   // a single text column = a document/notes source
+  if(has(/^content$|^text$|^body$|paragraph|passage/))return "doc";
   // Product catalogue: has a name AND at least one product-ish attribute.
   if(has(/name|product|title|item|descri/)&&has(/image|img|photo|price|mrp|size|sku|colou?r|finish|material/))return "catalogue";
   if(has(/plant|factory|warehouse|source/)&&has(/state|region|deliver|serv/))return "deliv";
@@ -546,9 +552,11 @@ function addSource(type,desc,text,filename){
   const {headers,rows}=parseCSV(text);
   if(!rows.length){alert("That file looks empty or unreadable. Please upload a CSV.");return false}
   if(!type||type==="auto")type=detectType(headers);
-  const s={id:type,type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};  // one active source per type
+  const id=type==="doc"?("doc:"+((filename||"doc").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"doc")):type;
+  const s={id,type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};
   if(type==="catalogue")s.map=autoMap(headers);
-  SOURCES=SOURCES.filter(x=>x.type!==type);
+  if(type==="doc")SOURCES=SOURCES.filter(x=>x.id!==id);   // keep other docs; replace one with the same name
+  else SOURCES=SOURCES.filter(x=>x.type!==type);          // one active source per non-doc type
   SOURCES.push(s);
   rebuildEngines();renderSources();cloudSaveSource(s);
   return true;
@@ -827,6 +835,7 @@ function notFoundLead(b,q){
   lead.innerHTML=`Sorry, I couldn’t help you with “<b>${esc(q)}</b>” from our catalogue just yet 😔 — share your details and one of our tile experts will personally help you find it, or suggest a great alternative. ✨`;
   b.appendChild(lead);
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
+  const db=docBlock(q);if(db)b.appendChild(db);
   const box=document.createElement("div");box.className="lead";
   if(contact&&contact.mobile){
     box.innerHTML=`<h5><span class="star">✦</span> Get expert help</h5>
@@ -882,6 +891,8 @@ function respond(q,ai){
       })();
       return;
     }
+    const db0=DOCS.length?docBlock(q):null;            // no catalogue, but a document may answer
+    if(db0){b.innerHTML='<p class="lead-text">Here’s what I found in your documents:</p>';b.appendChild(db0);return}
     b.innerHTML='<p class="lead-text">I don\'t have a catalogue yet. Open the <b>Train</b> tab to add your CSV — or tap below to load the sample.</p>';
     const ch=document.createElement("div");ch.className="chips";
     const c=document.createElement("button");c.className="chip";c.style.cssText="background:var(--accent);color:var(--on-accent);font-weight:700";c.textContent="Load sample & search";
@@ -947,6 +958,7 @@ function renderResults(b,q){
   moreBtn.addEventListener("click",renderMore);renderMore();
 
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
+  const db=docBlock(q);if(db)b.appendChild(db);
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -954,6 +966,17 @@ function seoBlock(q){
   if(!hits.length)return null;
   const el=document.createElement("div");el.style.cssText="margin:12px 0 2px;padding:10px 12px;border:1px dashed var(--accent);border-radius:10px;background:var(--gold-soft)";
   el.innerHTML='<p style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink);font-weight:700;margin:0 0 4px">Related pages</p>'+hits.slice(0,2).map(e=>`<a href="${esc(e.url)}" target="_blank" rel="noopener" style="display:block;color:var(--ink);font-size:13px;font-weight:600;text-decoration:none;padding:3px 0">→ ${esc(e.keyword.replace(/\b\w/g,c=>c.toUpperCase()))}</a>`).join("");
+  return el;
+}
+/* Surface a relevant snippet from any uploaded document (e.g. a PDF). */
+function docBlock(q){
+  if(!DOCS.length)return null;
+  const words=parseQuery(q).words;if(!words.length)return null;
+  const hits=DOCS.map(d=>{const t=d.t.toLowerCase();return{d,score:words.reduce((a,w)=>a+(t.includes(w)?1:0),0)}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,2);
+  if(!hits.length)return null;
+  const el=document.createElement("div");el.style.cssText="margin:12px 0 2px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)";
+  el.innerHTML='<p style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 6px">📄 From your documents</p>'+
+    hits.map(h=>{let t=h.d.t;if(t.length>260)t=t.slice(0,260).replace(/\s+\S*$/,"")+"…";return`<p style="font-size:12.5px;color:var(--ink);margin:0 0 6px;line-height:1.5">${esc(t)}<span style="display:block;color:var(--muted);font-size:11px;margin-top:2px">— ${esc(h.d.src||"document")}</span></p>`}).join("");
   return el;
 }
 
@@ -1178,16 +1201,62 @@ function loadSampleData(){
 }
 
 /* ============================ wiring ============================ */
+/* ---- Load data in any common format, converting it to CSV for the engine ---- */
+function csvCell(v){v=v==null?"":String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function rowsToCSV(headers,rows){return [headers.map(csvCell).join(",")].concat(rows.map(r=>headers.map(h=>csvCell(r[h])).join(","))).join("\n")}
+function jsonToCSV(text){
+  let data=JSON.parse(text);
+  if(!Array.isArray(data)){                          // {items:[...]} / {products:[...]} → take the first array
+    const arr=Object.values(data).find(v=>Array.isArray(v));
+    data=arr||[data];
+  }
+  if(!data.length)return "";
+  if(typeof data[0]!=="object"){data=data.map(v=>({value:v}))}
+  const headers=[];data.forEach(o=>Object.keys(o||{}).forEach(k=>{if(!headers.includes(k))headers.push(k)}));
+  return rowsToCSV(headers,data);
+}
+function tsvToCSV(text){return text.split(/\r?\n/).filter(l=>l.length).map(l=>l.split("\t").map(csvCell).join(",")).join("\n")}
+async function pdfToCSV(file){
+  if(!window.pdfjsLib)throw new Error("PDF support is still loading — please try again in a moment.");
+  try{if(!pdfjsLib.GlobalWorkerOptions.workerSrc)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}catch(e){}
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  let full="";
+  for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p);const c=await page.getTextContent();full+=c.items.map(i=>i.str).join(" ")+"\n"}
+  const paras=full.split(/\n+|(?<=[.!?])\s{2,}/).map(s=>s.replace(/\s+/g," ").trim()).filter(s=>s.length>25);
+  if(!paras.length)throw new Error("Couldn’t read text from that PDF (it may be a scanned image).");
+  return rowsToCSV(["content"],paras.map(t=>({content:t})));
+}
+async function fileToCSV(file){
+  const name=file.name.toLowerCase();
+  if(/\.pdf$/.test(name))return pdfToCSV(file);
+  if(/\.(xlsx|xls|xlsm)$/.test(name)){
+    if(!window.XLSX)throw new Error("Excel support is still loading — please try again in a moment.");
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_csv(ws);
+  }
+  const text=await file.text();
+  if(/\.json$/.test(name))return jsonToCSV(text);
+  if(/\.tsv$/.test(name)||(/\t/.test(text.split(/\r?\n/)[0]||"")&&!/,/.test(text.split(/\r?\n/)[0]||"")))return tsvToCSV(text);
+  return text;   // csv / txt
+}
 const srcName=document.getElementById("srcName"),srcDesc=document.getElementById("srcDesc"),srcFile=document.getElementById("srcFile"),srcFileName=document.getElementById("srcFileName");
 document.getElementById("srcPick").onclick=()=>srcFile.click();
-srcFile.onchange=e=>{const f=e.target.files[0];if(!f)return;srcFileName.textContent=f.name;const r=new FileReader();
-  r.onload=()=>{
-    const nm=(srcName.value||"").trim(), note=(srcDesc.value||"").trim();
-    const label=(nm||f.name.replace(/\.csv$/i,""))+(note?" — "+note:"");
-    const ok=addSource("auto",label,r.result,f.name);
-    if(ok){srcName.value="";srcDesc.value="";srcFileName.textContent="Added ✓"}
-  };
-  r.readAsText(f);srcFile.value="";};
+srcFile.onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  srcFileName.textContent="Reading "+f.name+"…";
+  let csv="";
+  try{csv=await fileToCSV(f)}catch(err){srcFileName.textContent="";alert(err.message||"Sorry, I couldn't read that file.");srcFile.value="";return}
+  const nm=(srcName.value||"").trim(),note=(srcDesc.value||"").trim();
+  const label=(nm||f.name.replace(/\.[^.]+$/,""))+(note?" — "+note:"");
+  const ftype=/\.pdf$/i.test(f.name)?"doc":"auto";   // PDFs are documents, never the catalogue
+  const ok=addSource(ftype,label,csv,f.name);
+  srcFileName.textContent=ok?"Added ✓":"";
+  if(ok){srcName.value="";srcDesc.value=""}
+  srcFile.value="";
+};
 document.getElementById("loadSample").onclick=loadSampleData;
 document.getElementById("exportAll").onclick=exportAll;
 
