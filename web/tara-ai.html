@@ -126,7 +126,7 @@
   .pcard .wish{position:absolute;top:12px;left:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
   .pcard .wish:active{transform:scale(.85)}
   .pcard .wish.on{color:var(--accent);background:var(--brand)}
-  .pcard .badge{position:absolute;right:12px;top:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
+  .pcard .badge{position:absolute;left:12px;bottom:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
   .pcard .pbody{padding:13px 15px 14px;display:flex;flex-direction:column;gap:11px}
   .pcard .namerow{display:flex;align-items:center;gap:10px}
   .pcard h4{margin:0;flex:1;min-width:0;font-size:15.5px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
@@ -134,10 +134,11 @@
   .pcard h4 a:hover{color:var(--gold-ink)}
   .pcard .enq{flex:0 0 auto;background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 15px;font:700 12.5px "Hanken Grotesk";cursor:pointer;white-space:nowrap}
   .pcard .enq:hover{background:var(--accent-2)}
-  .pcard .pmeta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:-2px}
-  .pcard .psize{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 11px}
-  .pcard .pprice{font-size:14px;font-weight:700;color:var(--ink)}
-  .pcard .pprice small{font-weight:600;color:var(--muted);font-size:10.5px;letter-spacing:.02em}
+  .pcard .pprice{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.01em;line-height:1}
+  .pcard .pprice small{font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.02em}
+  .pcard .psize{font-size:12.5px;font-weight:500;color:var(--muted)}
+  .pcard .view{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--brand);text-decoration:none;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
+  .pcard .view:hover{color:var(--gold-ink)} .pcard .view:active{transform:scale(.85)}
   .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:11px}
   .pcard .acts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--muted);font:600 10.5px "Hanken Grotesk";letter-spacing:.01em;padding:2px;transition:color .15s}
   .pcard .acts button:hover{color:var(--gold-ink)}
@@ -705,9 +706,8 @@ function card(row,deliverable){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
   const id=(MAP.sku&&row[MAP.sku])||name;
   const url=productURL(row,name),img=imageURL(row),wished=wl().includes(id),nd=deliverable===false;
-  const size=MAP.size?String(row[MAP.size]||"").replace(/\s+/g," ").trim():"";
+  const size=MAP.size?String(row[MAP.size]||"").replace(/\s*[x×*]\s*/i," × ").replace(/\s+/g," ").trim():"";
   const pr=priceOf(row);
-  const metaHTML=(size||pr!=null)?`<div class="pmeta">${size?`<span class="psize">${esc(size)}</span>`:""}${pr!=null?`<span class="pprice">≈ ₹${pr.toLocaleString("en-IN")} <small>/ sq.ft</small></span>`:""}</div>`:"";
   const el=document.createElement("div");el.className="pcard";
   el.innerHTML=`
     <a class="img ${img?'loading':'noimg'}" href="${esc(url)}" target="_blank" rel="noopener">
@@ -715,22 +715,18 @@ function card(row,deliverable){
       ${nd?`<span class="badge">Not in ${esc(session.state||"area")}</span>`:""}
     </a>
     <button class="wish${wished?' on':''}" title="Wishlist" aria-label="Wishlist">${wished?'♥':'♡'}</button>
+    <a class="view" href="${esc(url)}" target="_blank" rel="noopener" title="View details" aria-label="View details">↗</a>
     <div class="pbody">
+      ${pr!=null?`<div class="pprice">₹${pr.toLocaleString("en-IN")} <small>/ sq.ft</small></div>`:""}
       <div class="namerow">
         <h4><a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a></h4>
         <button class="enq">Enquire Now</button>
       </div>
-      ${metaHTML}
-      <div class="acts">
-        <button class="a-try"><span class="ic">⌂</span>Try in My Room</button>
-        <button class="a-sim"><span class="ic">⇆</span>View Similar Tiles</button>
-      </div>
+      ${size?`<div class="psize">${esc(size)}</div>`:""}
     </div>`;
   const wb=el.querySelector(".wish");
   wb.addEventListener("click",()=>{const on=wlToggle(id);wb.className="wish"+(on?" on":"");wb.textContent=on?"♥":"♡"});
   el.querySelector(".enq").addEventListener("click",()=>openEnquire(row));
-  el.querySelector(".a-try").addEventListener("click",()=>window.open(url,"_blank","noopener"));
-  el.querySelector(".a-sim").addEventListener("click",()=>findSimilar(row));
   return el;
 }
 
