@@ -840,8 +840,8 @@ function conversationalReply(b,kind){
 }
 /* A dismissible "Skip ✕" on a lead box (top-right); on skip it steps aside. */
 function addLeadSkip(box){
-  const s=document.createElement("button");s.type="button";s.textContent="Skip ✕";s.setAttribute("aria-label","Skip");
-  s.style.cssText="position:absolute;top:10px;right:10px;background:transparent;border:1px solid var(--line);color:var(--muted);font:600 11px 'Hanken Grotesk';padding:4px 10px;border-radius:999px;cursor:pointer;z-index:2";
+  const s=document.createElement("button");s.type="button";s.textContent="Skip";s.setAttribute("aria-label","Skip");
+  s.style.cssText="position:absolute;top:8px;right:8px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font:600 12px 'Hanken Grotesk';padding:5px 13px;border-radius:999px;cursor:pointer;z-index:3";
   box.style.position="relative";box.appendChild(s);
   s.addEventListener("click",()=>{const n=document.createElement("p");n.className="lead-text";n.style.margin="0";n.textContent="No problem 🙂 — pick one of the ideas below whenever you’re ready.";box.replaceWith(n);feed.scrollTop=feed.scrollHeight});
 }
@@ -959,15 +959,6 @@ function renderResults(b,q){
   lead.innerHTML=`Found <b>${results.length}</b> tile${results.length>1?"s":""}${canDeliver?` <span style="color:var(--good);font-weight:600">${delCount} deliverable to ${esc(session.state)}</span>`+(ndCount?` <span style="color:var(--muted)">· ${ndCount} on enquiry</span>`:""):""}.`;
   b.appendChild(lead);
 
-  // Clarifying questions when the result set is broad.
-  const refines=refineChips(results,q);
-  if(refines.length){
-    const r=document.createElement("p");r.className="refine";r.textContent="Want to narrow it down — any preference?";b.appendChild(r);
-    const ch=document.createElement("div");ch.className="chips";
-    refines.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
-    b.appendChild(ch);
-  }
-
   const grid=document.createElement("div");grid.className="grid";b.appendChild(grid);
   let shownN=0;const PAGE=5;
   const moreBtn=document.createElement("button");moreBtn.className="show-more";
@@ -982,6 +973,23 @@ function renderResults(b,q){
 
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const db=docBlock(q);if(db)b.appendChild(db);
+  suggestFilters(q,results);
+}
+/* After results, a separate follow-up message with tap-to-filter suggestions. */
+function suggestFilters(q,results){
+  let opts=refineChips(results,q);
+  if(opts.length<3){
+    const extra=["Budget-friendly","Premium range","Anti-skid","Glossy finish","Large format","Wood look"]
+      .filter(o=>!q.toLowerCase().includes(o.toLowerCase().split(" ")[0]));
+    for(const o of extra){if(opts.length>=4)break;if(!opts.includes(o))opts.push(o)}
+  }
+  opts=opts.slice(0,4);
+  if(!opts.length)return;
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text" style="margin:0 0 2px">Want to narrow it down? Tap one and I’ll filter further 👇</p>';
+  const ch=document.createElement("div");ch.className="chips";
+  opts.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
+  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -1071,8 +1079,8 @@ function askDetails(prefillPin){
   const b=bubble("bot");
   const f=document.createElement("div");f.className="startform";f.style.position="relative";
   f.innerHTML=`
-    <button class="skip" type="button" aria-label="Skip" style="position:absolute;top:0;right:0;background:transparent;border:1px solid var(--line);color:var(--muted);font:600 11px 'Hanken Grotesk';padding:4px 10px;border-radius:999px;cursor:pointer">Skip ✕</button>
-    <p class="lead-text" style="margin:0 0 12px;padding-right:64px"><b>Welcome! 👋</b><br>Share your details to see tiles we deliver to you.</p>
+    <button class="skipbtn" type="button" aria-label="Skip" style="position:absolute;top:8px;right:8px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font:600 12px 'Hanken Grotesk';padding:5px 13px;border-radius:999px;cursor:pointer;z-index:3">Skip</button>
+    <p class="lead-text" style="margin:0 0 12px;padding-right:60px"><b>Welcome! 👋</b><br>Share your details to see tiles we deliver to you.</p>
     <div class="fl"><label>Your name</label><input class="s-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name"></div>
     <div class="two">
       <div class="fl"><label>Mobile</label><input class="s-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"></div>
@@ -1083,7 +1091,7 @@ function askDetails(prefillPin){
   b.appendChild(f);feed.scrollTop=feed.scrollHeight;
   const nm=f.querySelector(".s-name"),mb=f.querySelector(".s-mob"),pn=f.querySelector(".s-pin"),err=f.querySelector(".err");
   if(prefillPin)pn.value=prefillPin;
-  f.querySelector(".skip").addEventListener("click",()=>{
+  f.querySelector(".skipbtn").addEventListener("click",()=>{
     f.className="startform";f.innerHTML='<p style="margin:0;font-size:13px;color:var(--muted)">No problem — browse away! You can share your details anytime you enquire or wishlist. 🙂</p>';
     if(pendingQuery){const q=pendingQuery;pendingQuery=null;runSearch(q)}else showSuggestions();
   });
