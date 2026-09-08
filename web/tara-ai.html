@@ -975,21 +975,34 @@ function renderResults(b,q){
   const db=docBlock(q);if(db)b.appendChild(db);
   suggestFilters(q,results);
 }
-/* After results, a separate follow-up message with tap-to-filter suggestions. */
+/* After results, a follow-up message with filters grouped by facet — each
+   facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
+const SPACE_DEFS=[["Living Room","living room"],["Bedroom","bedroom"],["Bathroom","bathroom"],["Kitchen","kitchen"],["Balcony","balcony"],["Dining Room","dining"],["Outdoor","outdoor"],["Parking","parking"],["Terrace","terrace"]];
+function cleanFacet(v){return String(v).split(/[,/|]/)[0].replace(/\s*(finish|tiles?)\s*$/i,"").trim()}
 function suggestFilters(q,results){
-  let opts=refineChips(results,q);
-  if(opts.length<3){
-    const extra=["Budget-friendly","Premium range","Anti-skid","Glossy finish","Large format","Wood look"]
-      .filter(o=>!q.toLowerCase().includes(o.toLowerCase().split(" ")[0]));
-    for(const o of extra){if(opts.length>=4)break;if(!opts.includes(o))opts.push(o)}
-  }
-  opts=opts.slice(0,4);
-  if(!opts.length)return;
+  if(!results.length)return;
+  const ql=q.toLowerCase();const groups=[];
+  const add=(label,vals)=>{const u=[];(vals||[]).forEach(v=>{const c=cleanFacet(v);if(c&&c.length<=22&&!u.some(x=>x.toLowerCase()===c.toLowerCase())&&!ql.includes(c.toLowerCase()))u.push(c)});if(u.length>=2)groups.push({label,vals:u.slice(0,6)})};
+  if(MAP.color)add("Colour",distinctVals(results,MAP.color));
+  if(MAP.finish)add("Finish",distinctVals(results,MAP.finish));
+  if(MAP.size)add("Size",distinctVals(results,MAP.size));
+  if(MAP.material)add("Material",distinctVals(results,MAP.material));
+  const spaces=SPACE_DEFS.filter(([,k])=>results.slice(0,500).some(r=>rowText(r).includes(k))).map(([l])=>l).filter(s=>!ql.includes(s.toLowerCase()));
+  if(spaces.length>=2)groups.push({label:"Space",vals:spaces.slice(0,6)});
+  const price=[];if(!/budget|cheap|affordable/.test(ql))price.push("Budget-friendly");if(!/premium|luxury/.test(ql))price.push("Premium");
+  if(price.length===2)groups.push({label:"Budget",vals:price});
+  if(!groups.length)return;
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text" style="margin:0 0 2px">Want to narrow it down? Tap one and I’ll filter further 👇</p>';
-  const ch=document.createElement("div");ch.className="chips";
-  opts.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
-  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
+  b.innerHTML='<p class="lead-text" style="margin:0 0 8px">Narrow it down — tap any filter 👇</p>';
+  groups.slice(0,5).forEach(g=>{
+    const wrap=document.createElement("div");wrap.style.cssText="margin:0 0 10px";
+    const lab=document.createElement("div");lab.textContent=g.label;
+    lab.style.cssText="font:700 10.5px 'Hanken Grotesk',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 5px";
+    const ch=document.createElement("div");ch.className="chips";
+    g.vals.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
+    wrap.appendChild(lab);wrap.appendChild(ch);b.appendChild(wrap);
+  });
+  feed.scrollTop=feed.scrollHeight;
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
