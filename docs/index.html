@@ -272,21 +272,15 @@
     <div class="train">
       <div class="addbox">
         <h3>Add a knowledge source</h3>
-        <p class="hint">Upload a CSV, say what it is, and describe it. You can view or delete it any time.</p>
+        <p class="hint">Just give it a name and upload any CSV — Tara reads the columns and figures out how to use it.</p>
         <div class="status" id="cloudStatus" style="margin:0 0 12px"><span class="dot"></span><span>Checking sync…</span></div>
         <div class="field">
-          <label>What kind of data is this?</label>
-          <select id="srcType">
-            <option value="catalogue">Product catalogue — the tiles Tara searches &amp; shows</option>
-            <option value="site">Website pages — category / collection pages (bathroom, living room…)</option>
-            <option value="seo">Keywords → pages — helps read intent</option>
-            <option value="deliv">Deliverability — which source delivers to which states</option>
-            <option value="pincode">Pincode → state — exact overrides</option>
-          </select>
+          <label>Name / title</label>
+          <input type="text" id="srcName" placeholder="e.g. Floor tiles catalogue">
         </div>
         <div class="field">
-          <label>Describe this source</label>
-          <input type="text" id="srcDesc" placeholder="e.g. Full tile catalogue — Aug 2026">
+          <label>Description <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <input type="text" id="srcDesc" placeholder="Any notes about this data">
         </div>
         <div class="row-btns">
           <button class="btn gold" id="srcPick">Choose CSV…</button>
@@ -535,9 +529,23 @@ function intentKind(q){
   if(/\b(who are you|what are you|your name|about you|what can you (do|help)|what do you do|how (do|does) (you|this) work|help|options)\b/.test(s))return "about";
   return "chitchat";
 }
+/* Work out how to use an uploaded file from its column names, so the user just
+   uploads anything and never has to pick a "type". */
+function detectType(headers){
+  const H=(headers||[]).map(h=>String(h).toLowerCase());
+  const has=re=>H.some(h=>re.test(h));
+  // Product catalogue: has a name AND at least one product-ish attribute.
+  if(has(/name|product|title|item|descri/)&&has(/image|img|photo|price|mrp|size|sku|colou?r|finish|material/))return "catalogue";
+  if(has(/plant|factory|warehouse|source/)&&has(/state|region|deliver|serv/))return "deliv";
+  if((has(/pin ?code|pincode|zip/))&&has(/state|region|city/))return "pincode";
+  if(has(/keyword|intent|synonym|query|search/)&&has(/url|link|page/))return "seo";
+  if(has(/page|category|collection|section|alias/)&&has(/url|link/))return "site";
+  return "catalogue";   // default: treat as a searchable product corpus
+}
 function addSource(type,desc,text,filename){
   const {headers,rows}=parseCSV(text);
-  if(!rows.length){alert("That CSV looks empty or unreadable.");return false}
+  if(!rows.length){alert("That file looks empty or unreadable. Please upload a CSV.");return false}
+  if(!type||type==="auto")type=detectType(headers);
   const s={id:type,type,desc:(desc||"").trim(),filename:filename||"source.csv",headers,rows};  // one active source per type
   if(type==="catalogue")s.map=autoMap(headers);
   SOURCES=SOURCES.filter(x=>x.type!==type);
@@ -1170,10 +1178,15 @@ function loadSampleData(){
 }
 
 /* ============================ wiring ============================ */
-const srcType=document.getElementById("srcType"),srcDesc=document.getElementById("srcDesc"),srcFile=document.getElementById("srcFile"),srcFileName=document.getElementById("srcFileName");
+const srcName=document.getElementById("srcName"),srcDesc=document.getElementById("srcDesc"),srcFile=document.getElementById("srcFile"),srcFileName=document.getElementById("srcFileName");
 document.getElementById("srcPick").onclick=()=>srcFile.click();
 srcFile.onchange=e=>{const f=e.target.files[0];if(!f)return;srcFileName.textContent=f.name;const r=new FileReader();
-  r.onload=()=>{const ok=addSource(srcType.value,srcDesc.value,r.result,f.name);if(ok){srcDesc.value="";srcFileName.textContent="Added ✓"}};
+  r.onload=()=>{
+    const nm=(srcName.value||"").trim(), note=(srcDesc.value||"").trim();
+    const label=(nm||f.name.replace(/\.csv$/i,""))+(note?" — "+note:"");
+    const ok=addSource("auto",label,r.result,f.name);
+    if(ok){srcName.value="";srcDesc.value="";srcFileName.textContent="Added ✓"}
+  };
   r.readAsText(f);srcFile.value="";};
 document.getElementById("loadSample").onclick=loadSampleData;
 document.getElementById("exportAll").onclick=exportAll;
