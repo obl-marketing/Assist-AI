@@ -983,6 +983,8 @@ function renderResults(b,q){
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const db=docBlock(q);if(db)b.appendChild(db);
   suggestFilters(q,results);
+  // Keep the focus on the products just found (not the filter panel below).
+  setTimeout(()=>{try{b.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){feed.scrollTop=b.offsetTop-8}},50);
 }
 /* After results, a follow-up message with filters grouped by facet — each
    facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
@@ -1002,7 +1004,7 @@ function suggestFilters(q,results){
   if(price.length===2)groups.push({label:"Budget",vals:price});
   if(!groups.length)return;
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text" style="margin:0 0 8px">Narrow it down — tap any filter 👇</p>';
+  b.innerHTML='<p class="lead-text" style="margin:0 0 8px">Want something more specific? Tap a filter below and I’ll fine-tune these 👇</p>';
   groups.slice(0,5).forEach(g=>{
     const wrap=document.createElement("div");wrap.style.cssText="margin:0 0 10px";
     const lab=document.createElement("div");lab.textContent=g.label;
@@ -1011,7 +1013,7 @@ function suggestFilters(q,results){
     g.vals.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
     wrap.appendChild(lab);wrap.appendChild(ch);b.appendChild(wrap);
   });
-  feed.scrollTop=feed.scrollHeight;
+  // Don't auto-scroll here — the results above stay in focus.
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -1090,7 +1092,7 @@ function buildCarousel(){
 function greet(){
   const b=bubble("bot");
   b.innerHTML='<p class="lead-text"><b>Welcome to Orientbell Tiles!</b> 👋 I’m Tara, your tile shopping assistant.</p><p class="lead-text" style="margin-top:8px">Which space are you shopping for?</p>';
-  const spaces=["Living Room","Bathroom","Bedroom","Kitchen","Balcony","Outdoor"];
+  const spaces=["Living Room","Bathroom","Bedroom","Kitchen","Balcony","Parking","Outdoor"];
   const ch=document.createElement("div");ch.className="chips";
   spaces.forEach(s=>{const c=document.createElement("button");c.className="chip";c.textContent=s;c.onclick=()=>search(s+" tiles");ch.appendChild(c)});
   b.appendChild(ch);
