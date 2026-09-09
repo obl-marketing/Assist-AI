@@ -19,16 +19,9 @@
     --spoke:rgba(10,18,48,.05); --facet:rgba(10,18,48,.035); --glow:rgba(255,255,255,.85); --wash:rgba(244,246,250,.90);
     --radius:14px; --maxw:760px;
   }
-  :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
-    --ground:#070C22; --surface:#111834; --surface-2:#0C1230;
-    --ink:#EEF1FA; --muted:#9AA3C8; --line:#28315C;
-    --brand:#0A1442; --brand-2:#1B2A63; --on-brand:#FFFFFF;
-    --accent:#FFD633; --accent-2:#FFCC00; --on-accent:#000D36;
-    --gold-ink:#FFD633; --gold-soft:#332B0C; --navy-soft:#1B2450;
-    --good:#2FB866; --good-soft:#0E3320; --bad:#FF7A88;
-    --shadow:0 6px 22px rgba(0,0,0,.4);
-    --spoke:rgba(255,255,255,.06); --facet:rgba(255,255,255,.04); --glow:rgba(120,150,255,.06); --wash:rgba(8,13,30,.90);
-  }}
+  /* Dark theme applies ONLY when the shopper explicitly toggles it — never on
+     first load, even if the viewer's OS is in dark mode (no prefers-color-scheme
+     auto-dark), so the bot always opens in light mode. */
   :root[data-theme="dark"]{
     --ground:#070C22; --surface:#111834; --surface-2:#0C1230;
     --ink:#EEF1FA; --muted:#9AA3C8; --line:#28315C;
