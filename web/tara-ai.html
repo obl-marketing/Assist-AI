@@ -106,12 +106,15 @@
 
   .grid{display:grid;grid-template-columns:1fr;gap:18px;margin:10px auto 2px;max-width:560px;padding:0 2px}
   .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
-  .pcard:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(0,13,54,.17);border-color:var(--accent)}
+  .pcard:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(0,13,54,.17);border-color:var(--line)}
   .pcard .img{position:relative;display:block;aspect-ratio:4/3;width:100%;overflow:hidden;background:var(--surface-2)}
   .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease,transform .4s ease}
   .pcard .img img.on{opacity:1}
-  .pcard .img:hover img.on{transform:scale(1.08)}
-  .pcard .img:active img.on{transform:scale(1.03)}
+  .pcard .img:hover img.on{transform:scale(1.06)}
+  .pcard .img:active img.on{transform:scale(1.02)}
+  /* Ambience (room) shot: hidden until hover, then it fades in over the tile */
+  .pcard .img img.amb{z-index:2;opacity:0}
+  .pcard .img:hover img.amb.on{opacity:1}
   /* Loading: a calm shimmer, not a fake tile */
   .pcard .img.loading::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%);background-size:200% 100%;animation:tara-shimmer 1.15s ease-in-out infinite}
   /* No / failed image: neutral placeholder, clearly not a product photo */
@@ -480,6 +483,7 @@ const ATTRS=[
   ["price",/price|rate|cost|selling|amount/i,"Price"],
   ["plant",/plant|factory|unit|source|origin|warehouse/i,"Plant / source"],
   ["image",/image|img|photo|thumb|picture|visual/i,"Image URL"],
+  ["ambience",/ambien|lifestyle|room.?(shot|scene|view)|in.?situ|installed|setting/i,"Ambience image URL"],
   ["url",/product.?url|product.?link|page.?url|pdp|^url$|^link$|permalink/i,"Product URL"]
 ];
 function autoMap(headers){
@@ -487,6 +491,7 @@ function autoMap(headers){
   ATTRS.forEach(([key,re])=>{const h=headers.find(h=>re.test(h));if(h)m[key]=h});
   if(m.mrp&&m.mrp===m.price)delete m.mrp;
   if(m.url&&m.url===m.image)delete m.url;
+  if(m.ambience&&m.ambience===m.image)delete m.ambience;
   if(!m.name&&headers.length)m.name=headers[0];
   return m;
 }
@@ -710,6 +715,8 @@ function productURL(row,name){if(MAP.url&&row[MAP.url])return normURL(row[MAP.ur
 // that already point at the original (or non-Magento hosts).
 function hiRes(u){u=String(u||"").trim();if(!u)return "";return u.replace(/(\/catalog\/product\/)cache\/[^?#]*?\/((?:[^/]{1,2}\/[^/]{1,2}\/)?[^/?#]+\.(?:jpe?g|png|webp|avif))(?=$|[?#])/i,"$1$2")}
 function imageURL(row){return MAP.image?hiRes(row[MAP.image]):""}
+// Room/lifestyle "ambience" shot, shown on hover so the tile is seen in a space.
+function ambienceURL(row){return MAP.ambience?hiRes(row[MAP.ambience]):""}
 
 function wl(){return store.get(LS.wish,[])}
 function wlToggle(id){const a=wl();const i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);store.set(LS.wish,a);return i<0}
@@ -729,13 +736,14 @@ function findSimilar(row){
 function card(row,deliverable){
   const name=MAP.name?row[MAP.name]:Object.values(row)[0];
   const id=(MAP.sku&&row[MAP.sku])||name;
-  const url=productURL(row,name),img=imageURL(row),wished=wl().includes(id),nd=deliverable===false;
+  const url=productURL(row,name),img=imageURL(row),amb=ambienceURL(row),wished=wl().includes(id),nd=deliverable===false;
   const size=MAP.size?String(row[MAP.size]||"").replace(/\s*[x×*]\s*/i," × ").replace(/\s+/g," ").trim():"";
   const pr=priceOf(row);
   const el=document.createElement("div");el.className="pcard";
   el.innerHTML=`
     <a class="img ${img?'loading':'noimg'}" href="${esc(url)}" target="_blank" rel="noopener">
       ${img?`<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onload="this.classList.add('on');this.parentElement.classList.remove('loading')" onerror="this.remove();this.parentElement.classList.remove('loading');this.parentElement.classList.add('noimg')">`:""}
+      ${amb&&amb!==img?`<img class="amb" src="${esc(amb)}" alt="${esc(name)} in a room" loading="lazy" onload="this.classList.add('on')" onerror="this.remove()">`:""}
       ${nd?`<span class="badge">Not in ${esc(session.state||"area")}</span>`:""}
     </a>
     <button class="wish${wished?' on':''}" title="Wishlist" aria-label="Wishlist">${wished?'♥':'♡'}</button>
@@ -1003,15 +1011,66 @@ function renderResults(b,q){
 
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const db=docBlock(q);if(db)b.appendChild(db);
-  suggestFilters(q,results);
-  enquireNudge();
+  refinePrompt(q,results);
   // Keep the focus on the products just found (not the filter panel below).
   setTimeout(()=>{try{b.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){feed.scrollTop=b.offsetTop-8}},50);
 }
-/* Warm nudge to enquire on a specific tile after results + filters. */
-function enquireNudge(){
+/* After results: a warm gratefulness line + a Yes/No choice.
+   Yes → open the refine (filter) panel. No → thank them and capture a lead. */
+function refinePrompt(q,rows){
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text">Hope you love these! 💛 <b>Liked a tile?</b> Tap <b>Enquire Now</b> on it and share a couple of details — our team will help you get it.</p>';
+  b.innerHTML='<p class="lead-text" style="margin:0 0 10px">Hope you found something you love! 💛 Want to <b>refine these a little further</b>?</p>';
+  const ch=document.createElement("div");ch.className="chips";
+  const yes=document.createElement("button");yes.className="chip";yes.textContent="Yes, refine";
+  const no=document.createElement("button");no.className="chip";no.textContent="No, I’m good";
+  ch.appendChild(yes);ch.appendChild(no);b.appendChild(ch);
+  const lock=picked=>{[yes,no].forEach(x=>{x.disabled=true});picked.classList.add("sel");ch.style.pointerEvents="none";ch.style.opacity=".7"};
+  yes.onclick=()=>{lock(yes);const ok=suggestFilters(q,rows&&rows.length?rows:lastResults);if(!ok)gladLead("These are already quite specific 🙂");};
+  no.onclick=()=>{lock(no);gladLead();};
+  feed.scrollTop=feed.scrollHeight;
+}
+/* "No, I'm good" → thank the shopper and invite their details for expert help. */
+function gladLead(intro){
+  const b=bubble("bot");
+  const lead=document.createElement("p");lead.className="lead-text";
+  lead.innerHTML=(intro?esc(intro)+" ":"")+"So glad you liked the catalogue! ✨ Share your details and one of our tile experts will help you further.";
+  b.appendChild(lead);
+  const box=document.createElement("div");box.className="lead";
+  const product=lastQuery||"";
+  if(contact&&contact.mobile){
+    box.innerHTML=`<h5><span class="star">✦</span> Talk to a tile expert</h5>
+      <p class="s2">Shall we have our team call you back to help you choose and order? It’s quick and free.</p>
+      <button class="go">Yes, call me back →</button>`;
+    b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+    box.querySelector(".go").addEventListener("click",()=>{
+      recordLead({name:contact.name,mobile:contact.mobile,pincode:session.pincode,state:session.state,product,source:"refine-done"});
+      box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(contact.name.split(" ")[0])}!</h5>
+        <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(contact.mobile)}</b> to help you further.</p>`;
+      feed.scrollTop=feed.scrollHeight;
+    });
+    addLeadSkip(box);return;
+  }
+  box.innerHTML=`<h5><span class="star">✦</span> Share your details</h5>
+    <p class="s2">Leave your name &amp; mobile and our tile experts will help you choose and order — no charge.</p>
+    <input class="l-name" type="text" placeholder="Full name" autocomplete="name">
+    <input class="l-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel">
+    <p class="err"></p>
+    <button class="go">Request a callback →</button>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+  const nm=box.querySelector(".l-name"),mb=box.querySelector(".l-mob"),err=box.querySelector(".err");
+  [nm,mb].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),40);
+  box.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
+    if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    recordLead({name:nameV,mobile:mob,pincode:session.pincode,state:session.state,product,source:"refine-done"});
+    box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">Thanks, ${esc(nameV.split(" ")[0])}!</h5>
+      <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(mob)}</b> to help you further.</p>`;
+    feed.scrollTop=feed.scrollHeight;
+  });
+  addLeadSkip(box);
 }
 /* After results, a follow-up message with filters grouped by facet — each
    facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
@@ -1033,7 +1092,7 @@ function renderProductList(b,rows,headerHTML){
    Space) with an Apply button — the shopper picks, taps Apply, sees the subset. */
 function suggestFilters(q,baseRows){
   const rows=baseRows&&baseRows.length?baseRows:lastResults;
-  if(!rows||rows.length<2)return;
+  if(!rows||rows.length<2)return false;
   const ql=(q||"").toLowerCase();const facets=[];
   const addF=(key,label,vals)=>{const u=vals.filter(v=>!ql.includes(v.toLowerCase()));if(u.length>=2)facets.push({key,label,vals:u.slice(0,8)})};
   if(MAP.finish)addF("finish","Finish",uniqueClean(rows,MAP.finish,ql));
@@ -1041,7 +1100,7 @@ function suggestFilters(q,baseRows){
   if(MAP.size)addF("size","Size",uniqueClean(rows,MAP.size,ql));
   const spaces=SPACE_DEFS.filter(([,k])=>rows.slice(0,500).some(r=>rowText(r).includes(k))).map(([l])=>l).filter(s=>!ql.includes(s.toLowerCase()));
   if(spaces.length>=2)facets.push({key:"space",label:"Space",vals:spaces.slice(0,8)});
-  if(!facets.length)return;
+  if(!facets.length)return false;
   const b=bubble("bot");
   b.innerHTML='<p class="lead-text" style="margin:0 0 10px">Refine what you see — pick any options and tap <b>Apply</b>.</p>';
   const sel={};facets.forEach(f=>sel[f.key]=new Set());
@@ -1070,11 +1129,13 @@ function suggestFilters(q,baseRows){
     const nb=bubble("bot");
     renderProductList(nb,out,`Showing <b>${out.length}</b> tile${out.length!==1?"s":""} · ${esc(chosen)}`);
     note.textContent="Change your picks and Apply again.";   // panel stays live — re-apply anytime
+    if(out.length)refinePrompt(q,out);   // filtered results shown → offer to refine again or finish
     setTimeout(()=>{try{nb.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},50);
   };
   const clear=document.createElement("button");clear.className="chip";clear.textContent="Clear";
   clear.onclick=()=>{facets.forEach(f=>sel[f.key].clear());b.querySelectorAll(".chip.sel").forEach(c=>c.classList.remove("sel"));note.textContent=""};
   bar.appendChild(apply);bar.appendChild(clear);bar.appendChild(note);b.appendChild(bar);
+  return true;
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -1528,6 +1589,5 @@ function initApp(){
 }
 initApp();
 </script>
-
 </body>
 </html>
