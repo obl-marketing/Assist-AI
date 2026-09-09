@@ -877,7 +877,7 @@ function leadTail(b){
 /* No catalogue match → turn it into a lead: reassure + capture a callback. */
 function notFoundLead(b,q){
   const lead=document.createElement("p");lead.className="lead-text";
-  lead.innerHTML=`Couldn’t find “<b>${esc(q)}</b>” just yet 😔 — leave your details and a tile expert will help.`;
+  lead.innerHTML=`Hey — looks like I can’t find that just yet 🙂 Drop your details below and our tile experts will help you further in your tile-shopping journey.`;
   b.appendChild(lead);
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const db=docBlock(q);if(db)b.appendChild(db);
@@ -1156,17 +1156,10 @@ function seoBlock(q){
   el.innerHTML='<p style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink);font-weight:700;margin:0 0 4px">Related pages</p>'+hits.slice(0,2).map(e=>`<a href="${esc(e.url)}" target="_blank" rel="noopener" style="display:block;color:var(--ink);font-size:13px;font-weight:600;text-decoration:none;padding:3px 0">→ ${esc(e.keyword.replace(/\b\w/g,c=>c.toUpperCase()))}</a>`).join("");
   return el;
 }
-/* Surface a relevant snippet from any uploaded document (e.g. a PDF). */
-function docBlock(q){
-  if(!DOCS.length)return null;
-  const words=parseQuery(q).words;if(!words.length)return null;
-  const hits=DOCS.map(d=>{const t=d.t.toLowerCase();return{d,score:words.reduce((a,w)=>a+(t.includes(w)?1:0),0)}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,2);
-  if(!hits.length)return null;
-  const el=document.createElement("div");el.style.cssText="margin:12px 0 2px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)";
-  el.innerHTML='<p style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 6px">📄 From your documents</p>'+
-    hits.map(h=>{let t=h.d.t;if(t.length>260)t=t.slice(0,260).replace(/\s+\S*$/,"")+"…";return`<p style="font-size:12.5px;color:var(--ink);margin:0 0 6px;line-height:1.5">${esc(t)}<span style="display:block;color:var(--muted);font-size:11px;margin-top:2px">— ${esc(h.d.src||"document")}</span></p>`}).join("");
-  return el;
-}
+/* Uploaded documents (e.g. the conversational playbook) shape the assistant's
+   tone via the AI layer, but their raw snippets are NEVER surfaced in chat —
+   this always returns null so no "From your documents" block is shown. */
+function docBlock(q){return null;}
 
 function isPincodeMsg(q){if(/^\s*\d{6}\s*$/.test(q))return q.trim();if(/(pin\s*code|pincode|pin|deliver)/i.test(q)){const m=q.match(/\b(\d{6})\b/);if(m)return m[1]}return null}
 async function runSearch(q){
