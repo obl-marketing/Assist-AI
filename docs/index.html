@@ -92,9 +92,10 @@
   .bubble{max-width:90%;padding:10px 13px;border-radius:14px;font-size:14.5px}
   .msg.user .bubble{background:var(--brand);color:var(--on-brand);border-bottom-right-radius:4px}
   .msg.bot .bubble{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px;box-shadow:var(--shadow)}
-  /* Product grids get the full width so cards stay one standard size everywhere */
+  /* Product grids: full width, no white bubble — cards float on the page, centered */
   .msg.bot:has(.grid){width:100%}
-  .msg.bot .bubble:has(.grid){max-width:100%;width:100%;padding:10px 8px}
+  .msg.bot .bubble:has(.grid){max-width:100%;width:100%;padding:2px 0;background:transparent;border:none;box-shadow:none}
+  .msg.bot .bubble:has(.grid) .lead-text,.msg.bot .bubble:has(.grid) .understood{text-align:center;justify-content:center}
   .bot .lead-text{margin:0}
   .ask-pin{margin:8px 0 0;padding:10px 12px;background:var(--gold-soft);border:1px solid var(--accent);border-radius:10px;font-size:13.5px;font-weight:600;color:var(--ink)}
   .understood{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
@@ -103,7 +104,8 @@
   .refine{font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 2px}
 
   .grid{display:grid;grid-template-columns:1fr;gap:18px;margin:10px auto 2px;max-width:560px;padding:0 2px}
-  .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both}
+  .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+  .pcard:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(0,13,54,.17);border-color:var(--accent)}
   .pcard .img{position:relative;display:block;aspect-ratio:4/3;width:100%;overflow:hidden;background:var(--surface-2)}
   .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease}
   .pcard .img img.on{opacity:1}
@@ -152,8 +154,9 @@
   .applybtn{background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 20px;font:700 13px "Hanken Grotesk";cursor:pointer}
   .applybtn:disabled{opacity:.7;cursor:default}
   /* Header contact CTAs (brand gold + green) */
-  .cta{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:#fff;border:none;cursor:pointer;text-decoration:none;flex:0 0 auto;transition:transform .1s,filter .12s}
-  .cta:hover{filter:brightness(1.1)} .cta:active{transform:scale(.9)}
+  .cta{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:#fff;border:none;cursor:pointer;text-decoration:none;flex:0 0 auto;box-shadow:0 0 0 4px rgba(0,141,54,.12),0 2px 8px rgba(0,141,54,.28);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+  .cta:hover{filter:brightness(1.08);transform:translateY(-1px) scale(1.07);box-shadow:0 0 0 5px rgba(0,141,54,.20),0 7px 18px rgba(0,141,54,.45)}
+  .cta:active{transform:scale(.92)}
   .cta svg{width:18px;height:18px}
   /* Brand hover everywhere: green fill, white text */
   .icon-btn:hover,.seg button:hover:not(.active),.chip:hover,.show-more:hover,.pcard .enq:hover,.applybtn:hover,.pcard .view:hover,.lead .go:hover,.startform .go:hover,.cta:hover,.deliver .chg:hover,.skipbtn:hover{background:var(--good)!important;color:#fff!important;border-color:var(--good)!important}
