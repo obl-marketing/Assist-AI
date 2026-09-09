@@ -853,12 +853,9 @@ function listCategories(b){
 /* Didn't understand the request → ask a clarifying question with examples. */
 function clarifyReply(b){
   const p=document.createElement("p");p.className="lead-text";
-  p.innerHTML="I didn’t quite understand that 🙂 Could you be a little clearer about what you’re looking for — a <b>room</b>, <b>size</b>, <b>colour</b>, <b>finish</b> or <b>budget</b>? For example:";
+  p.innerHTML="I didn’t quite understand that 🙂 Tell me the <b>room</b> or the <b>problem</b> you want solved — or tap one of these:";
   b.appendChild(p);
-  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
-  const ch=document.createElement("div");ch.className="chips";
-  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
-  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
+  exampleChips(b);
 }
 function conversationalReply(b,kind){
   const msg={
@@ -870,10 +867,7 @@ function conversationalReply(b,kind){
   }[kind]||"Could you be a little more specific? Try one of these:";
   b.innerHTML='<p class="lead-text">'+msg+'</p>';
   if(kind==="bye")return;
-  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
-  const ch=document.createElement("div");ch.className="chips";
-  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
-  b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
+  exampleChips(b);
 }
 /* A dismissible "Skip ✕" on a lead box (top-right); on skip it steps aside. */
 function addLeadSkip(box){
@@ -931,10 +925,17 @@ function notFoundLead(b,q){
   });
   addLeadSkip(box);leadTail(b);
 }
+/* Problem → solution prompts: the shopper taps the pain point, we search the fix. */
+const PROBLEM_IDEAS=[
+  {t:"Slippery bathroom? → anti-skid tiles",q:"anti skid anti slip tiles for bathroom"},
+  {t:"Stains in the kitchen? → glossy, easy-clean tiles",q:"glossy easy clean kitchen tiles"},
+  {t:"Kids’ room? → playful pink & bright tiles",q:"pink bright tiles for kids bedroom"},
+  {t:"Floors that scratch? → tough vitrified tiles",q:"scratch resistant vitrified floor tiles"},
+  {t:"Small space? → large tiles that open it up",q:"large format tiles for small rooms"}
+];
 function exampleChips(b){
-  const ex=["I’m looking for modern floor tile designs","I need anti-skid tiles for my bathroom","Show me premium marble tiles for my home"];
   const ch=document.createElement("div");ch.className="chips";
-  ex.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>search(q);ch.appendChild(c)});
+  PROBLEM_IDEAS.forEach(o=>{const c=document.createElement("button");c.className="chip";c.textContent=o.t;c.onclick=()=>search(o.q);ch.appendChild(c)});
   b.appendChild(ch);feed.scrollTop=feed.scrollHeight;
 }
 function respond(q,ai){
@@ -1024,9 +1025,20 @@ function refinePrompt(q,rows){
   const yes=document.createElement("button");yes.className="chip";yes.textContent="Yes, refine";
   const no=document.createElement("button");no.className="chip";no.textContent="No, I’m good";
   ch.appendChild(yes);ch.appendChild(no);b.appendChild(ch);
-  const lock=picked=>{[yes,no].forEach(x=>{x.disabled=true});picked.classList.add("sel");ch.style.pointerEvents="none";ch.style.opacity=".7"};
-  yes.onclick=()=>{lock(yes);const ok=suggestFilters(q,rows&&rows.length?rows:lastResults);if(!ok)gladLead("These are already quite specific 🙂");};
-  no.onclick=()=>{lock(no);gladLead();};
+  // Volatile choice: the shopper can flip between Yes and No anytime — picking
+  // "No" then "Yes" still opens the filters; the guard just avoids stacking dupes.
+  const src=()=>rows&&rows.length?rows:lastResults;
+  let chosen=null;
+  const pick=which=>{
+    if(chosen===which)return;
+    chosen=which;
+    yes.classList.toggle("sel",which==="yes");
+    no.classList.toggle("sel",which==="no");
+    if(which==="yes"){const ok=suggestFilters(q,src());if(!ok)gladLead("These are already quite specific 🙂");}
+    else gladLead();
+  };
+  yes.onclick=()=>pick("yes");
+  no.onclick=()=>pick("no");
   feed.scrollTop=feed.scrollHeight;
 }
 /* "No, I'm good" → thank the shopper and invite their details for expert help. */
@@ -1048,7 +1060,7 @@ function gladLead(intro){
         <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(contact.mobile)}</b> to help you further.</p>`;
       feed.scrollTop=feed.scrollHeight;
     });
-    addLeadSkip(box);return;
+    addLeadSkip(box);ideaTail(b);return;
   }
   box.innerHTML=`<h5><span class="star">✦</span> Share your details</h5>
     <p class="s2">Leave your name &amp; mobile and our tile experts will help you choose and order — no charge.</p>
@@ -1070,7 +1082,13 @@ function gladLead(intro){
       <p class="s2" style="opacity:.9">Our tile expert will call you on <b>${esc(mob)}</b> to help you further.</p>`;
     feed.scrollTop=feed.scrollHeight;
   });
-  addLeadSkip(box);
+  addLeadSkip(box);ideaTail(b);
+}
+/* A gentle "or explore one of these" line + problem→solution chips. */
+function ideaTail(b){
+  const p=document.createElement("p");p.className="refine";p.style.margin="12px 0 6px";
+  p.textContent="Or explore a common need — tap one and I’ll show tiles that solve it:";
+  b.appendChild(p);exampleChips(b);
 }
 /* After results, a follow-up message with filters grouped by facet — each
    facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
