@@ -1497,10 +1497,18 @@ input.onkeydown=e=>{if(e.key==="Enter")fireSend()};
 
 function setTab(which){
   if(which==="train"&&!trainUnlocked){promptTrainUnlock();return}   // staff-only
-  const tt=document.getElementById("tabTrain");if(tt)tt.classList.toggle("active",which==="train");
   document.getElementById("chatView").classList.toggle("active",which==="chat");
   document.getElementById("trainView").classList.toggle("active",which==="train");
+  syncTrainBtn();
   if(which==="chat")input.focus();
+}
+// The gear (settings) shows ONLY inside the Training view — never on the general
+// chat. Staff enter Training via the #train / #admin URL and exit via the gear.
+function syncTrainBtn(){
+  if(!tabTrainBtn)return;
+  const inTrain=document.getElementById("trainView").classList.contains("active");
+  tabTrainBtn.hidden=!(trainUnlocked&&inTrain);
+  tabTrainBtn.classList.toggle("active",inTrain);
 }
 // Single staff toggle: gear flips between Chat and Training.
 document.getElementById("tabTrain").onclick=()=>setTab(document.getElementById("trainView").classList.contains("active")?"chat":"train");
@@ -1514,7 +1522,7 @@ const TRAIN_HASH="9cb7acf6c24083320f092a44f26abcb4927a5f74e8f74ed1518eab23ddb1bc
 const tabTrainBtn=document.getElementById("tabTrain");
 let trainUnlocked=false;
 try{trainUnlocked=localStorage.getItem("tara_train_ok")==="1"}catch(e){}
-function applyTrainVisibility(){if(tabTrainBtn)tabTrainBtn.hidden=!trainUnlocked}
+function applyTrainVisibility(){syncTrainBtn()}
 async function sha256hex(s){
   try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
   catch(e){return""}
