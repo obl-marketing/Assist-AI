@@ -56,6 +56,7 @@
   .icon-btn{width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px}
   .icon-btn:hover{color:var(--gold-ink);border-color:var(--accent)}
   .icon-btn:active{transform:scale(.94)}
+  .icon-btn svg{width:17px;height:17px}
   /* Keep the header on one tidy line on phones */
   @media(max-width:560px){
     .topbar{gap:8px;padding:10px 12px}
@@ -107,8 +108,10 @@
   .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
   .pcard:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(0,13,54,.17);border-color:var(--accent)}
   .pcard .img{position:relative;display:block;aspect-ratio:4/3;width:100%;overflow:hidden;background:var(--surface-2)}
-  .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease}
+  .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease,transform .4s ease}
   .pcard .img img.on{opacity:1}
+  .pcard .img:hover img.on{transform:scale(1.08)}
+  .pcard .img:active img.on{transform:scale(1.03)}
   /* Loading: a calm shimmer, not a fake tile */
   .pcard .img.loading::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,var(--surface-2) 30%,var(--surface) 50%,var(--surface-2) 70%);background-size:200% 100%;animation:tara-shimmer 1.15s ease-in-out infinite}
   /* No / failed image: neutral placeholder, clearly not a product photo */
@@ -121,7 +124,7 @@
   .tdots i:nth-child(2){animation-delay:.15s}
   .tdots i:nth-child(3){animation-delay:.3s}
   @keyframes tara-bounce{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
-  .pcard .wish{position:absolute;top:12px;left:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:19px;color:#9aa;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
+  .pcard .wish{position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);cursor:pointer;display:grid;place-items:center;font-size:17px;color:var(--muted);box-shadow:0 2px 8px rgba(0,13,54,.14);z-index:3;transition:transform .1s}
   .pcard .wish:active{transform:scale(.85)}
   .pcard .wish.on{color:var(--accent);background:var(--brand)}
   .pcard .badge{position:absolute;left:12px;bottom:12px;z-index:3;background:rgba(0,13,54,.85);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px}
@@ -135,8 +138,8 @@
   .pcard .pprice{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.01em;line-height:1}
   .pcard .pprice small{font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.02em}
   .pcard .psize{font-size:12.5px;font-weight:500;color:var(--muted)}
-  .pcard .view{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);border:none;cursor:pointer;display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--brand);text-decoration:none;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:3;transition:transform .1s}
-  .pcard .view:hover{color:var(--gold-ink)} .pcard .view:active{transform:scale(.85)}
+  .pcard .view{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);cursor:pointer;display:grid;place-items:center;font-size:17px;font-weight:700;color:var(--muted);text-decoration:none;box-shadow:0 2px 8px rgba(0,13,54,.14);z-index:3;transition:transform .1s}
+  .pcard .view:active{transform:scale(.85)}
   .pcard .acts{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:11px}
   .pcard .acts button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--muted);font:600 10.5px "Hanken Grotesk";letter-spacing:.01em;padding:2px;transition:color .15s}
   .pcard .acts button:hover{color:var(--gold-ink)}
@@ -155,11 +158,11 @@
   .applybtn:disabled{opacity:.7;cursor:default}
   /* Header contact CTAs (brand gold + green) */
   .cta{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:#fff;border:none;cursor:pointer;text-decoration:none;flex:0 0 auto;box-shadow:0 0 0 4px rgba(0,141,54,.12),0 2px 8px rgba(0,141,54,.28);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
-  .cta:hover{filter:brightness(1.08);transform:translateY(-1px) scale(1.07);box-shadow:0 0 0 5px rgba(0,141,54,.20),0 7px 18px rgba(0,141,54,.45)}
-  .cta:active{transform:scale(.92)}
+  .cta:hover{background:#fff;color:var(--good);transform:translateY(-1px) scale(1.07);box-shadow:0 0 0 2px var(--good),0 7px 18px rgba(0,141,54,.40)}
+  .cta:active{background:#fff;color:var(--good);transform:scale(.94);box-shadow:0 0 0 2px var(--good)}
   .cta svg{width:18px;height:18px}
   /* Brand hover everywhere: green fill, white text */
-  .icon-btn:hover,.seg button:hover:not(.active),.chip:hover,.show-more:hover,.pcard .enq:hover,.applybtn:hover,.pcard .view:hover,.lead .go:hover,.startform .go:hover,.cta:hover,.deliver .chg:hover,.skipbtn:hover{background:var(--good)!important;color:#fff!important;border-color:var(--good)!important}
+  .icon-btn:hover,.seg button:hover:not(.active),.chip:hover,.show-more:hover,.pcard .enq:hover,.applybtn:hover,.pcard .view:hover,.lead .go:hover,.startform .go:hover,.deliver .chg:hover,.skipbtn:hover{background:var(--good)!important;color:#fff!important;border-color:var(--good)!important}
   .icon-btn:hover svg path{fill:#fff}
   .pcard .wish:hover{background:var(--good);color:#fff}
 
@@ -266,8 +269,8 @@
       <div class="brand-sub">Tile Shopping Assistant</div>
     </div>
     <span class="spacer"></span>
-    <a class="cta" id="callBtn" title="Call us" aria-label="Call us" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.1-2.1a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.4a1 1 0 0 1 1 1 11 11 0 0 0 .56 3.5 1 1 0 0 1-.25 1Z"/></svg></a>
-    <button class="cta" id="liveBtn" title="Customer support" aria-label="Customer support"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2.5" y="12.5" width="4" height="6" rx="2"/><rect x="17.5" y="12.5" width="4" height="6" rx="2"/><path d="M20 18.5a3.5 3.5 0 0 1-3.5 3.5H13"/></svg></button>
+    <a class="icon-btn" id="callBtn" title="Call us" aria-label="Call us" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.1-2.1a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.4a1 1 0 0 1 1 1 11 11 0 0 0 .56 3.5 1 1 0 0 1-.25 1Z"/></svg></a>
+    <button class="icon-btn" id="liveBtn" title="Customer support" aria-label="Customer support"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2.5" y="12.5" width="4" height="6" rx="2"/><rect x="17.5" y="12.5" width="4" height="6" rx="2"/><path d="M20 18.5a3.5 3.5 0 0 1-3.5 3.5H13"/></svg></button>
     <div class="seg" id="tabs" hidden>
       <button id="tabChat" class="active">Chat</button>
       <button id="tabTrain">Train</button>
@@ -701,7 +704,12 @@ function addUser(t){bubble("user").textContent=t}
 function slugify(s){return String(s).toLowerCase().trim().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
 function normURL(u){u=String(u||"").trim().replace(/^https?:\/\/server\.orientbell\.com/i,"https://www.orientbell.com");return u.replace(/\.html?(?=$|[?#])/i,"")}
 function productURL(row,name){if(MAP.url&&row[MAP.url])return normURL(row[MAP.url]);return name?("https://www.orientbell.com/"+slugify(name)):"https://www.orientbell.com"}
-function imageURL(row){return MAP.image?row[MAP.image]:""}
+// Upgrade a Magento/Orientbell image URL to the original full-resolution file.
+// Resized product images live under .../catalog/product/cache/<hash>/[<WxH>/]a/b/name.jpg;
+// the original is the same path without the "cache/<...>/" segment. No-op on URLs
+// that already point at the original (or non-Magento hosts).
+function hiRes(u){u=String(u||"").trim();if(!u)return "";return u.replace(/(\/catalog\/product\/)cache\/[^?#]*?\/((?:[^/]{1,2}\/[^/]{1,2}\/)?[^/?#]+\.(?:jpe?g|png|webp|avif))(?=$|[?#])/i,"$1$2")}
+function imageURL(row){return MAP.image?hiRes(row[MAP.image]):""}
 
 function wl(){return store.get(LS.wish,[])}
 function wlToggle(id){const a=wl();const i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);store.set(LS.wish,a);return i<0}
@@ -1520,5 +1528,6 @@ function initApp(){
 }
 initApp();
 </script>
+
 </body>
 </html>
