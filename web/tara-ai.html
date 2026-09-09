@@ -44,7 +44,7 @@
   body{background-color:var(--ground);color:var(--ink);font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;line-height:1.5;overflow:hidden}
   .app{max-width:var(--maxw);margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--ground);box-shadow:0 0 40px rgba(0,13,54,.08)}
 
-  .topbar{display:flex;align-items:center;gap:12px;padding:14px 16px}
+  .topbar{display:flex;align-items:center;gap:10px;padding:13px 16px;position:relative;z-index:5;background:var(--ground);box-shadow:0 6px 18px -8px rgba(0,13,54,.22)}
   .logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:0 0 auto}
   .brand-name{font-weight:700;font-size:15px;line-height:1.1}
   .brand-name b{color:var(--gold-ink)}
@@ -56,8 +56,6 @@
   .icon-btn{width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px}
   .icon-btn:hover{color:var(--gold-ink);border-color:var(--accent)}
   .icon-btn:active{transform:scale(.94)}
-  .icon-btn.contact{border-color:var(--accent);color:var(--gold-ink);text-decoration:none}
-  #liveBtn{background:var(--gold-soft)}
   /* Keep the header on one tidy line on phones */
   @media(max-width:560px){
     .topbar{gap:8px;padding:10px 12px}
@@ -81,12 +79,12 @@
   .view{display:none;flex:1;flex-direction:column;min-height:0}
   .view.active{display:flex}
 
-  .deliver{display:flex;align-items:center;gap:8px;margin:0 16px 6px;padding:8px 12px;background:var(--good-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px;min-width:0}
+  .deliver{display:flex;align-items:center;gap:8px;margin:8px 16px 0;padding:0;background:transparent;border:none;font-size:12px;color:var(--muted);min-width:0}
   .deliver b{color:var(--ink)}
   .deliver .dtxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .deliver .chg{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:600 11.5px "Hanken Grotesk";padding:4px 9px;cursor:pointer}
-  .deliver .chg:hover{border-color:var(--accent);color:var(--gold-ink)}
-  @media(max-width:440px){.deliver{margin:0 12px 6px;padding:7px 10px;font-size:11.5px;gap:6px}.deliver .chg{padding:3px 8px;font-size:11px}}
+  .deliver .chg{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:999px;color:var(--muted);font:600 11px "Hanken Grotesk";padding:3px 10px;cursor:pointer}
+  @media(max-width:440px){.deliver{margin:8px 12px 0;font-size:11.5px;gap:6px}.deliver .chg{padding:3px 8px;font-size:11px}}
+  @media(max-width:560px){.cta .lbl{display:none}.cta{padding:9px 11px}}
 
   .feed{flex:1;overflow-y:auto;padding:8px 16px 16px;background:var(--ground)}
   .msg{margin-bottom:14px;display:flex;animation:rise .24s ease both}
@@ -95,6 +93,9 @@
   .bubble{max-width:90%;padding:10px 13px;border-radius:14px;font-size:14.5px}
   .msg.user .bubble{background:var(--brand);color:var(--on-brand);border-bottom-right-radius:4px}
   .msg.bot .bubble{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px;box-shadow:var(--shadow)}
+  /* Product grids get the full width so cards stay one standard size everywhere */
+  .msg.bot:has(.grid){width:100%}
+  .msg.bot .bubble:has(.grid){max-width:100%;width:100%;padding:10px 8px}
   .bot .lead-text{margin:0}
   .ask-pin{margin:8px 0 0;padding:10px 12px;background:var(--gold-soft);border:1px solid var(--accent);border-radius:10px;font-size:13.5px;font-weight:600;color:var(--ink)}
   .understood{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
@@ -102,7 +103,7 @@
   .understood .f.loc{background:var(--good-soft);color:var(--good)}
   .refine{font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 2px}
 
-  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin:10px auto 2px;max-width:440px;padding:0 4px}
+  .grid{display:grid;grid-template-columns:1fr;gap:18px;margin:10px auto 2px;max-width:560px;padding:0 2px}
   .pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);animation:rise .28s ease both}
   .pcard .img{position:relative;display:block;aspect-ratio:4/3;width:100%;overflow:hidden;background:var(--surface-2)}
   .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .35s ease}
@@ -150,7 +151,15 @@
   .chip.sel{background:var(--brand);border-color:var(--brand);color:var(--on-brand);font-weight:600}
   .chip.sel::before{content:"✓ ";font-weight:700}
   .applybtn{background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 20px;font:700 13px "Hanken Grotesk";cursor:pointer}
-  .applybtn:hover{background:var(--accent-2)} .applybtn:disabled{opacity:.7;cursor:default}
+  .applybtn:disabled{opacity:.7;cursor:default}
+  /* Header contact CTAs (brand gold + green) */
+  .cta{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:999px;padding:8px 14px;font:700 13px "Hanken Grotesk";cursor:pointer;text-decoration:none;line-height:1;transition:background .12s,color .12s}
+  .cta-call{background:var(--good);color:#fff}
+  .cta-support{background:var(--accent);color:var(--on-accent)}
+  /* Brand hover everywhere: green fill, white text */
+  .icon-btn:hover,.seg button:hover:not(.active),.chip:hover,.show-more:hover,.pcard .enq:hover,.applybtn:hover,.pcard .view:hover,.lead .go:hover,.startform .go:hover,.cta:hover,.deliver .chg:hover,.skipbtn:hover{background:var(--good)!important;color:#fff!important;border-color:var(--good)!important}
+  .icon-btn:hover svg path{fill:#fff}
+  .pcard .wish:hover{background:var(--good);color:#fff}
 
   .lead{background:var(--brand);color:var(--on-brand);border-radius:12px;padding:13px;margin:8px 0}
   .lead h5{margin:0 0 3px;font-size:14px;display:flex;gap:6px;align-items:center}
@@ -255,12 +264,12 @@
       <div class="brand-sub">Tile Shopping Assistant</div>
     </div>
     <span class="spacer"></span>
-    <div class="seg">
+    <a class="cta cta-call" id="callBtn" title="Call us" aria-label="Call us" hidden>📞<span class="lbl">Call</span></a>
+    <button class="cta cta-support" id="liveBtn" title="Customer support" aria-label="Customer support">🎧<span class="lbl">Support</span></button>
+    <div class="seg" id="tabs" hidden>
       <button id="tabChat" class="active">Chat</button>
       <button id="tabTrain">Train</button>
     </div>
-    <a class="icon-btn contact" id="callBtn" title="Call us" aria-label="Call us" hidden>📞</a>
-    <button class="icon-btn contact" id="liveBtn" title="Chat with a tile expert" aria-label="Live chat">🎧</button>
     <button class="icon-btn" id="resetBtn" title="Reset chat" aria-label="Reset chat">↺</button>
     <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
@@ -985,8 +994,14 @@ function renderResults(b,q){
   const sb=seoBlock(q);if(sb)b.appendChild(sb);
   const db=docBlock(q);if(db)b.appendChild(db);
   suggestFilters(q,results);
+  enquireNudge();
   // Keep the focus on the products just found (not the filter panel below).
   setTimeout(()=>{try{b.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){feed.scrollTop=b.offsetTop-8}},50);
+}
+/* Warm nudge to enquire on a specific tile after results + filters. */
+function enquireNudge(){
+  const b=bubble("bot");
+  b.innerHTML='<p class="lead-text">Hope you love these! 💛 <b>Liked a tile?</b> Tap <b>Enquire Now</b> on it and share a couple of details — our team will help you get it.</p>';
 }
 /* After results, a follow-up message with filters grouped by facet — each
    facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
@@ -1042,13 +1057,14 @@ function suggestFilters(q,baseRows){
       return true;
     });
     const chosen=facets.flatMap(f=>[...sel[f.key]].map(v=>v.replace(/\b\w/g,c=>c.toUpperCase()))).join(", ");
-    apply.disabled=true;apply.textContent="Applied ✓";
     const nb=bubble("bot");
     renderProductList(nb,out,`Showing <b>${out.length}</b> tile${out.length!==1?"s":""} · ${esc(chosen)}`);
-    if(out.length>1)suggestFilters(q,out);
+    note.textContent="Change your picks and Apply again.";   // panel stays live — re-apply anytime
     setTimeout(()=>{try{nb.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},50);
   };
-  bar.appendChild(apply);bar.appendChild(note);b.appendChild(bar);
+  const clear=document.createElement("button");clear.className="chip";clear.textContent="Clear";
+  clear.onclick=()=>{facets.forEach(f=>sel[f.key].clear());b.querySelectorAll(".chip.sel").forEach(c=>c.classList.remove("sel"));note.textContent=""};
+  bar.appendChild(apply);bar.appendChild(clear);bar.appendChild(note);b.appendChild(bar);
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -1401,7 +1417,7 @@ const TRAIN_HASH="9cb7acf6c24083320f092a44f26abcb4927a5f74e8f74ed1518eab23ddb1bc
 const tabTrainBtn=document.getElementById("tabTrain");
 let trainUnlocked=false;
 try{trainUnlocked=localStorage.getItem("tara_train_ok")==="1"}catch(e){}
-function applyTrainVisibility(){tabTrainBtn.style.display=trainUnlocked?"":"none"}
+function applyTrainVisibility(){const tabs=document.getElementById("tabs");if(tabs)tabs.hidden=!trainUnlocked;tabTrainBtn.style.display=trainUnlocked?"":"none"}
 async function sha256hex(s){
   try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
   catch(e){return""}
