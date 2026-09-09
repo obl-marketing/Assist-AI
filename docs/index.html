@@ -41,16 +41,8 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{background-color:var(--ground);color:var(--ink);font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;line-height:1.5;overflow:hidden;
-    /* Decorative encaustic tile pattern shown in the gutters outside the chat
-       column (embedded, so it works everywhere). */
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23faf6ef'/%3E%3Cpath d='M100 0V200M0 100H200' stroke='%23e6dccb' stroke-width='2'/%3E%3Cg transform='translate(50,50)'%3E%3Ccircle r='17' fill='none' stroke='%23274a7d' stroke-width='3'/%3E%3Cg fill='%23b5623a'%3E%3Ccircle cx='0' cy='-25' r='7'/%3E%3Ccircle cx='0' cy='25' r='7'/%3E%3Ccircle cx='-25' cy='0' r='7'/%3E%3Ccircle cx='25' cy='0' r='7'/%3E%3C/g%3E%3Ccircle r='5' fill='%23274a7d'/%3E%3C/g%3E%3Cg transform='translate(150,50)'%3E%3Crect x='-22' y='-22' width='44' height='44' transform='rotate(45)' fill='none' stroke='%239a9ea6' stroke-width='3'/%3E%3Cg fill='%23274a7d'%3E%3Crect x='-4' y='-27' width='8' height='15'/%3E%3Crect x='-4' y='12' width='8' height='15'/%3E%3Crect x='-27' y='-4' width='15' height='8'/%3E%3Crect x='12' y='-4' width='15' height='8'/%3E%3C/g%3E%3Ccircle r='6' fill='%23b5623a'/%3E%3C/g%3E%3Cg transform='translate(50,150)'%3E%3Cg fill='%23274a7d'%3E%3Ccircle cx='0' cy='-20' r='6'/%3E%3Ccircle cx='14' cy='-14' r='6'/%3E%3Ccircle cx='20' cy='0' r='6'/%3E%3Ccircle cx='14' cy='14' r='6'/%3E%3Ccircle cx='0' cy='20' r='6'/%3E%3Ccircle cx='-14' cy='14' r='6'/%3E%3Ccircle cx='-20' cy='0' r='6'/%3E%3Ccircle cx='-14' cy='-14' r='6'/%3E%3C/g%3E%3Ccircle r='9' fill='none' stroke='%23b5623a' stroke-width='3'/%3E%3Ccircle r='3' fill='%23b5623a'/%3E%3C/g%3E%3Cg transform='translate(150,150)'%3E%3Cg fill='%23b5623a'%3E%3Cellipse rx='6' ry='17'/%3E%3Cellipse rx='17' ry='6'/%3E%3C/g%3E%3Cg fill='%23274a7d' transform='rotate(45)'%3E%3Cellipse rx='5' ry='13'/%3E%3Cellipse rx='13' ry='5'/%3E%3C/g%3E%3Ccircle r='4' fill='%23faf6ef' stroke='%23274a7d' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");background-size:200px 200px;background-position:center;background-attachment:fixed}
-  .app{max-width:var(--maxw);margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,13,54,.10);
-    /* Encaustic tile pattern behind the whole chat column, softened by a wash
-       so the messages stay readable; the header shares it so there is no seam. */
-    background-color:var(--ground);
-    background-image:linear-gradient(var(--wash),var(--wash)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23faf6ef'/%3E%3Cpath d='M100 0V200M0 100H200' stroke='%23e6dccb' stroke-width='2'/%3E%3Cg transform='translate(50,50)'%3E%3Ccircle r='17' fill='none' stroke='%23274a7d' stroke-width='3'/%3E%3Cg fill='%23b5623a'%3E%3Ccircle cx='0' cy='-25' r='7'/%3E%3Ccircle cx='0' cy='25' r='7'/%3E%3Ccircle cx='-25' cy='0' r='7'/%3E%3Ccircle cx='25' cy='0' r='7'/%3E%3C/g%3E%3Ccircle r='5' fill='%23274a7d'/%3E%3C/g%3E%3Cg transform='translate(150,50)'%3E%3Crect x='-22' y='-22' width='44' height='44' transform='rotate(45)' fill='none' stroke='%239a9ea6' stroke-width='3'/%3E%3Cg fill='%23274a7d'%3E%3Crect x='-4' y='-27' width='8' height='15'/%3E%3Crect x='-4' y='12' width='8' height='15'/%3E%3Crect x='-27' y='-4' width='15' height='8'/%3E%3Crect x='12' y='-4' width='15' height='8'/%3E%3C/g%3E%3Ccircle r='6' fill='%23b5623a'/%3E%3C/g%3E%3Cg transform='translate(50,150)'%3E%3Cg fill='%23274a7d'%3E%3Ccircle cx='0' cy='-20' r='6'/%3E%3Ccircle cx='14' cy='-14' r='6'/%3E%3Ccircle cx='20' cy='0' r='6'/%3E%3Ccircle cx='14' cy='14' r='6'/%3E%3Ccircle cx='0' cy='20' r='6'/%3E%3Ccircle cx='-14' cy='14' r='6'/%3E%3Ccircle cx='-20' cy='0' r='6'/%3E%3Ccircle cx='-14' cy='-14' r='6'/%3E%3C/g%3E%3Ccircle r='9' fill='none' stroke='%23b5623a' stroke-width='3'/%3E%3Ccircle r='3' fill='%23b5623a'/%3E%3C/g%3E%3Cg transform='translate(150,150)'%3E%3Cg fill='%23b5623a'%3E%3Cellipse rx='6' ry='17'/%3E%3Cellipse rx='17' ry='6'/%3E%3C/g%3E%3Cg fill='%23274a7d' transform='rotate(45)'%3E%3Cellipse rx='5' ry='13'/%3E%3Cellipse rx='13' ry='5'/%3E%3C/g%3E%3Ccircle r='4' fill='%23faf6ef' stroke='%23274a7d' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");
-    background-size:auto,200px 200px;background-position:center;background-repeat:repeat}
+  body{background-color:var(--ground);color:var(--ink);font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;line-height:1.5;overflow:hidden}
+  .app{max-width:var(--maxw);margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--ground);box-shadow:0 0 40px rgba(0,13,54,.08)}
 
   .topbar{display:flex;align-items:center;gap:12px;padding:14px 16px}
   .logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:0 0 auto}
@@ -64,6 +56,8 @@
   .icon-btn{width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px}
   .icon-btn:hover{color:var(--gold-ink);border-color:var(--accent)}
   .icon-btn:active{transform:scale(.94)}
+  .icon-btn.contact{border-color:var(--accent);color:var(--gold-ink);text-decoration:none}
+  #liveBtn{background:var(--gold-soft)}
   /* Keep the header on one tidy line on phones */
   @media(max-width:560px){
     .topbar{gap:8px;padding:10px 12px}
@@ -87,12 +81,14 @@
   .view{display:none;flex:1;flex-direction:column;min-height:0}
   .view.active{display:flex}
 
-  .deliver{display:flex;align-items:center;gap:8px;margin:0 16px 6px;padding:8px 12px;background:var(--good-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px}
+  .deliver{display:flex;align-items:center;gap:8px;margin:0 16px 6px;padding:8px 12px;background:var(--good-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px;min-width:0}
   .deliver b{color:var(--ink)}
-  .deliver .chg{margin-left:auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:600 11.5px "Hanken Grotesk";padding:4px 9px;cursor:pointer}
+  .deliver .dtxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .deliver .chg{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:600 11.5px "Hanken Grotesk";padding:4px 9px;cursor:pointer}
   .deliver .chg:hover{border-color:var(--accent);color:var(--gold-ink)}
+  @media(max-width:440px){.deliver{margin:0 12px 6px;padding:7px 10px;font-size:11.5px;gap:6px}.deliver .chg{padding:3px 8px;font-size:11px}}
 
-  .feed{flex:1;overflow-y:auto;padding:8px 16px 16px;background:transparent}
+  .feed{flex:1;overflow-y:auto;padding:8px 16px 16px;background:var(--ground)}
   .msg{margin-bottom:14px;display:flex;animation:rise .24s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
   .msg.user{justify-content:flex-end}
@@ -151,6 +147,10 @@
   .chips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 2px}
   .chip{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 12.5px "Hanken Grotesk";cursor:pointer}
   .chip:hover{border-color:var(--accent);background:var(--gold-soft)}
+  .chip.sel{background:var(--brand);border-color:var(--brand);color:var(--on-brand);font-weight:600}
+  .chip.sel::before{content:"✓ ";font-weight:700}
+  .applybtn{background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:9px 20px;font:700 13px "Hanken Grotesk";cursor:pointer}
+  .applybtn:hover{background:var(--accent-2)} .applybtn:disabled{opacity:.7;cursor:default}
 
   .lead{background:var(--brand);color:var(--on-brand);border-radius:12px;padding:13px;margin:8px 0}
   .lead h5{margin:0 0 3px;font-size:14px;display:flex;gap:6px;align-items:center}
@@ -259,6 +259,8 @@
       <button id="tabChat" class="active">Chat</button>
       <button id="tabTrain">Train</button>
     </div>
+    <a class="icon-btn contact" id="callBtn" title="Call us" aria-label="Call us" hidden>📞</a>
+    <button class="icon-btn contact" id="liveBtn" title="Chat with a tile expert" aria-label="Live chat">🎧</button>
     <button class="icon-btn" id="resetBtn" title="Reset chat" aria-label="Reset chat">↺</button>
     <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </div>
@@ -326,6 +328,8 @@ function supa(){if(!sb&&supaOn())sb=window.supabase.createClient(SUPABASE_URL,SU
    it "" to keep the fast, free, offline mode. */
 const AI_ENDPOINT="https://tavrnbkzfiiathgqnpuj.functions.supabase.co/tara-chat";
 function aiOn(){return !!AI_ENDPOINT}
+/* Support contact — set your team's number to enable the Call button. */
+const SUPPORT_TEL="";   // e.g. "+919876543210"
 let chatHistory=[];   // recent {role, content} turns sent to Claude for context
 function aiFmt(t){return esc(String(t||"")).replace(/\n/g,"<br>")}
 /* Pull the brand "conversation playbook" from uploaded docs so Claude follows
@@ -422,6 +426,7 @@ async function cloudLoadSources(){
 /* Engine state — rebuilt from SOURCES */
 let ROWS=[],HEADERS=[],MAP={},SEO=[],SITE=[],PIN_OVERRIDE={},DELIV_CSV={},PLANTS={},OFFERS={},DOCS=[];
 let engineReady=false,bootDone=null;   // catalogue-load readiness (see initApp)
+let lastResults=[],lastQuery="";        // most recent result set, for Apply-filter refine
 let DOMAIN=new Set();   // tile vocabulary, used to tell a search apart from chit-chat
 let PRICE_STATS=null;   // {n, med} — lets the bot understand budget vs premium from the catalogue
 
@@ -796,7 +801,7 @@ function refineChips(results,q){
 const PIN_ASK="To show deliverable products to your area, please enter the pincode.";
 function updateDeliverBar(){
   if(session.pincode){deliverBar.hidden=false;
-    deliverBar.innerHTML=`📍 Delivering to <b>${session.state?esc(session.state):"—"}</b> · PIN ${esc(session.pincode)} <button class="chg" id="chgPin">Change</button>`;
+    deliverBar.innerHTML=`<span class="dtxt">📍 Delivering to <b>${session.state?esc(session.state):"—"}</b> · PIN ${esc(session.pincode)}</span><button class="chg" id="chgPin">Change</button>`;
     document.getElementById("chgPin").onclick=()=>{session={pincode:null,state:null};store.set(LS.session,session);deliverBar.hidden=true;const b=bubble("bot");b.innerHTML=`<p class="ask-pin">📍 Please share your new 6-digit pincode.</p>`};
   }else deliverBar.hidden=true;
 }
@@ -951,6 +956,7 @@ function respond(q,ai){
 function renderResults(b,q){
   const p=parseQuery(q);
   let results=filterRows(p);
+  lastResults=results;lastQuery=q;
   const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
   if(canDeliver)results.sort((a,b)=>(isDeliverable(a,session.state)?0:1)-(isDeliverable(b,session.state)?0:1));
   const ndCount=canDeliver?results.filter(r=>!isDeliverable(r,session.state)).length:0;
@@ -986,30 +992,63 @@ function renderResults(b,q){
    facet (Colour, Finish, Size, Space…) shown with its own tappable values. */
 const SPACE_DEFS=[["Living Room","living room"],["Bedroom","bedroom"],["Bathroom","bathroom"],["Kitchen","kitchen"],["Balcony","balcony"],["Dining Room","dining"],["Outdoor","outdoor"],["Parking","parking"],["Terrace","terrace"]];
 function cleanFacet(v){return String(v).split(/[,/|;&]| and | with |\+/i)[0].replace(/\s*(finish|tiles?)\s*$/i,"").trim()}
-function suggestFilters(q,results){
-  if(!results.length)return;
-  const ql=q.toLowerCase();const groups=[];
-  const add=(label,vals)=>{const u=[];(vals||[]).forEach(v=>{const c=cleanFacet(v);if(c&&c.length<=22&&!u.some(x=>x.toLowerCase()===c.toLowerCase())&&!ql.includes(c.toLowerCase()))u.push(c)});if(u.length>=2)groups.push({label,vals:u.slice(0,6)})};
-  if(MAP.color)add("Colour",distinctVals(results,MAP.color));
-  if(MAP.finish)add("Finish",distinctVals(results,MAP.finish));
-  if(MAP.size)add("Size",distinctVals(results,MAP.size));
-  if(MAP.material)add("Material",distinctVals(results,MAP.material));
-  const spaces=SPACE_DEFS.filter(([,k])=>results.slice(0,500).some(r=>rowText(r).includes(k))).map(([l])=>l).filter(s=>!ql.includes(s.toLowerCase()));
-  if(spaces.length>=2)groups.push({label:"Space",vals:spaces.slice(0,6)});
-  const price=[];if(!/budget|cheap|affordable/.test(ql))price.push("Budget-friendly");if(!/premium|luxury/.test(ql))price.push("Premium");
-  if(price.length===2)groups.push({label:"Budget",vals:price});
-  if(!groups.length)return;
+function uniqueClean(rows,col,ql){const out=[],seen=new Set();rows.forEach(r=>{const c=cleanFacet(r[col]||"");const k=c.toLowerCase();if(c&&c.length<=22&&!seen.has(k)&&!(ql||"").includes(k)){seen.add(k);out.push(c)}});return out}
+/* Render a given set of product rows as a results message (grid + show-more). */
+function renderProductList(b,rows,headerHTML){
+  const canDeliver=session.pincode&&session.state&&MAP.plant&&Object.keys(PLANTS).length;
+  if(canDeliver)rows=rows.slice().sort((a,b)=>(isDeliverable(a,session.state)?0:1)-(isDeliverable(b,session.state)?0:1));
+  const lead=document.createElement("p");lead.className="lead-text";lead.innerHTML=headerHTML;b.appendChild(lead);
+  if(!rows.length){const p=document.createElement("p");p.className="lead-text";p.style.color="var(--muted)";p.style.margin="4px 0 0";p.textContent="No tiles match those filters — try removing one.";b.appendChild(p);return}
+  const grid=document.createElement("div");grid.className="grid";b.appendChild(grid);
+  let shownN=0;const PAGE=5;const moreBtn=document.createElement("button");moreBtn.className="show-more";
+  function more(){rows.slice(shownN,shownN+PAGE).forEach(r=>grid.appendChild(card(r,canDeliver?isDeliverable(r,session.state):undefined)));shownN=Math.min(shownN+PAGE,rows.length);if(shownN<rows.length){moreBtn.textContent=`Show more (${rows.length-shownN} left)`;if(!moreBtn.parentElement)b.appendChild(moreBtn)}else if(moreBtn.parentElement)moreBtn.remove();feed.scrollTop=feed.scrollHeight}
+  moreBtn.addEventListener("click",more);more();
+}
+/* After results: a seamless multi-select refine panel (Finish, Colour, Size,
+   Space) with an Apply button — the shopper picks, taps Apply, sees the subset. */
+function suggestFilters(q,baseRows){
+  const rows=baseRows&&baseRows.length?baseRows:lastResults;
+  if(!rows||rows.length<2)return;
+  const ql=(q||"").toLowerCase();const facets=[];
+  const addF=(key,label,vals)=>{const u=vals.filter(v=>!ql.includes(v.toLowerCase()));if(u.length>=2)facets.push({key,label,vals:u.slice(0,8)})};
+  if(MAP.finish)addF("finish","Finish",uniqueClean(rows,MAP.finish,ql));
+  if(MAP.color)addF("color","Colour",uniqueClean(rows,MAP.color,ql));
+  if(MAP.size)addF("size","Size",uniqueClean(rows,MAP.size,ql));
+  const spaces=SPACE_DEFS.filter(([,k])=>rows.slice(0,500).some(r=>rowText(r).includes(k))).map(([l])=>l).filter(s=>!ql.includes(s.toLowerCase()));
+  if(spaces.length>=2)facets.push({key:"space",label:"Space",vals:spaces.slice(0,8)});
+  if(!facets.length)return;
   const b=bubble("bot");
-  b.innerHTML='<p class="lead-text" style="margin:0 0 8px">Want something more specific? Tap a filter below and I’ll fine-tune these 👇</p>';
-  groups.slice(0,5).forEach(g=>{
-    const wrap=document.createElement("div");wrap.style.cssText="margin:0 0 10px";
-    const lab=document.createElement("div");lab.textContent=g.label;
-    lab.style.cssText="font:700 10.5px 'Hanken Grotesk',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 5px";
+  b.innerHTML='<p class="lead-text" style="margin:0 0 10px">Refine what you see — pick any options and tap <b>Apply</b>.</p>';
+  const sel={};facets.forEach(f=>sel[f.key]=new Set());
+  facets.forEach(f=>{
+    const wrap=document.createElement("div");wrap.style.cssText="margin:0 0 11px";
+    const lab=document.createElement("div");lab.textContent=f.label;
+    lab.style.cssText="font:700 10.5px 'Hanken Grotesk',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px";
     const ch=document.createElement("div");ch.className="chips";
-    g.vals.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>search(q+" "+v);ch.appendChild(c)});
+    f.vals.forEach(v=>{const c=document.createElement("button");c.className="chip";c.textContent=v;c.onclick=()=>{const k=v.toLowerCase();if(sel[f.key].has(k)){sel[f.key].delete(k);c.classList.remove("sel")}else{sel[f.key].add(k);c.classList.add("sel")}};ch.appendChild(c)});
     wrap.appendChild(lab);wrap.appendChild(ch);b.appendChild(wrap);
   });
-  // Don't auto-scroll here — the results above stay in focus.
+  const bar=document.createElement("div");bar.style.cssText="display:flex;gap:8px;align-items:center;margin-top:4px";
+  const apply=document.createElement("button");apply.className="applybtn";apply.textContent="Apply";
+  const note=document.createElement("span");note.style.cssText="font-size:12px;color:var(--muted)";
+  apply.onclick=()=>{
+    const picked=facets.reduce((n,f)=>n+sel[f.key].size,0);
+    if(!picked){note.textContent="Pick at least one option.";return}
+    const out=rows.filter(r=>{
+      for(const f of facets){const s=sel[f.key];if(!s.size)continue;
+        if(f.key==="space"){const t=rowText(r);if(![...s].some(k=>t.includes(k)))return false}
+        else{const val=cleanFacet(r[MAP[f.key]]||"").toLowerCase();if(!s.has(val))return false}
+      }
+      return true;
+    });
+    const chosen=facets.flatMap(f=>[...sel[f.key]].map(v=>v.replace(/\b\w/g,c=>c.toUpperCase()))).join(", ");
+    apply.disabled=true;apply.textContent="Applied ✓";
+    const nb=bubble("bot");
+    renderProductList(nb,out,`Showing <b>${out.length}</b> tile${out.length!==1?"s":""} · ${esc(chosen)}`);
+    if(out.length>1)suggestFilters(q,out);
+    setTimeout(()=>{try{nb.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},50);
+  };
+  bar.appendChild(apply);bar.appendChild(note);b.appendChild(bar);
 }
 function seoBlock(q){
   const s=q.toLowerCase();const seen=new Set(),hits=[];
@@ -1093,6 +1132,35 @@ function greet(){
   spaces.forEach(s=>{const c=document.createElement("button");c.className="chip";c.textContent=s;c.onclick=()=>search(s+" tiles");ch.appendChild(c)});
   b.appendChild(ch);
   feed.scrollTop=feed.scrollHeight;
+}
+/* Live chat → hand the lead to a human agent from the support team. */
+function openLiveChat(){
+  setTab("chat");
+  const b=bubble("bot");
+  if(contact&&contact.mobile){
+    recordLead({name:contact.name,mobile:contact.mobile,pincode:session.pincode,state:session.state,product:"live chat",source:"live-agent"});
+    b.innerHTML=`<p class="lead-text">🎧 Connecting you with a tile expert — a member of our team will reach you on <b>${esc(contact.mobile)}</b> shortly.</p>`;
+    feed.scrollTop=feed.scrollHeight;return;
+  }
+  b.innerHTML='<p class="lead-text">🎧 <b>Talk to a tile expert.</b> Leave your name &amp; number and our support team will connect with you.</p>';
+  const box=document.createElement("div");box.className="lead";
+  box.innerHTML=`<input class="l-name" type="text" placeholder="Full name" autocomplete="name">
+    <input class="l-mob" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel">
+    <p class="err"></p><button class="go">Connect me →</button>`;
+  b.appendChild(box);feed.scrollTop=feed.scrollHeight;
+  const nm=box.querySelector(".l-name"),mb=box.querySelector(".l-mob"),err=box.querySelector(".err");
+  [nm,mb].forEach(e=>e.addEventListener("input",()=>e.classList.remove("bad")));
+  setTimeout(()=>nm.focus(),40);
+  box.querySelector(".go").addEventListener("click",()=>{
+    const nameV=nm.value.trim();const mob=mb.value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    if(nameV.length<2){nm.classList.add("bad");err.textContent="Please enter your name.";nm.focus();return}
+    if(mob.length!==10){mb.classList.add("bad");err.textContent="Please enter a valid 10-digit mobile number.";mb.focus();return}
+    contact={name:nameV,mobile:mob};store.set(LS.contact,contact);
+    recordLead({name:nameV,mobile:mob,pincode:session.pincode,state:session.state,product:"live chat",source:"live-agent"});
+    box.className="lead done";box.innerHTML=`<div class="tick">✓</div><h5 style="justify-content:center">You’re connected, ${esc(nameV.split(" ")[0])}!</h5>
+      <p class="s2" style="opacity:.9">A tile expert from our team will reach you on <b>${esc(mob)}</b> shortly.</p>`;
+    feed.scrollTop=feed.scrollHeight;
+  });
 }
 /* Collect name + mobile + pincode when the visitor first engages. */
 function askDetails(prefillPin){
@@ -1378,12 +1446,14 @@ document.getElementById("resetBtn").onclick=()=>{
   setTab("chat");greet();
 };
 
+document.getElementById("liveBtn").onclick=openLiveChat;
+(function(){const cb=document.getElementById("callBtn");if(cb&&SUPPORT_TEL){cb.href="tel:"+SUPPORT_TEL.replace(/[^\d+]/g,"");cb.hidden=false}})();
 document.getElementById("themeBtn").onclick=()=>{
   const cur=document.documentElement.getAttribute("data-theme");
   const next=cur==="dark"?"light":cur==="light"?"dark":(matchMedia("(prefers-color-scheme: dark)").matches?"light":"dark");
   document.documentElement.setAttribute("data-theme",next);store.set(LS.theme,next);
 };
-const savedTheme=store.get(LS.theme,null);if(savedTheme)document.documentElement.setAttribute("data-theme",savedTheme);
+const savedTheme=store.get(LS.theme,null);document.documentElement.setAttribute("data-theme",savedTheme||"light");   // light by default
 
 /* Rotating placeholder hint — "Looking for …" with a cycling, typewritten tail */
 (function(){
