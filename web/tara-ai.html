@@ -231,6 +231,10 @@
 
   /* Train — simple sources */
   .train{flex:1;overflow-y:auto;padding:16px}
+  .train-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px}
+  .train-back,.train-lock{border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 12.5px "Hanken Grotesk";padding:7px 14px;border-radius:999px;cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease;-webkit-tap-highlight-color:transparent}
+  .train-back:hover{background:var(--good);color:#fff;border-color:var(--good)}
+  .train-lock:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
   .addbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);margin-bottom:16px}
   .addbox h3{margin:0 0 3px;font-size:15px}
   .addbox .hint{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
@@ -290,7 +294,6 @@
     <span class="spacer"></span>
     <a class="icon-btn" id="callBtn" title="Call us" aria-label="Call us" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.1-2.1a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.4a1 1 0 0 1 1 1 11 11 0 0 0 .56 3.5 1 1 0 0 1-.25 1Z"/></svg></a>
     <button class="icon-btn" id="liveBtn" title="Customer support" aria-label="Customer support"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2.5" y="12.5" width="4" height="6" rx="2"/><rect x="17.5" y="12.5" width="4" height="6" rx="2"/><path d="M20 18.5a3.5 3.5 0 0 1-3.5 3.5H13"/></svg></button>
-    <button class="icon-btn" id="tabTrain" title="Training" aria-label="Training" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg></button>
     <button class="icon-btn" id="resetBtn" title="Reset chat" aria-label="Reset chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.3"/><path d="M3 4v4h4"/></svg></button>
     <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" fill="currentColor" stroke="none"/></svg></button>
   </div>
@@ -308,6 +311,10 @@
   <!-- TRAIN -->
   <div class="view" id="trainView">
     <div class="train">
+      <div class="train-top">
+        <button type="button" id="trainBack" class="train-back">← Back to chat</button>
+        <button type="button" id="trainLock" class="train-lock">Lock</button>
+      </div>
       <div class="addbox">
         <h3>Add a knowledge source</h3>
         <p class="hint">Just give it a name and load your data — CSV, Excel (.xlsx), TSV, JSON or PDF. Tara reads it and figures out how to use it.</p>
@@ -1502,16 +1509,12 @@ function setTab(which){
   syncTrainBtn();
   if(which==="chat")input.focus();
 }
-// The gear (settings) shows ONLY inside the Training view — never on the general
-// chat. Staff enter Training via the #train / #admin URL and exit via the gear.
-function syncTrainBtn(){
-  if(!tabTrainBtn)return;
-  const inTrain=document.getElementById("trainView").classList.contains("active");
-  tabTrainBtn.hidden=!(trainUnlocked&&inTrain);
-  tabTrainBtn.classList.toggle("active",inTrain);
-}
-// Single staff toggle: gear flips between Chat and Training.
-document.getElementById("tabTrain").onclick=()=>setTab(document.getElementById("trainView").classList.contains("active")?"chat":"train");
+// No settings/gear icon anywhere in the header — Training is entered ONLY via a
+// private URL (see below) and left via the in-view "Back to chat" button.
+function syncTrainBtn(){}
+// In-Training controls: return to chat, or lock Training again on this device.
+document.getElementById("trainBack").onclick=()=>setTab("chat");
+document.getElementById("trainLock").onclick=()=>lockTrain();
 
 /* ---- Train tab is staff-only (passcode-gated) ------------------------------
    Regular shoppers never see it. It appears only after the passcode is entered;
@@ -1519,7 +1522,6 @@ document.getElementById("tabTrain").onclick=()=>setTab(document.getElementById("
    ask me to re-hash a new one. Note: this hides the UI from users — for true
    write-protection the Supabase RLS on `sources` should also be tightened. */
 const TRAIN_HASH="9cb7acf6c24083320f092a44f26abcb4927a5f74e8f74ed1518eab23ddb1bc23";
-const tabTrainBtn=document.getElementById("tabTrain");
 let trainUnlocked=false;
 try{trainUnlocked=localStorage.getItem("tara_train_ok")==="1"}catch(e){}
 function applyTrainVisibility(){syncTrainBtn()}
@@ -1555,9 +1557,11 @@ function promptTrainUnlock(){
   });
 }
 applyTrainVisibility();
-// Staff open the Train gate via #train or #admin in the URL (invisible to shoppers).
-if(/^#(train|admin)$/i.test(location.hash)){if(trainUnlocked)setTab("train");else promptTrainUnlock()}
-window.addEventListener("hashchange",()=>{if(/^#(train|admin)$/i.test(location.hash)&&!trainUnlocked)promptTrainUnlock()});
+// Staff open the Training window via a private URL — append #access (or #train /
+// #admin) to the page URL. Invisible to shoppers; there is no on-screen link.
+const TRAIN_HASH_RE=/^#(access|train|admin)$/i;
+if(TRAIN_HASH_RE.test(location.hash)){if(trainUnlocked)setTab("train");else promptTrainUnlock()}
+window.addEventListener("hashchange",()=>{if(TRAIN_HASH_RE.test(location.hash)&&!trainUnlocked)promptTrainUnlock()});
 
 /* Reset chat — clears the conversation and re-asks for details (keeps trained data) */
 document.getElementById("resetBtn").onclick=()=>{
