@@ -722,6 +722,7 @@ const deliverBar=document.getElementById("deliverBar");
 let pendingQuery=null;
 let detailsAsked=false;   // whether we've prompted for name/mobile/pincode this session
 let unclearTries=0;       // consecutive not-understood messages (clarify once, then capture)
+let noHit=0;              // consecutive searches with no match — clarify first, then capture
 
 function bubble(role){const w=document.createElement("div");w.className="msg "+role;const b=document.createElement("div");b.className="bubble";w.appendChild(b);feed.appendChild(w);feed.scrollTop=feed.scrollHeight;return b}
 function addUser(t){bubble("user").textContent=t}
@@ -901,6 +902,64 @@ function leadTail(b){
   const p=document.createElement("p");p.className="refine";p.textContent="Or explore a few popular picks:";b.appendChild(p);
   exampleChips(b);
 }
+/* Progressively loosen a query to find the CLOSEST tiles when the strict search
+   returns nothing — drop price, then size, then match any single keyword. */
+function closestMatches(p){
+  const ladder=[
+    {mut:{...p,priceMin:null,priceMax:null,sort:null},drop:"the price range"},
+    {mut:{...p,sizes:[]},drop:"the exact size"},
+    {mut:{...p,sizes:[],priceMin:null,priceMax:null,sort:null},drop:"size & price"}
+  ];
+  for(const t of ladder){
+    if(t.mut.sizes.length===p.sizes.length&&t.mut.priceMin===p.priceMin&&t.mut.priceMax===p.priceMax)continue; // no real change
+    const rows=filterRows(t.mut);
+    if(rows.length)return{rows,drop:t.drop};
+  }
+  // Last resort: match any single keyword on its own.
+  for(const w of (p.words||[])){
+    const rows=filterRows({sizes:[],priceMin:null,priceMax:null,sort:null,words:[w],bandPrice:false});
+    if(rows.length)return{rows,drop:null,kw:w};
+  }
+  return{rows:[],drop:null};
+}
+/* Before giving up: clarify first, and show the closest tiles if we have any. */
+function clarifyOrClose(b,q,p){
+  const close=closestMatches(p);
+  if(close.rows.length){
+    noHit=0;lastResults=close.rows;lastQuery=q;
+    const how=close.kw?` matching “${esc(close.kw)}”`:(close.drop?` (I loosened ${esc(close.drop)})`:"");
+    renderProductList(b,close.rows,`I couldn’t find an exact match for “<b>${esc(q)}</b>”, but here are the closest tiles${how} — tell me if you meant something else:`);
+    refinePrompt(q,close.rows);
+    setTimeout(()=>{try{b.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},50);
+    return;
+  }
+  // Nothing even close — ask a clarifying question once, then capture as a lead.
+  noHit++;
+  if(noHit>=2){noHit=0;notFoundLead(b,q);return;}
+  clarifyMatches(b,q);
+}
+/* A warm clarifying question with real options drawn from the catalogue. */
+function clarifyMatches(b,q){
+  const opts=[],seen=new Set();
+  const add=(label,query)=>{const k=(label||"").toLowerCase();if(label&&!seen.has(k)){seen.add(k);opts.push({label,q:query})}};
+  const sample=ROWS.slice(0,800);
+  if(MAP.color)uniqueClean(sample,MAP.color,"").slice(0,2).forEach(v=>add(v+" tiles",v+" tiles"));
+  if(MAP.finish)uniqueClean(sample,MAP.finish,"").slice(0,2).forEach(v=>add(v+" tiles",v+" finish tiles"));
+  SPACE_DEFS.filter(([,k])=>sample.some(r=>rowText(r).includes(k))).slice(0,2).forEach(([l])=>add(l+" tiles","tiles for "+l.toLowerCase()));
+  if(opts.length<3)PROBLEM_IDEAS.forEach(o=>add(o.t,o.q));
+  const p=document.createElement("p");p.className="lead-text";
+  p.innerHTML=`I want to get this right 🙂 I couldn’t spot “<b>${esc(q)}</b>” — could you tell me a bit more? Pick one, or rephrase in a few words:`;
+  b.appendChild(p);
+  const ch=document.createElement("div");ch.className="chips";
+  opts.slice(0,6).forEach(o=>{const c=document.createElement("button");c.className="chip";c.textContent=o.label;c.onclick=()=>search(o.q);ch.appendChild(c)});
+  b.appendChild(ch);
+  const more=document.createElement("p");more.className="refine";more.style.margin="10px 0 4px";more.textContent="Can’t see what you need?";
+  b.appendChild(more);
+  const ch2=document.createElement("div");ch2.className="chips";
+  const talk=document.createElement("button");talk.className="chip";talk.textContent="Talk to a tile expert";talk.onclick=()=>gladLead();ch2.appendChild(talk);
+  b.appendChild(ch2);
+  feed.scrollTop=feed.scrollHeight;
+}
 /* No catalogue match → turn it into a lead: reassure + capture a callback. */
 function notFoundLead(b,q){
   const lead=document.createElement("p");lead.className="lead-text";
@@ -1013,7 +1072,8 @@ function renderResults(b,q){
   const fs=understoodChips(p);
   if(fs.length){const u=document.createElement("div");u.className="understood";u.innerHTML=fs.map(f=>`<span class="f${f.loc?' loc':''}">${esc(f.t)}</span>`).join("");b.appendChild(u)}
 
-  if(!results.length){notFoundLead(b,q);return;}
+  if(!results.length){clarifyOrClose(b,q,p);return;}
+  noHit=0;   // got matches — reset the no-result streak
   const lead=document.createElement("p");lead.className="lead-text";
   lead.innerHTML=`Found <b>${results.length}</b> tile${results.length>1?"s":""}${canDeliver?` <span style="color:var(--good);font-weight:600">${delCount} deliverable to ${esc(session.state)}</span>`+(ndCount?` <span style="color:var(--muted)">· ${ndCount} on enquiry</span>`:""):""}.`;
   b.appendChild(lead);
