@@ -1,6 +1,19 @@
 # Orientbell Tiles — RAG AI Assistant
 
-> **New: `web/tara-ai.html` — "Tara AI", the self-contained client.**
+> **New: `web/freed.html` — "FREED", a self-contained consultation-marketplace prototype.**
+> A single HTML file (no build, no backend, no dependencies beyond Google
+> Fonts) implementing the full **FREED** product — *"Talk to someone who
+> knows."* A calm, mobile-first, human-expertise marketplace. It ships a
+> complete clickable flow: splash → onboarding → login → home → problem
+> search → AI matching → expert profile → instant consultation (chat/audio/
+> video with a live cost timer) **or** scheduled booking → payment →
+> confirmation → active call → post-session review → AI summary → bookings,
+> plus Explore, Messages, Notifications, Trust & Safety, Expert Mode &
+> 10-step expert onboarding, and an Admin verification panel. 50+ mock
+> experts across 14 categories, every button wired (no dead ends). Open it
+> by double-clicking the file, or serve it from any origin.
+
+> **`web/tara-ai.html` — "Tara AI", the self-contained client.**
 > A single HTML file (no build, no backend) that runs the whole assistant in
 > the browser: a **Chat** tab that filters an uploaded catalogue by the
 > attributes in a query (size, colour, room, finish, price) and shows
